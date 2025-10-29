@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     checkAuth();
 
-    // ✅ Listen for logout events từ interceptor
+    // Listen for logout events từ interceptor
     const handleLogout = () => {
       setUser(null);
       setIsAuthenticated(false);
@@ -31,32 +31,30 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuth = async () => {
-
     try {
-
-      const token = authService.getToken();
-      // ✅ Kiểm tra có access token không
+      const token = authService.getToken(); 
       if (!token) {
-        const response = await authService.getCurrentUser();
-        const userData = response.data?.user || response.user || response;
-        if (userData){
-          setUser(userData);
-          setIsAuthenticated(true);
-        }
+        setUser(null);
+        setIsAuthenticated(false);
         return;
       }
-
-      // ✅ Thử lấy thông tin user (sẽ auto refresh nếu access token expired)
+      // Thử lấy thông tin user (sẽ auto refresh nếu access token expired)
       const response = await authService.getCurrentUser();
       const userData = response.data?.user || response.user || response;
 
-      setUser(userData);
-      setIsAuthenticated(true);
+      if (userData && (userData.userName || userData.email)) {
+        setUser(userData);
+        setIsAuthenticated(true);
+      } else {
+        // Nếu không có user data, clear token
+        authService.removeToken();
+        setUser(null);
+        setIsAuthenticated(false);
+      }
 
     } catch (error) {
-      console.error('❌ CheckAuth error:', error);
-
-      // ✅ Clear access token nếu không thể authenticate
+      console.error('CheckAuth error:', error);
+      // Clear access token nếu không thể authenticate
       authService.removeToken();
       setUser(null);
       setIsAuthenticated(false);
@@ -71,9 +69,7 @@ export const AuthProvider = ({ children }) => {
 
       const response = await authService.login(credentials);
 
-    
-
-      // ✅ Check if token was saved
+      // Check if token was saved
       const savedToken = authService.getToken();
 
       const userData = response.data?.user || response.user || response;

@@ -14,8 +14,22 @@ export const AUTH_ENDPOINTS = {
 export const USER_ENDPOINTS = {
   UPLOAD_AVATAR: '/users/profile/avatar/upload',    
   UPDATE_PROFILE: '/users/profile/update', 
-  CHECK_USERNAME: '/users/username/check'
+  CHECK_USERNAME: '/users/username/check',
+
+  ADMIN_USER_LIST: '/users/admin/list',
+  ADMIN_DELETE_USER: (userId) => `/users/admin/${userId}`,
+  ADMIN_UPDATE_USER_STATUS: (userName) => `/users/admin/${userName}/status`,
+  ADMIN_USER_DETAIL: (userName) => `/users/admin/${userName}/detail`,
+  ADMIN_TIMELINE: '/users/admin/timeline',
 }
+export const USER_STATS_ENDPOINTS = {
+  OVERVIEW: '/users/admin/stats/overview',
+  ROLES: '/users/admin/stats/roles',
+  RECENT: '/users/admin/stats/recent',
+  MONTHLY: '/users/admin/stats/monthly',
+  DAILY: '/users/admin/stats/daily',
+  CUSTOM: '/users/admin/stats/custom',
+};
 export const PROBLEM_ENDPOINTS = {
   GET_PROLBEM_ID: (id) => `/problems/${id}`
 }
@@ -33,7 +47,12 @@ export const POST_ENDPOINTS = {
   SHARE: (id) => `/posts/${id}/actions/share`,
   VIEW: (id) => `/posts/${id}/actions/view`,
   BOOKMARK: (id) => `/posts/${id}/bookmark`,
-  UNBOOKMARK: (id) => `/posts/${id}/unbookmark`
+  UNBOOKMARK: (id) => `/posts/${id}/unbookmark`,
+  ADMIN_GET_POSTS: '/posts/admin/posts',
+  ADMIN_GET_POST_DETAIL: (id) => `/posts/admin/posts/${id}`,
+  ADMIN_DELETE_POST: (id) => `/posts/admin/posts/${id}`,
+  ADMIN_UPDATE_POST_STATUS: (id) => `/posts/admin/posts/${id}/status`,
+  ADMIN_POST_STATS: '/posts/admin/posts/stats',
 };
 
 export const COMMENT_ENDPOINTS = {

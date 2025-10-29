@@ -38,7 +38,7 @@ const UserMenu = () => {
       return user.avatar;
     }
     
-    // ✅ SỬA: Dùng userName thay vì username
+    //  SỬA: Dùng userName thay vì username
     const name = user?.userName ||      // ← API field chính xác
                  user?.fullName ||      // ← Fallback từ API
                  user?.email ||         // ← Fallback cuối
@@ -48,7 +48,7 @@ const UserMenu = () => {
   };
 
   const getDisplayName = () => {
-    // ✅ SỬA: Dùng userName thay vì username
+    // SỬA: Dùng userName thay vì username
     const displayName = user?.userName ||           // ← API field chính xác
                        user?.fullName ||           // ← Fallback từ API
                        user?.email?.split('@')[0] ||  // ← Fallback cuối

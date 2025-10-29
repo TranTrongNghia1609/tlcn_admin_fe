@@ -5,77 +5,107 @@ export const userService ={
     try{
       const form = new FormData();
       form.append('avatar', file, file.name);
-
       const response = await API.post(USER_ENDPOINTS.UPLOAD_AVATAR, form, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-      });
-      
-      console.log('✅ Avatar updated:', response.data);
+      });     
+      console.log('Avatar updated:', response.data);
       return response.data;
     }catch (error) {
-      console.error('❌ Update avatar error:', error);
+      console.error(' Update avatar error:', error);
       throw error.response?.data || { message: 'Failed to update avatar' };
   }
   },
    getProfile: async () => {
-    try {
-      console.log('🔍 Getting user profile...');
-      
+    try {      
       const response = await API.get(USER_ENDPOINTS.GET_PROFILE);
-      
-      console.log('✅ Profile fetched:', response.data);
-      return response.data;
-      
+      return response.data;      
     } catch (error) {
-      console.error('❌ Get profile error:', error);
       throw error.response?.data || { message: 'Failed to fetch profile' };
     }
   },
 
-  // ✅ Update user profile
+  //  Update user profile
   updateProfile: async (profileData) => {
-    try {
-      console.log('📤 Updating profile:', profileData);
-      
-      const response = await API.put(USER_ENDPOINTS.UPDATE_PROFILE, profileData);
-      
-      console.log('✅ Profile updated:', response.data);
+    try {      
+      const response = await API.put(USER_ENDPOINTS.UPDATE_PROFILE, profileData);      
       return response.data;
       
     } catch (error) {
-      console.error('❌ Update profile error:', error);
       throw error.response?.data || { message: 'Failed to update profile' };
     }
   },
 
-  // ✅ Get user statistics (optional)
-  getUserStats: async () => {
-    try {
-      console.log('📊 Getting user stats...');
-      
-      const response = await API.get(USER_ENDPOINTS.GET_USER_STATS);
-      
-      console.log('✅ User stats fetched:', response.data);
-      return response.data;
-      
-    } catch (error) {
-      console.error('❌ Get stats error:', error);
-      throw error.response?.data || { message: 'Failed to fetch stats' };
-    }
-  },
   checkUserName: async(username) => {
     try{
       const response = await API.get(USER_ENDPOINTS.CHECK_USERNAME, {
         params: {username: username}
       });
-      console.log('✅ Username check fetched:', response.data);
       return response.data;
     }
     catch (error){
-      console.error('❌ Get username check error:', error);
       throw error.response?.data || { message: 'Failed to check' };
+    }
+  },
+  // Lấy thống kê tổng quan người dùng 
+  getAdminStats: async () => {
+    try {
+      const response = await API.get(USER_ENDPOINTS.ADMIN_STATS);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching admin stats:', error);
+      throw error.response?.data || { message: 'Failed to fetch admin stats' };
+    }
+  },
+
+  // Lấy dữ liệu biểu đồ timeline 
+  getUserRegistrationTimeline: async (period = 'week') => {
+    try {
+      const response = await API.get(USER_ENDPOINTS.ADMIN_TIMELINE, {
+        params: { period }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching timeline data:', error);
+      throw error.response?.data || { message: 'Failed to fetch timeline data' };
+    }
+  },
+
+  // Lấy danh sách người dùng với phân trang 
+  getAdminUsersList: async (params = {}) => {
+    try {
+      const response = await API.get(USER_ENDPOINTS.ADMIN_USER_LIST, { params });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching users list:', error);
+      throw error.response?.data || { message: 'Failed to fetch users list' };
+    }
+  },
+
+
+  // Cập nhật trạng thái người dùng 
+  updateUserStatus: async (userName, active) => {
+    try {
+      const response = await API.patch(
+        USER_ENDPOINTS.ADMIN_UPDATE_USER_STATUS(userName), 
+        { active }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      throw error.response?.data || { message: 'Failed to update user status' };
+    }
+  },
+
+  // Lấy chi tiết người dùng 
+  getAdminUserDetail: async (userName) => {
+    try {
+      const response = await API.get(USER_ENDPOINTS.ADMIN_USER_DETAIL(userName));
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user detail:', error);
+      throw error.response?.data || { message: 'Failed to fetch user detail' };
     }
   }
 }

@@ -3,7 +3,7 @@ import Modal from '../common/Modal';
 import { useAuthModal } from '../../context/AuthModalContext';
 import { useAuth } from '../../context/AuthContext';
 const LoginModal = () => {
-  const { isLoginOpen, closeModals, switchToRegister } = useAuthModal();
+  const { isLoginOpen, closeModals, openRegister } = useAuthModal();
   const [username, setUsername] = useState('');
   const { login } = useAuth();
   const [password, setPassword] = useState('');
@@ -152,7 +152,7 @@ const LoginModal = () => {
               </button>
               <button
                 type="button"
-                onClick={switchToRegister}
+                onClick={openRegister}
                 className="text-pink-600 hover:underline"
                 disabled={loading}
               >

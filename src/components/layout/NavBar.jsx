@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuthModal } from '../../context/AuthModalContext';
+import { useAuthModal } from '../../context/AuthModalContext.jsx';
 import UserMenu from './UserMenu';
 import { useAuth } from '../../context/AuthContext';
 

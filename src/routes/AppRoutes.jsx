@@ -1,21 +1,149 @@
 import React from "react";
-import {Routes, Route} from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from '../pages/Home';
-import Dashboard from '../pages/DashBoard';
+import Dashboard from '../pages/Dashboard';
 import NotFound from '../pages/NotFound';
-import Profile from '../pages/Profile'
+import Profile from '../pages/Profile';
 import ProblemDetail from "../components/problems/ProblemDetail";
 import WorkSpace from "@/components/workspace/WorkSpace";
+import LandingPage from "@/pages/LandingPage";
+import UserManagement from "@/pages/admin/UserManagement";
+import AdminLayout from "@/components/layout/AdminLayout";
+import NavBar from "@/components/layout/NavBar"; // Import NavBar ở đây
+import { useAuth } from "@/context/AuthContext";
+import PostManagement from "@/pages/admin/PostManagement";
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+};
+
+const AdminRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (user.role !== 'admin') {
+    return <Navigate to="/home" replace />;
+  }
+
+  return <AdminLayout>{children}</AdminLayout>;
+};
+
 const AppRoutes = () => {
-  return(
+  return (
     <Routes>
-      <Route path="/" element = {<Home/>} />
-      <Route path="/onboarding" element = {<Home isShowOnboarding={true}/>} />
-      <Route path="/dashboard" element = {<Dashboard/>}/>
+      {/* Public Routes */}
+      <Route path="/" element={<LandingPage />} />
+
+      {/* Protected Routes - CÓ NavBar */}
+      <Route
+        path="/home"
+        element={
+          <ProtectedRoute>
+            <>
+              <NavBar />
+              <main className="pt-16 lg:pt-20">
+                <Home />
+              </main>
+            </>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/onboarding"
+        element={
+          <ProtectedRoute>
+            <>
+              <NavBar />
+              <main className="pt-16 lg:pt-20">
+                <Home isShowOnboarding={true} />
+              </main>
+            </>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <>
+              <NavBar />
+              <main className="pt-16 lg:pt-20">
+                <Profile />
+              </main>
+            </>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/problem/:id"
+        element={
+          <ProtectedRoute>
+            <>
+              <NavBar />
+              <main className="pt-16 lg:pt-20">
+                <WorkSpace />
+              </main>
+            </>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <AdminRoute>
+            <Dashboard />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/users"
+        element={
+          <AdminRoute>
+            <UserManagement />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/posts"
+        element={
+          <AdminRoute>
+            <PostManagement />
+          </AdminRoute>
+        }
+      />
+
       <Route path="*" element={<NotFound />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/problem/:id" element={<WorkSpace/>}/>
     </Routes>
-  )
-}
+  );
+};
+
 export default AppRoutes;

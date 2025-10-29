@@ -30,7 +30,6 @@ export const toggleLikePost = async (postId) => {
     const response = await api.post(POST_ENDPOINTS.TOGGLE_LIKE(postId));
     return response.data;
   } catch (error) {
-    console.error('❌ postService API error:', error);
     throw error;
   }
 };
@@ -141,4 +140,64 @@ export const getPostsByAuthor = async (authorId, params = {}) => {
     params: { author: authorId, ...params } 
   });
   return response.data;
+
+};
+// ADMIN ENDPOINTS 
+
+// Get posts list (Admin)
+export const getAdminPostsList = async (params = {}) => {
+  try {
+    const response = await api.get(POST_ENDPOINTS.ADMIN_GET_POSTS, { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching admin posts list:', error);
+    throw error.response?.data || { message: 'Failed to fetch posts' };
+  }
+};
+
+// Get post detail (Admin)
+export const getAdminPostDetail = async (postId) => {
+  try {
+    const response = await api.get(POST_ENDPOINTS.ADMIN_GET_POST_DETAIL(postId));
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching admin post detail:', error);
+    throw error.response?.data || { message: 'Failed to fetch post detail' };
+  }
+};
+
+// Delete post (Admin)
+export const deleteAdminPost = async (postId) => {
+  try {
+    const response = await api.delete(POST_ENDPOINTS.ADMIN_DELETE_POST(postId));
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    throw error.response?.data || { message: 'Failed to delete post' };
+  }
+};
+
+// Update post status (Admin)
+export const updatePostStatus = async (postId, status) => {
+  try {
+    const response = await api.patch(
+      POST_ENDPOINTS.ADMIN_UPDATE_POST_STATUS(postId),
+      { status }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error updating post status:', error);
+    throw error.response?.data || { message: 'Failed to update post status' };
+  }
+};
+
+// Get post statistics (Admin)
+export const getPostStats = async () => {
+  try {
+    const response = await api.get(POST_ENDPOINTS.ADMIN_POST_STATS);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching post stats:', error);
+    throw error.response?.data || { message: 'Failed to fetch post stats' };
+  }
 };

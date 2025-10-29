@@ -32,6 +32,9 @@ const shouldRefreshToken = (token) => {
 
 const refreshTokenIfNeeded = async() => {
   const token = localStorage.getItem('access_token');
+  if(!token){
+    return null;
+  }
   if(token && shouldRefreshToken(token)){
     try{
       const refreshResponse = await axios.post(
@@ -59,7 +62,11 @@ const refreshTokenIfNeeded = async() => {
 const startTokenRefreshTimer = () => {
   const checkInterval = 60*1000;
   setInterval(async () => {
-    await refreshTokenIfNeeded();
+    const token = localStorage.getItem('access_token');
+    if(token){
+      await refreshTokenIfNeeded();
+    }
+    
   }, checkInterval);
 };
 
