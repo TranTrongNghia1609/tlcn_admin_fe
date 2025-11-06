@@ -12,6 +12,7 @@ import AdminLayout from "@/components/layout/AdminLayout";
 import NavBar from "@/components/layout/NavBar"; // Import NavBar ở đây
 import { useAuth } from "@/context/AuthContext";
 import PostManagement from "@/pages/admin/PostManagement";
+import ProblemManagement from "@/pages/admin/ProblemManagement";
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
@@ -137,6 +138,14 @@ const AppRoutes = () => {
         element={
           <AdminRoute>
             <PostManagement />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/problems"
+        element={
+          <AdminRoute>
+            <ProblemManagement />
           </AdminRoute>
         }
       />

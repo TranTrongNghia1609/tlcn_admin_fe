@@ -9,6 +9,7 @@ import { userStatsService } from '../../services/userStatsService';
 import { toast } from 'sonner';
 import { Users, GraduationCap, Shield, TrendingUp, Activity } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import TablePagination from '@/components/common/TablePagination';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -458,17 +459,12 @@ const UserManagement = () => {
           />
 
           {/* Pagination */}
-          {pagination.total > 0 && (
-            <div className="mt-6">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={pagination.totalPages}
-                totalItems={pagination.total}
-                itemsPerPage={pagination.limit}
-                onPageChange={handlePageChange}
-              />
-            </div>
-          )}
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={handlePageChange}
+            maxVisiblePages={10}
+          />
         </div>
       </Card>
 

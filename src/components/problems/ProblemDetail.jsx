@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import ProblemHeader from './ProblemHeader';
 import { useParams } from 'react-router-dom';
-import { problemService } from '../../services/problemService';
+import { getProblemById } from '../../services/problemService';
 import ProblemStatement from '@/components/problems/ProblemStatement';
 import ProblemExamples from '@/components/problems/ProblemExamples';
 const ProblemDetail = () => {
@@ -11,7 +11,7 @@ const ProblemDetail = () => {
   useEffect(() => {
     async function fetchData() {
       // You can await here
-      const response = await problemService.getProblemById(id);
+      const response = await getProblemById(id);
       console.log('Problem detail: ', response.data);
       setProblem(response.data)
       setLoading(false)
