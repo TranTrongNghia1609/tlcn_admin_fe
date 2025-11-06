@@ -12,7 +12,7 @@ const SearchBar = ({ onSearch, placeholder = "Tìm kiếm người dùng..." }) 
     }, 500); // Debounce 500ms
 
     return () => clearTimeout(delayDebounceFn);
-  }, [searchValue, onSearch]);
+  }, [searchValue]);
 
   const handleClear = () => {
     setSearchValue('');
