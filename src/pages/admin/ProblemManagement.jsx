@@ -61,7 +61,17 @@ const ProblemManagement = () => {
       console.error('Error fetching stats:', error);
     }
   }, []);
-
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const response = await getProblemStats();
+        setStats(response.data);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    }
+    fetch();
+  }, []);
   useEffect(() => {
     fetchProblems(currentPage, searchTerm, filterStatus);
   }, [currentPage, searchTerm, filterStatus, fetchProblems]);
@@ -87,7 +97,6 @@ const ProblemManagement = () => {
               p._id === problemId ? { ...p, isActive: newStatus } : p
             )
           );
-          fetchStats();
         }),
       {
         loading: `Đang ${actionText} bài tập...`,
