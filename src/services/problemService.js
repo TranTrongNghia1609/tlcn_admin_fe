@@ -71,3 +71,27 @@ export const toggleProblemStatus = async (problemId) => {
     throw error;
   }
 }
+
+export const createProblem = async (problemData) => {
+  try {
+    const response = await API.post(PROBLEM_ENDPOINTS.CREATE_PROBLEM, problemData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const uploadTestCase = async (id, file) => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    const response = await API.post(PROBLEM_ENDPOINTS.UPLOAD_TESTCASE(id), formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

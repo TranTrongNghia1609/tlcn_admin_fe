@@ -35,6 +35,8 @@ export const PROBLEM_ENDPOINTS = {
   STATS: '/problems/admin/stats',
   GET_ALL_ADMIN: '/problems/admin/problems',
   TOGGLE_STATUS: (id) => `/problems/admin/toggle/${id}`,
+  CREATE_PROBLEM: '/problems/create',
+  UPLOAD_TESTCASE: (id) => `/problems/upload/testcase/${id}`,
 }
 export const POST_ENDPOINTS = {
   GET_ALL: '/posts/all',
