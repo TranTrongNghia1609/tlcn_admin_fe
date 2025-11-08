@@ -3,7 +3,7 @@
 @import "@mantine/core/styles.css"; /* Or styles.layer.css for v4 */
 
 @custom-variant dark (&:is(.dark *));
-
+@import 'primereact/resources/themes/lara-light-blue/theme.css';
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

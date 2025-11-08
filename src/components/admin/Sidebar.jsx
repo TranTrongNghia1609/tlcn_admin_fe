@@ -42,7 +42,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       title: 'Quản lý bài tập',
       icon: Code2,
       path: '/problems',
-      badge: 'Soon'
+      badge: null
     },
     {
       title: 'Bình luận',
