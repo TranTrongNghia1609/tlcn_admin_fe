@@ -14,6 +14,10 @@ import { useAuth } from "@/context/AuthContext";
 import PostManagement from "@/pages/admin/PostManagement";
 import ProblemManagement from "@/pages/admin/ProblemManagement";
 import CreateProblem from "@/pages/admin/CreateProblem";
+import ContestManagement from "@/pages/admin/ContestManagement";
+import CreateContest from "@/pages/admin/CreateContest";
+import UpdateProblem from "@/pages/admin/UpdateProblem";
+import ContestForm from "@/components/admin/contests/ContestForm";
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
@@ -159,6 +163,44 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
+
+<Route
+        path="/problems/:id"
+        element={
+          <AdminRoute>
+            <UpdateProblem />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/contests"
+        element={
+          <AdminRoute>
+            <ContestManagement />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/contest/create"
+        element={
+          <AdminRoute>
+            <ContestForm mode="create" />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/contest/:id"
+        element={
+          <AdminRoute>
+            <ContestForm mode="edit" />
+          </AdminRoute>
+        }
+      />
+
+      
 
       <Route path="*" element={<NotFound />} />
     </Routes>
