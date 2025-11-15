@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function UploadTestcases({onHandleUpload}) {
+function UploadTestcases({onHandleUpload, isUpdate, zipName}) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('');
 

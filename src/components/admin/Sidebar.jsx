@@ -10,7 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  BarChart3
+  BarChart3,
+  Trophy
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useAuth } from '@/context/AuthContext';
@@ -42,6 +43,12 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       title: 'Quản lý bài tập',
       icon: Code2,
       path: '/problems',
+      badge: null
+    },
+    {
+      title: 'Quản lý kỳ thi',
+      icon: Trophy,
+      path: '/contests',
       badge: null
     },
     {
