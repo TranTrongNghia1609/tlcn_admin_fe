@@ -81,10 +81,18 @@ const ProblemForm = ({ initialData = null, mode = 'create' }) => {
 
     setFormData((prev) => {
       const updated = { ...prev, [field]: newValue };
-      formDataRef.current = {
-        ...formDataRef.current,
-        [field]: value
-      };
+      if (mode == 'edit'){
+        formDataRef.current = {
+          ...formDataRef.current,
+          [field]: value
+        };
+      }
+      else{
+        formDataRef.current = {
+          ...prev,
+          [field]: value
+        };
+      }
       return updated;
     });
   }, []);
