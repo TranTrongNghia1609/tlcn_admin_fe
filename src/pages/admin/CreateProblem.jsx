@@ -12,6 +12,7 @@ import PreviewProblem from '@/components/admin/problems/PreviewProblem';
 import { createProblem, uploadTestCase } from '@/services/problemService';
 import UploadTestcases from '@/components/admin/problems/UploadTestcases';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
+import ProblemForm from '@/components/admin/problems/ProblemForm';
         
 const DIFFICULTY_OPTIONS = [
   { value: 'Easy', label: 'Easy', color: 'bg-green-100 text-green-700' },
@@ -269,5 +270,7 @@ const CreateProblem = () => {
     </div>
   );
 };
-
-export default CreateProblem;
+const CreateProblem1 = () => {
+  return <ProblemForm mode="create" />;
+};
+export default CreateProblem1;

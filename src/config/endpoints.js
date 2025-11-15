@@ -37,6 +37,17 @@ export const PROBLEM_ENDPOINTS = {
   TOGGLE_STATUS: (id) => `/problems/admin/toggle/${id}`,
   CREATE_PROBLEM: '/problems/create',
   UPLOAD_TESTCASE: (id) => `/problems/upload/testcase/${id}`,
+  UPDATE_PROBLEM: (id) => `/problems/${id}`,
+}
+export const CONTEST_ENDPOINTS = {
+  GET_ALL_CONTEST: '/admin/contests',
+  CREATE_CONTEST: '/admin/contests',
+  UPDATE_CONTEST: (id) => `/admin/contests/${id}`,
+  DELETE_CONTEST: (id) => `/admin/contests/${id}`,
+  ADD_PROBLEM_TO_CONTEST: (id) => `/admin/contests/${id}/problems`,
+  TOGGLE_STATUS: (id) => `/admin/contests/${id}/toggle`,
+  CODE_CHECKING: '/contests/code/check',
+  GET_BY_ID: (id) => `/contests/${id}`,
 }
 export const POST_ENDPOINTS = {
   GET_ALL: '/posts/all',

@@ -92,6 +92,7 @@ const ProblemStatementSection = ({
           <PostEditor
             value={formData.statement}
             onChange={(value) => {
+              console.log(formData.statement)
               onFormDataChange('statement', value)
             }}
             // onImageUpload={handleEditorImageUpload}
