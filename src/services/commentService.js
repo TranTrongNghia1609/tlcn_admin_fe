@@ -5,7 +5,7 @@ export const commentService = {
   // Get comments for a post
   getPostComments: async (postId, page = 1, limit = 10, options = {}) => {
     try {
-      // ✅ Build query parameters including sortBy
+      // Build query parameters including sortBy
       const params = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
