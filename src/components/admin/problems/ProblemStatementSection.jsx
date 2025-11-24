@@ -18,7 +18,13 @@ import { Switch } from '@/components/ui/switch';
 import RichTextEditor from '@/components/common/RichEditor';
 import PostEditor from '@/components/home/CreatePostComponent/PostEditor';
 
-
+import remarkMath from 'remark-math';
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 const ProblemStatementSection = ({
   formData,
   onFormDataChange,
@@ -92,6 +98,7 @@ const ProblemStatementSection = ({
           <PostEditor
             value={formData.statement}
             onChange={(value) => {
+              console.log(formData.statement)
               onFormDataChange('statement', value)
             }}
             // onImageUpload={handleEditorImageUpload}
@@ -105,6 +112,7 @@ const ProblemStatementSection = ({
             <FileText className="h-4 w-4 mr-2" />
             Mô tả Input <span className="text-red-500 ml-1">*</span>
           </Label>
+          
           <PostEditor
             value={formData.input}
             onChange={(value) => onFormDataChange('input', value)}
@@ -169,7 +177,7 @@ const ProblemStatementSection = ({
                   <div>
                     <Label className="text-xs text-gray-600 mb-1 block">Input</Label>
                     <textarea
-                      value={formData.examplesInput[index]}
+                      value={formData.examplesInput[index]?.replace(/\\n/g, '\n').replace(/\n/g, '  \n')}
                       onChange={(e) => onExampleChange(index, 'input', e.target.value)}
                       placeholder="Input example..."
                       className="w-full p-2 border rounded-md text-sm font-mono resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -179,7 +187,7 @@ const ProblemStatementSection = ({
                   <div>
                     <Label className="text-xs text-gray-600 mb-1 block">Output</Label>
                     <textarea
-                      value={formData.examplesOutput[index]}
+                      value={formData.examplesOutput[index]?.replace(/\\n/g, '\n').replace(/\n/g, '  \n')}
                       onChange={(e) => onExampleChange(index, 'output', e.target.value)}
                       placeholder="Output example..."
                       className="w-full p-2 border rounded-md text-sm font-mono resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"

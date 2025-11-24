@@ -95,3 +95,12 @@ export const uploadTestCase = async (id, file) => {
     throw error;
   }
 }
+
+export const updateProblem = async (id, problemData) => {
+  try {
+    const response = await API.put(PROBLEM_ENDPOINTS.UPDATE_PROBLEM(id), problemData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
