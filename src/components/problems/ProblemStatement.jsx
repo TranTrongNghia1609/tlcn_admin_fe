@@ -39,7 +39,7 @@ const ProblemStatement = ({statement, input, output}) => {
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeKatex]}
             >
-              {statement}
+              {statement?.replace(/\\n/g, '\n')}
                 {/* Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus accusantium at enim. Id consequuntur quia nam incidunt dolorum? Eius minus, commodi sequi magni in omnis quibusdam sed odio deleniti adipisci?
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos mollitia aspernatur, officia dolorem minima iure non illo tempora adipisci ipsa neque pariatur tempore similique possimus voluptatibus, consequuntur vero molestiae quos? */}
             </ReactMarkdown>
@@ -59,7 +59,7 @@ const ProblemStatement = ({statement, input, output}) => {
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeKatex]}
             >
-              {input}
+              {input?.replace(/\\n/g, '\n')}
                 {/* Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus accusantium at enim. Id consequuntur quia nam incidunt dolorum? Eius minus, commodi sequi magni in omnis quibusdam sed odio deleniti adipisci?
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos mollitia aspernatur, officia dolorem minima iure non illo tempora adipisci ipsa neque pariatur tempore similique possimus voluptatibus, consequuntur vero molestiae quos? */}
             </ReactMarkdown>
@@ -79,7 +79,7 @@ const ProblemStatement = ({statement, input, output}) => {
                 remarkPlugins={[remarkGfm, remarkMath]}
                 rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeKatex]}
             >
-              {output}
+              {output?.replace(/\\n/g, '\n')}
                 {/* Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus accusantium at enim. Id consequuntur quia nam incidunt dolorum? Eius minus, commodi sequi magni in omnis quibusdam sed odio deleniti adipisci?
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos mollitia aspernatur, officia dolorem minima iure non illo tempora adipisci ipsa neque pariatur tempore similique possimus voluptatibus, consequuntur vero molestiae quos? */}
             </ReactMarkdown>

@@ -63,9 +63,9 @@ const ProblemForm = ({ initialData = null, mode = 'create' }) => {
     if (initialData && mode === 'edit') {
       setFormData(initialData);
       const copyData = { ...initialData };
-      copyData.statement = renderMd(initialData.statement || '');
-      copyData.input = renderMd(initialData.input || '');
-      copyData.output = renderMd(initialData.output || '');
+      copyData.statement = renderMd(initialData.statement?.replace(/\\n/g, '\n') || '');
+      copyData.input = renderMd(initialData.input?.replace(/\\n/g, '\n') || '');
+      copyData.output = renderMd(initialData.output?.replace(/\\n/g, '\n') || '');
       formDataRef.current = copyData;
       console.log('copyData: ', copyData);
       setIsLoading(false);
