@@ -24,7 +24,7 @@ import {
 } from '../../ui/DropdownMenu';
 import UserDetailModal from '../users/UserDetailModal';
 import { userService } from '../../../services/userService';
-import { toast } from 'sonner'; // Import từ sonner
+import { toast } from 'sonner'; 
 
 const UserTable = ({ 
   users: initialUsers, 

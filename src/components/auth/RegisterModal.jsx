@@ -67,9 +67,7 @@ const RegisterModal = () => {
         fullName: form.userName.trim(),
         password: form.password
       };
-      console.log(userData)
       const response = await register(userData);
-      console.log('✅ Registration successful:', response);
       setForm({
         userName: '',
         email: '',
@@ -96,7 +94,6 @@ const RegisterModal = () => {
   };
   // Handle OTP verification success
     const handleOTPVerificationSuccess = (response) => {
-      console.log('✅ OTP verification completed:', response);
       setShowOTPModal(false);
       setRegisteredEmail('');
       setRegisteredUserName('');

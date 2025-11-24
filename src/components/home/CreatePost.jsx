@@ -44,10 +44,9 @@ const CreatePost = ({ onPostCreated }) => {
     replacement: (content) => '<u>' + content + '</u>'
   });
 
-  // ✅ Form handlers
+  // Form handlers
   const handleContentChange = (htmlContent) => {
     const markdownContent = turndownService.turndown(htmlContent);
-    console.log('📄 Markdown output:', markdownContent);
     setFormData(prev => ({
       ...prev,
       content: markdownContent
@@ -69,17 +68,10 @@ const CreatePost = ({ onPostCreated }) => {
   };
 
   const handleImageFilesChange = (files) => {
-    console.log('🔍 Processing', files.length, 'images...');
     const fileArray = Array.from(files);
 
     const imagePreviews = fileArray.map(file => {
-      const preview = URL.createObjectURL(file);
-      console.log('🔗 Created preview URL:', preview);
-    console.log('📁 File details:', {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    });
+    const preview = URL.createObjectURL(file);
       
       const customizedImage = {
         file,
@@ -160,9 +152,8 @@ const CreatePost = ({ onPostCreated }) => {
     }));
   };
 
-  // ✅ Enhanced modal-aware image edit
+  //    Enhanced modal-aware image edit
   const handleEditImageSave = (index, updatedImageData) => {
-    console.log('🎨 Editing image:', index, updatedImageData);
     setFormData(prev => ({
       ...prev,
       images: prev.images.map((img, i) => 
@@ -177,10 +168,8 @@ const CreatePost = ({ onPostCreated }) => {
 
     try {
       setIsUploadingImages(true);
-      console.log('📤 Uploading', formData.imageFiles.length, 'files to Cloudinary...');
       
       const uploadResult = await uploadPostImages(formData.imageFiles);
-      console.log('✅ Cloudinary upload response:', uploadResult);
       
       const cloudinaryImages = uploadResult.images || uploadResult.data?.images || [];
       return cloudinaryImages;
@@ -194,9 +183,7 @@ const CreatePost = ({ onPostCreated }) => {
 
   const handleEditorImageUpload = async (file) => {
     try {
-      console.log('📤 Uploading editor image...');
       const result = await uploadPostImageSingle(file);
-      console.log('✅ Editor image uploaded:', result);
       return result.url;
     } catch (error) {
       console.error('❌ Error uploading editor image:', error);
@@ -213,7 +200,6 @@ const CreatePost = ({ onPostCreated }) => {
       
       let uploadedImages = [];
       if (formData.imageFiles.length > 0) {
-        console.log('📤 Starting Cloudinary upload...');
         uploadedImages = await uploadImages();
       }
       
@@ -224,10 +210,7 @@ const CreatePost = ({ onPostCreated }) => {
         images: uploadedImages
       };
 
-      console.log('📝 Submitting:', submitData);
-      const response = await createPost(submitData);
-      console.log('✅ Post created:', response);
-      
+      const response = await createPost(submitData);      
       handleCancel();
       
       if (onPostCreated) {
@@ -313,7 +296,7 @@ const CreatePost = ({ onPostCreated }) => {
         </div>
       </div>
 
-      {/* ✅ Single Modal với dynamic content */}
+      {/*    Single Modal với dynamic content */}
       <Modal
         isOpen={modalManager.isModalOpen}
         onClose={modalManager.modalContent === 'create' ? handleCancel : modalManager.handleBackToCreate}

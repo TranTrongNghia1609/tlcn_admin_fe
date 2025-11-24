@@ -105,7 +105,7 @@ const ImageUpload = ({
                   display: 'block',
                   margin: '0 auto'     
                 }}
-                onLoad={() => console.log('✅ Auto-size image loaded:', image.name)}
+                onLoad={() => console.log(' Auto-size image loaded:', image.name)}
                 onError={(e) => console.error('❌ Image error:', e, image)}
               />
             </div>

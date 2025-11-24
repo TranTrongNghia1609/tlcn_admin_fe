@@ -8,7 +8,7 @@ function UploadTestcases({onHandleUpload, isUpdate, zipName}) {
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     
-    if (file && file.type === 'application/zip') {
+    if (file) {
       setSelectedFile(file);
       setFileName(file.name);
       console.log('File đã được chọn:', file.name);

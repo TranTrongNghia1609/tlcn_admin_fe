@@ -38,10 +38,7 @@ const CommentSection = ({ postId }) => {
 
   useEffect(() => {
     if (!hasLoadedOnce && postId) {
-      console.log('CommentSection initial load:', {
-        postId: postId?.slice(-4),
-        sortBy
-      });
+
 
       // Pass sortBy in options object
       loadPostComments(postId, 1, { sortBy, limit: 10 });
@@ -158,13 +155,6 @@ const CommentSection = ({ postId }) => {
     if (!pagination?.hasNext || loading) return;
 
     try {
-      console.log('🔄 Loading more comments:', {
-        postId: postId?.slice(-4),
-        currentPage: pagination.currentPage,
-        nextPage: pagination.currentPage + 1,
-        sortBy
-      });
-
       //   Pass sortBy when loading more
       await loadPostComments(postId, pagination.currentPage + 1, { sortBy, limit: 10 });
     } catch (error) {
@@ -173,7 +163,6 @@ const CommentSection = ({ postId }) => {
   }, [pagination, loading, loadPostComments, postId, sortBy]);
 
   const handleRefresh = useCallback(() => {
-    console.log('🔄 Refreshing comments with sort:', sortBy);
     setHasLoadedOnce(false);
 
     //   Refresh with current sort
@@ -183,12 +172,6 @@ const CommentSection = ({ postId }) => {
   //   Enhanced sort change handler - reload comments with new sort
   const handleSortChange = useCallback(async (newSortBy) => {
     if (newSortBy === sortBy) return; // No change
-
-    console.log('🔄 Changing sort:', {
-      from: sortBy,
-      to: newSortBy,
-      postId: postId?.slice(-4)
-    });
 
     setSortBy(newSortBy);
     setHasLoadedOnce(false);

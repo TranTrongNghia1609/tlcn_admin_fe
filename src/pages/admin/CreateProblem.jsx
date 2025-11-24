@@ -61,7 +61,6 @@ const CreateProblem = () => {
       return updated;
     });
 
-    console.log("Content: ", value);
   }, []);
 
   const handleAddExample = useCallback(() => {

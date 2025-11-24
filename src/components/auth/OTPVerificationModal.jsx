@@ -82,14 +82,12 @@ const OTPVerificationModal = ({ isOpen, onClose, email, userName ,onVerification
     setError('');
 
     try {
-      console.log('🔍 Verifying OTP:', { email, otp: otpCode });
       
       const response = await verifyRegistrationOTP({
         email: email,
         otp: otpCode
       });
       
-      console.log('✅ OTP verification successful:', response);
       
       // Reset form
       setOtp(['', '', '', '', '', '']);
@@ -123,7 +121,6 @@ const OTPVerificationModal = ({ isOpen, onClose, email, userName ,onVerification
     setError('');
 
     try {
-      console.log('🔄 Resending OTP to:', email);
       const dataEmailUserName = {
         email: email,
         userName: userName
@@ -132,7 +129,6 @@ const OTPVerificationModal = ({ isOpen, onClose, email, userName ,onVerification
         dataEmailUserName
       );
       
-      console.log('✅ OTP resent successfully');
       
       // Start countdown
       setCountdown(60);

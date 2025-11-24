@@ -34,7 +34,6 @@ const ProblemStatementSection = ({
   difficultyOptions
 }) => {
   const [activeEditor, setActiveEditor] = useState(null);
-  console.log('Data: ', formData);
   return (
     <div className="p-8 space-y-8">
       {/* Basic Information */}
