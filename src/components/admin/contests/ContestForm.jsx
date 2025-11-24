@@ -16,7 +16,7 @@ import { debounce } from 'lodash';
 
 const ContestForm = ({ mode = 'create' }) => {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams(); 
   const isEditMode = mode === 'edit' || !!id;
   
   const [formData, setFormData] = useState({
@@ -51,7 +51,16 @@ const ContestForm = ({ mode = 'create' }) => {
       const formatDateTime = (date) => {
         if (!date) return '';
         const d = new Date(date);
-        return d.toISOString().slice(0, 16);
+        
+        // Format to local datetime string (YYYY-MM-DDTHH:mm)
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const hours = String(d.getHours()).padStart(2, '0');
+        const minutes = String(d.getMinutes()).padStart(2, '0');
+
+        console.log('Date: ', date, d);
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
       };
 
       setFormData({
