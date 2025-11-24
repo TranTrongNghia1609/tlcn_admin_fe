@@ -71,7 +71,7 @@ const CreatePost = ({ onPostCreated }) => {
     const fileArray = Array.from(files);
 
     const imagePreviews = fileArray.map(file => {
-    const preview = URL.createObjectURL(file);
+      const preview = URL.createObjectURL(file);
       
       const customizedImage = {
         file,
@@ -152,7 +152,7 @@ const CreatePost = ({ onPostCreated }) => {
     }));
   };
 
-  //    Enhanced modal-aware image edit
+  //  Enhanced modal-aware image edit
   const handleEditImageSave = (index, updatedImageData) => {
     setFormData(prev => ({
       ...prev,
@@ -174,7 +174,7 @@ const CreatePost = ({ onPostCreated }) => {
       const cloudinaryImages = uploadResult.images || uploadResult.data?.images || [];
       return cloudinaryImages;
     } catch (error) {
-      console.error('❌ Error uploading to Cloudinary:', error);
+      console.error('Error uploading to Cloudinary:', error);
       throw new Error('Failed to upload images: ' + error.message);
     } finally {
       setIsUploadingImages(false);
@@ -186,7 +186,7 @@ const CreatePost = ({ onPostCreated }) => {
       const result = await uploadPostImageSingle(file);
       return result.url;
     } catch (error) {
-      console.error('❌ Error uploading editor image:', error);
+      console.error('Error uploading editor image:', error);
       throw error;
     }
   };
@@ -220,7 +220,7 @@ const CreatePost = ({ onPostCreated }) => {
       alert('Bài viết đã được tạo thành công!');
       
     } catch (error) {
-      console.error('❌ Error:', error);
+      console.error(' Error:', error);
       alert('Có lỗi xảy ra: ' + (error.response?.data?.message || error.message));
     } finally {
       setIsSubmitting(false);
@@ -296,7 +296,7 @@ const CreatePost = ({ onPostCreated }) => {
         </div>
       </div>
 
-      {/*    Single Modal với dynamic content */}
+      {/* ✅ Single Modal với dynamic content */}
       <Modal
         isOpen={modalManager.isModalOpen}
         onClose={modalManager.modalContent === 'create' ? handleCancel : modalManager.handleBackToCreate}

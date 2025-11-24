@@ -7,6 +7,7 @@ import * as postService from '../../services/postService';
 import { FileText, Eye, MessageSquare, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import TablePagination from '@/components/common/TablePagination';
+import PostDetailModal from '../../components/admin/posts/PostDetailModal';
 
 const PostManagement = () => {
   const [posts, setPosts] = useState([]);
@@ -20,6 +21,8 @@ const PostManagement = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all'); // all, published, draft
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState(null);
 
   // Fetch posts list
   const fetchPosts = useCallback(async (page, search, status) => {
@@ -124,10 +127,15 @@ const PostManagement = () => {
   };
 
   const handleViewDetail = (postId) => {
-    console.log('View detail for post:', postId);
-    toast.info('Tính năng đang phát triển', {
-      description: 'Tính năng xem chi tiết bài viết sẽ sớm được bổ sung'
-    });
+    setSelectedPostId(postId);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setTimeout(() => {
+      setSelectedPostId(null);
+    }, 300);
   };
 
   return (
@@ -231,6 +239,14 @@ const PostManagement = () => {
           maxVisiblePages={10}
         />
       </Card>
+
+      {isDetailModalOpen && (
+        <PostDetailModal
+          postId={selectedPostId}
+          isOpen={isDetailModalOpen}
+          onClose={handleCloseDetailModal}
+        />
+      )}
     </div>
   );
 };

@@ -18,6 +18,7 @@ const UserDetailModal = ({ isOpen, onClose, userId }) => {
     return () => {
       setUser(null);
       setError(null);
+      document.body.style.overflow = 'unset';
     };
   }, [isOpen, userId]);
 
@@ -36,7 +37,11 @@ const UserDetailModal = ({ isOpen, onClose, userId }) => {
       setLoading(false);
     }
   };
-
+  const handleClose = () => {
+    // Đảm bảo xóa overflow hidden trước khi gọi onClose
+    document.body.style.overflow = 'unset';
+    onClose();
+  };
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
@@ -72,7 +77,7 @@ const UserDetailModal = ({ isOpen, onClose, userId }) => {
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       title="Chi tiết người dùng"
       size="3xl"
       showCloseButton={true}

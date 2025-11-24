@@ -1,20 +1,20 @@
-import React, {useState} from 'react';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import React, { useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '../../ui/table';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
-import { 
-  MoreVertical, 
-  Trash2, 
-  Ban, 
-  CheckCircle, 
-  Eye 
+import {
+  MoreVertical,
+  Trash2,
+  Ban,
+  CheckCircle,
+  Eye
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -24,11 +24,11 @@ import {
 } from '../../ui/DropdownMenu';
 import UserDetailModal from '../users/UserDetailModal';
 import { userService } from '../../../services/userService';
-import { toast } from 'sonner'; 
+import { toast } from 'sonner';
 
-const UserTable = ({ 
-  users: initialUsers, 
-  loading, 
+const UserTable = ({
+  users: initialUsers,
+  loading,
   onDeleteUser
 }) => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -45,16 +45,25 @@ const UserTable = ({
     setSelectedUserId(userName);
     setIsDetailModalOpen(true);
   };
+  const handleCloseDetailModal = () => {
+    document.body.style.overflow = 'unset'
+
+    setIsDetailModalOpen(false);
+
+    setTimeout(() => {
+      setSelectedUserId(null);
+    }, 200);
+  };
 
   const handleToggleStatus = async (userName, currentStatus) => {
     try {
       setUpdatingStatus(userName);
-      
+
       const action = currentStatus ? 'khóa' : 'kích hoạt';
       const confirmed = window.confirm(
         `Bạn có chắc chắn muốn ${action} tài khoản "${userName}"?`
       );
-      
+
       if (!confirmed) {
         setUpdatingStatus(null);
         return;
@@ -62,11 +71,11 @@ const UserTable = ({
 
       // Gọi API update status
       await userService.updateUserStatus(userName, !currentStatus);
-      
+
       // Update local state ngay lập tức
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user.userName === userName 
+      setUsers(prevUsers =>
+        prevUsers.map(user =>
+          user.userName === userName
             ? { ...user, active: !currentStatus }
             : user
         )
@@ -132,7 +141,7 @@ const UserTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => {              
+            {users.map((user) => {
               return (
                 <TableRow key={user._id} className="hover:bg-gray-50">
                   {/* User Info with Avatar */}
@@ -150,7 +159,7 @@ const UserTable = ({
                             }}
                           />
                         ) : null}
-                        <div 
+                        <div
                           className={`w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold ${user.avatar ? 'hidden' : 'flex'}`}
                         >
                           {user.userName?.charAt(0).toUpperCase()}
@@ -174,7 +183,7 @@ const UserTable = ({
 
                   {/* Status */}
                   <TableCell>
-                    <Badge 
+                    <Badge
                       variant={user.active ? 'default' : 'secondary'}
                       className={user.active ? 'bg-green-600' : 'bg-gray-400'}
                     >
@@ -191,9 +200,9 @@ const UserTable = ({
                   <TableCell className="text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           className="h-8 w-8 p-0"
                           disabled={updatingStatus === user.userName}
                         >
@@ -209,7 +218,7 @@ const UserTable = ({
                           <Eye className="mr-2 h-4 w-4" />
                           Xem chi tiết
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => handleToggleStatus(user.userName, user.active)}
                           disabled={updatingStatus === user.userName}
                         >
@@ -234,13 +243,10 @@ const UserTable = ({
           </TableBody>
         </Table>
       </div>
-      
+
       <UserDetailModal
         isOpen={isDetailModalOpen}
-        onClose={() => {
-          setIsDetailModalOpen(false);
-          setSelectedUserId(null);
-        }}
+        onClose={handleCloseDetailModal}
         userId={selectedUserId}
       />
     </>
