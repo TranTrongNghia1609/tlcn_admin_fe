@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuthModal } from '../../context/AuthModalContext.jsx';
 import UserMenu from './UserMenu';
 import { useAuth } from '../../context/AuthContext';
+import NotificationBell from '@/components/common/NotificationBell';
 
 const Navbar = () => {
   const { openLogin, openRegister } = useAuthModal();
@@ -21,11 +22,11 @@ const Navbar = () => {
   }, []);
 
   const navItems = [
-    { name: 'Home', path: '/' },
-    { name: 'Problems', path: '/problems' },
-    { name: 'Contests', path: '/contests' },
-    { name: 'Leaderboard', path: '/leaderboard' },
-    { name: 'Tutorials', path: '/tutorials' },
+    { name: 'Trang Chủ', path: '/home' },
+    { name: 'Bài Tập', path: '/problems' },
+    { name: 'Kì Thi', path: '/contests' },
+    { name: 'Bảng xếp hạng', path: '/leaderboard' },
+    { name: 'Quản lý', path: '/dashboard' },
   ];
 
   return (
@@ -72,21 +73,13 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Right Side - Search + Auth */}
+          {/* Right Side - Search + Notification + Theme + Auth */}
           <div className="flex items-center space-x-3 lg:space-x-4">
-            {/* Search Bar */}
-            <div className="hidden md:flex items-center">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search problems..."
-                  className="w-48 lg:w-56 px-4 py-2 pl-10 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                />
-                <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div>
+            
+            {/* Notification Bell - Only show when authenticated */}
+            {isAuthenticated && !loading && (
+              <NotificationBell />
+            )}
 
             {/* Theme Toggle */}
             <button className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200">
@@ -96,7 +89,6 @@ const Navbar = () => {
             </button>
 
             {/* Auth Buttons */}
-
             {loading ? (
               // Loading spinner while checking auth
               <div className="flex items-center">
@@ -177,26 +169,28 @@ const Navbar = () => {
             ))}
 
             {/* Mobile Auth Buttons */}
-            <div className="pt-4 px-2 space-y-2 border-t border-gray-200">
-              <button 
-                onClick={() => {
-                  openLogin();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 text-left"
-              >
-                Login
-              </button>
-              <button 
-                onClick={() => {
-                  openRegister();
-                  setIsMenuOpen(false);
-                }}
-                className="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg shadow-lg transition-all duration-200"
-              >
-                Sign Up
-              </button>
-            </div>
+            {!isAuthenticated && (
+              <div className="pt-4 px-2 space-y-2 border-t border-gray-200">
+                <button 
+                  onClick={() => {
+                    openLogin();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 text-left"
+                >
+                  Login
+                </button>
+                <button 
+                  onClick={() => {
+                    openRegister();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg shadow-lg transition-all duration-200"
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
