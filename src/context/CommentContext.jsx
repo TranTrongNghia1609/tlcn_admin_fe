@@ -393,7 +393,6 @@ export const CommentProvider = ({ children }) => {
     clearPostComments: api.clearPostComments,
     clearError: api.clearError,
 
-    // ✅ Selectors with clear names
     getPostComments: selectors.getPostComments,  // Get comments from state
     getCommentsCount: selectors.getCommentsCount,
 

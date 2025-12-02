@@ -206,6 +206,7 @@ const CreatePost = ({ onPostCreated }) => {
       const submitData = {
         title: formData.title.trim(),
         content: formData.content,
+        codeSnippet: formData.codeSnippet,
         hashtags: formData.tags,
         images: uploadedImages
       };
