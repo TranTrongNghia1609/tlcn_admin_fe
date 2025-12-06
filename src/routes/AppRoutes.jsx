@@ -18,6 +18,8 @@ import ContestManagement from "@/pages/admin/ContestManagement";
 import CreateContest from "@/pages/admin/CreateContest";
 import UpdateProblem from "@/pages/admin/UpdateProblem";
 import ContestForm from "@/components/admin/contests/ContestForm";
+import SubmissionManagement from "@/pages/admin/SubmissionManagement";
+import Submission from "@/pages/admin/Submision";
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
@@ -196,6 +198,24 @@ const AppRoutes = () => {
         element={
           <AdminRoute>
             <ContestForm mode="edit" />
+          </AdminRoute>
+        }
+      />
+      
+      <Route
+        path="/submissions"
+        element={
+          <AdminRoute>
+            <SubmissionManagement/>
+          </AdminRoute>
+        }
+      />
+      
+      <Route
+        path="/submission/:id"
+        element={
+          <AdminRoute>
+            <Submission/>
           </AdminRoute>
         }
       />

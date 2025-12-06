@@ -73,3 +73,12 @@ export const getContestById = async (id) => {
     throw error;
   }
 }
+
+export const getContestStatistics = async () => {
+  try {
+    const response = await API.get(CONTEST_ENDPOINTS.STATS);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

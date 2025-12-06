@@ -48,6 +48,7 @@ export const CONTEST_ENDPOINTS = {
   TOGGLE_STATUS: (id) => `/admin/contests/${id}/toggle`,
   CODE_CHECKING: '/contests/code/check',
   GET_BY_ID: (id) => `/contests/${id}`,
+  STATS: '/admin/contests/stats',
 }
 export const POST_ENDPOINTS = {
   GET_ALL: '/posts/all',
@@ -87,3 +88,12 @@ export const UPLOAD_ENDPOINTS = {
   POST_IMAGES_GET: (postId) => `/upload/posts/${postId}/images`,
   AVATAR: '/upload/avatar'
 };
+
+export const SUBMISSION_ENDPOINTS = {
+  CREATE_SUBMISSION: '/submissions',
+  GET_SUBMISSION_BY_ID: (submissionId) => `/submissions/${submissionId}`,
+  GET_SUBMISSIONS_ADMIN: '/admin/submissions',
+  GET_SUBMISSION_STATS: '/admin/submissions/stats',
+  JUDGE_SUBMISSION: (id) => `/submissions/${id}/judge`,
+  STATS: '/admin/submissions/stats',
+}

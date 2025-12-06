@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 function UploadTestcases({onHandleUpload, isUpdate, zipName}) {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [fileName, setFileName] = useState('');
-
+  const [fileName, setFileName] = useState(null);
+  useEffect(() => {
+    setFileName(zipName || null);
+  }, [zipName]);
   // Xử lý khi chọn file
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -18,7 +20,7 @@ function UploadTestcases({onHandleUpload, isUpdate, zipName}) {
   };
 
   const handleSave = async () => {
-    if (!selectedFile) {
+    if (!selectedFile && !isUpdate) {
       alert('Vui lòng chọn file trước');
       return;
     }
@@ -76,7 +78,7 @@ function UploadTestcases({onHandleUpload, isUpdate, zipName}) {
       </div>
 
       {/* Selected File Display */}
-      {selectedFile && (
+      {fileName && (
         <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <div className="flex items-center">
             <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -91,14 +93,14 @@ function UploadTestcases({onHandleUpload, isUpdate, zipName}) {
       <div className="flex justify-end">
         <button
           className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-            selectedFile
+            selectedFile || isUpdate
               ? 'bg-blue-600 hover:bg-blue-700 text-white'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
-          disabled={!selectedFile}
+          disabled={!selectedFile && !isUpdate}
           onClick={handleSave}
         >
-          Tạo
+          {isUpdate ? 'Cập nhật' : 'Tạo'}
         </button>
       </div>
     </div>
