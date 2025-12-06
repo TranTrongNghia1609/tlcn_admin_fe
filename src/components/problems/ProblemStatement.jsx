@@ -57,11 +57,9 @@ const ProblemStatement = ({statement, input, output}) => {
         <div className="ml-3 prose max-w-none text-left">
             <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeKatex]}
+                rehypePlugins={[rehypeRaw, rehypeKatex]}
             >
               {input?.replace(/\\n/g, '\n')}
-                {/* Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus accusantium at enim. Id consequuntur quia nam incidunt dolorum? Eius minus, commodi sequi magni in omnis quibusdam sed odio deleniti adipisci?
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Dignissimos mollitia aspernatur, officia dolorem minima iure non illo tempora adipisci ipsa neque pariatur tempore similique possimus voluptatibus, consequuntur vero molestiae quos? */}
             </ReactMarkdown>
         </div>
       </CardContent>
@@ -77,7 +75,12 @@ const ProblemStatement = ({statement, input, output}) => {
         <div className="ml-3 prose max-w-none text-left">
             <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkMath]}
-                rehypePlugins={[rehypeRaw, rehypeSanitize, rehypeKatex]}
+                rehypePlugins={[
+                  rehypeRaw, 
+                  rehypeKatex, // Thử đưa Katex lên trước Sanitize
+                  // Nếu vẫn lỗi, hãy tạm comment dòng rehypeSanitize bên dưới để kiểm tra
+                  // rehypeSanitize 
+                ]}
             >
               {output?.replace(/\\n/g, '\n')}
                 {/* Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus accusantium at enim. Id consequuntur quia nam incidunt dolorum? Eius minus, commodi sequi magni in omnis quibusdam sed odio deleniti adipisci?

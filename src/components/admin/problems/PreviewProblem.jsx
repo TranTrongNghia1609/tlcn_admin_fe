@@ -3,6 +3,7 @@ import ProblemHeader from '@/components/problems/ProblemHeader';
 import ProblemStatement from '@/components/problems/ProblemStatement';
 import ProblemExamples from '@/components/problems/ProblemExamples';
 function PreviewProblem({problem}) {
+  console.log('Problem in preview: ', problem);
   return (
     <div className='w-full'>
         <div className="flex-col justify-center items-center content-center">

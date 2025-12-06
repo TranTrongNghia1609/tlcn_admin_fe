@@ -8,7 +8,7 @@ import ProblemTable from '@/components/admin/tables/ProblemTable';
 import { Button } from '@/components/ui/button';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import TablePagination from '@/components/common/TablePagination';
-import { getAllContestsByAdmin, toggleContestStatus } from '@/services/contestService';
+import { getAllContestsByAdmin, getContestStatistics, toggleContestStatus } from '@/services/contestService';
 import ContestTable from '@/components/admin/tables/ContestTable';
 import { useNavigate } from 'react-router-dom';
 
@@ -58,22 +58,14 @@ const ContestManagement = () => {
   // Fetch stats
   const fetchStats = useCallback(async () => {
     try {
-      const response = await getProblemStats();
+      const response = await getContestStatistics();
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
   }, []);
   useEffect(() => {
-    const fetch = async () => {
-      try {
-        const response = await getProblemStats();
-        setStats(response.data);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      }
-    }
-    fetch();
+    fetchStats();
   }, []);
   useEffect(() => {
     fetchContests(currentPage, searchTerm, filterStatus);
@@ -122,8 +114,8 @@ const ContestManagement = () => {
           <h1 className="text-3xl font-bold text-gray-900">Quản lý kỳ thi</h1>
           <p className="text-gray-600 mt-2 text-lg">Theo dõi và quản lý kỳ thi trên hệ thống</p>
         </div>
-        <div>
-          <Button className={'bg-gradient-to-r from-blue-600 to-purple-600'}>
+        <div className='cursor-pointer'>
+          <Button className={'bg-blue-600/80 hover:bg-blue-600'}>
             <a href="/contest/create">Thêm</a>
           </Button>
         </div>
@@ -138,7 +130,7 @@ const ContestManagement = () => {
             </div>
           </div>
           <h3 className="text-3xl font-bold text-gray-900 mb-2">
-            {stats?.totalProblems || 0}
+            {stats?.totalContests || 0}
           </h3>
           <p className="text-sm text-gray-600 font-medium">Tổng kỳ thi</p>
         </Card>
@@ -150,9 +142,9 @@ const ContestManagement = () => {
             </div>
           </div>
           <h3 className="text-3xl font-bold text-gray-900 mb-2">
-            {stats?.easyProblems || 0}
+            {stats?.onGoingContests || 0}
           </h3>
-          <p className="text-sm text-gray-600 font-medium">kỳ thi Easy</p>
+          <p className="text-sm text-gray-600 font-medium">Đang diễn ra</p>
         </Card>
 
         <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
@@ -162,9 +154,9 @@ const ContestManagement = () => {
             </div>
           </div>
           <h3 className="text-3xl font-bold text-gray-900 mb-2">
-            {stats?.mediumProblems || 0}
+            {stats?.upcomingContests || 0}
           </h3>
-          <p className="text-sm text-gray-600 font-medium">kỳ thi Medium</p>
+          <p className="text-sm text-gray-600 font-medium">Sắp diễn ra</p>
         </Card>
 
         <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
@@ -174,9 +166,9 @@ const ContestManagement = () => {
             </div>
           </div>
           <h3 className="text-3xl font-bold text-gray-900 mb-2">
-            {stats?.hardProblems || 0}
+            {stats?.pastContests || 0}
           </h3>
-          <p className="text-sm text-gray-600 font-medium">kỳ thi Hard</p>
+          <p className="text-sm text-gray-600 font-medium">Đã kết thúc</p>
         </Card>
       </div>
 
