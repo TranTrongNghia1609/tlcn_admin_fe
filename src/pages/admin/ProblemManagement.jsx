@@ -4,9 +4,9 @@ import SearchBar from '@/components/admin/tables/SearchBar';
 import { FileText, Eye, BookMinus, BicepsFlexed } from 'lucide-react';
 import { toast } from 'sonner';
 import { getAllProblemsByAdmin, getProblemStats, toggleProblemStatus } from '@/services/problemService';
+import solutionService from '@/services/solutionService';
 import ProblemTable from '@/components/admin/tables/ProblemTable';
 import { Button } from '@/components/ui/button';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import TablePagination from '@/components/common/TablePagination';
 import { useNavigate } from 'react-router-dom';
 
@@ -21,9 +21,10 @@ const ProblemManagement = () => {
     totalPages: 0
   });
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // all, published, draft
+  const [filterStatus, setFilterStatus] = useState('all');
   const navigate = useNavigate();
-  // Fetch posts list
+
+  // Fetch problems with solution status
   const fetchProblems = useCallback(async (page, search, status) => {
     try {
       setLoading(true);
@@ -36,15 +37,36 @@ const ProblemManagement = () => {
       };
 
       const response = await getAllProblemsByAdmin(params);
+      const problemsData = response.data.content;
 
-      setProblems(response.data.content);
+      // Check solution exists for each problem
+      const problemsWithSolution = await Promise.all(
+        problemsData.map(async (problem) => {
+          try {
+            const solutionCheck = await solutionService.checkSolutionExists(problem.shortId);
+            return {
+              ...problem,
+              hasSolution: solutionCheck.data.exists,
+              solutionId: solutionCheck.data.solution?._id || null
+            };
+          } catch (error) {
+            return {
+              ...problem,
+              hasSolution: false,
+              solutionId: null
+            };
+          }
+        })
+      );
+
+      setProblems(problemsWithSolution);
       setPagination(prev => ({
         ...prev,
         total: response.data.total,
         totalPages: response.data.totalPages
       }));
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error('Error fetching problems:', error);
       toast.error('Không thể tải danh sách bài tập', {
         description: error.message || 'Đã có lỗi xảy ra'
       });
@@ -53,7 +75,6 @@ const ProblemManagement = () => {
     }
   }, [pagination.limit]);
 
-  // Fetch stats
   const fetchStats = useCallback(async () => {
     try {
       const response = await getProblemStats();
@@ -62,17 +83,11 @@ const ProblemManagement = () => {
       console.error('Error fetching stats:', error);
     }
   }, []);
+
   useEffect(() => {
-    const fetch = async () => {
-      try {
-        const response = await getProblemStats();
-        setStats(response.data);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      }
-    }
-    fetch();
+    fetchStats();
   }, []);
+
   useEffect(() => {
     fetchProblems(currentPage, searchTerm, filterStatus);
   }, [currentPage, searchTerm, filterStatus, fetchProblems]);
@@ -107,9 +122,8 @@ const ProblemManagement = () => {
     );
   };
 
-  const handleViewDetail = (postId) => {
-    console.log('View detail for post:', postId);
-    navigate(`/problems/${postId}`);
+  const handleViewDetail = (problemId) => {
+    navigate(`/problems/${problemId}`);
   };
 
   return (
@@ -178,7 +192,7 @@ const ProblemManagement = () => {
         </Card>
       </div>
 
-      {/* Posts Table Card */}
+      {/* Problems Table Card */}
       <Card className="p-6 border-0 shadow-md">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900">Danh sách bài tập</h2>

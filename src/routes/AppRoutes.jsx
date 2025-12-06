@@ -20,6 +20,9 @@ import UpdateProblem from "@/pages/admin/UpdateProblem";
 import ContestForm from "@/components/admin/contests/ContestForm";
 import SubmissionManagement from "@/pages/admin/SubmissionManagement";
 import Submission from "@/pages/admin/Submision";
+import SolutionManagement from "@/pages/admin/SolutionManagement";
+import SolutionFormPage from "@/pages/admin/SolutionFormPage";
+
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
@@ -165,8 +168,16 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
+      <Route
+        path="/problems/:id/solution"
+        element={
+          <AdminRoute>
+            <SolutionFormPage />
+          </AdminRoute>
+        }
+      />
 
-<Route
+      <Route
         path="/problems/:id"
         element={
           <AdminRoute>
@@ -183,6 +194,14 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
+      <Route
+        path="/solutions"
+        element={
+          <AdminRoute>
+            <SolutionManagement />
+          </AdminRoute>
+        }
+      />
 
       <Route
         path="/contest/create"
@@ -193,6 +212,7 @@ const AppRoutes = () => {
         }
       />
 
+
       <Route
         path="/contest/:id"
         element={
@@ -201,26 +221,26 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
-      
+
       <Route
         path="/submissions"
         element={
           <AdminRoute>
-            <SubmissionManagement/>
-          </AdminRoute>
-        }
-      />
-      
-      <Route
-        path="/submission/:id"
-        element={
-          <AdminRoute>
-            <Submission/>
+            <SubmissionManagement />
           </AdminRoute>
         }
       />
 
-      
+      <Route
+        path="/submission/:id"
+        element={
+          <AdminRoute>
+            <Submission />
+          </AdminRoute>
+        }
+      />
+
+
 
       <Route path="*" element={<NotFound />} />
     </Routes>
