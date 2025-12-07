@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 import rehypeHighlight from 'rehype-highlight';
+import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import TurndownService from 'turndown';
-import 'highlight.js/styles/github.css'; // Changed to light theme
+import 'highlight.js/styles/atom-one-dark.css';
+import 'katex/dist/katex.min.css';
 import { marked } from 'marked';
 import PostEditor from '../home/CreatePostComponent/PostEditor';
 import CodeBlockEditor from './CodeBlockEditor';
@@ -18,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import solutionService from '../../services/solutionService';
 import { uploadPostImageSingle } from '../../services/postService';
 import { toast } from 'sonner';
-import { Eye, Code, Plus, Trash2 } from 'lucide-react';
+import { Eye, Code, Plus, Trash2, Code2 } from 'lucide-react';
 import CodeMirror from '@uiw/react-codemirror';
 import { cpp } from '@codemirror/lang-cpp';
 import { javascript } from '@codemirror/lang-javascript';
@@ -77,12 +80,12 @@ const SolutionForm = ({
   const [currentCode, setCurrentCode] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('cpp');
   
-  // Store HTML content and code blocks separately
   const [htmlContent, setHtmlContent] = useState('');
-  const [codeBlocks, setCodeBlocks] = useState([]); // [{code, language, id}]
+  const [codeBlocks, setCodeBlocks] = useState([]);
   const [markdownForPreview, setMarkdownForPreview] = useState('');
-const [isDataLoaded, setIsDataLoaded] = useState(false);
-const [editorKey, setEditorKey] = useState(0);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [editorKey, setEditorKey] = useState(0);
+
   const turndownService = new TurndownService({
     headingStyle: 'atx',
     codeBlockStyle: 'fenced',
@@ -120,44 +123,51 @@ const [editorKey, setEditorKey] = useState(0);
     }
   }, [formData, onFormChange, solutionId]);
 
-  const loadSolution = async () => {
+   const loadSolution = async () => {
     try {
       setLoading(true);
-      setIsDataLoaded(false); // Reset before loading
+      setIsDataLoaded(false);
       
       const response = await solutionService.getSolutionById(solutionId);
       const solution = response.data;
       
-      console.log('Loading solution:', solution);
-      
-      // Remove code blocks from content to get only text
+      // Extract code blocks from markdown content
       let textContent = solution.content || '';
       const codeBlockRegex = /```(\w+)\n([\s\S]*?)```/g;
+      const extractedBlocks = [];
+      let match;
+      
+      // Extract all code blocks and store them
+      while ((match = codeBlockRegex.exec(solution.content)) !== null) {
+        const language = match[1].toLowerCase();
+        const code = match[2];
+        
+        // Map language names to supported extensions
+        let mappedLang = language;
+        if (language === 'c++' || language === 'cpp') mappedLang = 'cpp';
+        else if (language === 'js' || language === 'javascript') mappedLang = 'javascript';
+        else if (language === 'py' || language === 'python' || language === 'python3') mappedLang = 'python';
+        
+        // Only add if language is supported
+        if (LANGUAGE_EXTENSIONS[mappedLang]) {
+          extractedBlocks.push({
+            id: Date.now() + extractedBlocks.length,
+            code: code,
+            language: mappedLang
+          });
+        }
+      }
+      
+      // Remove code blocks from text content for editor
       textContent = textContent.replace(codeBlockRegex, '').trim();
       
-      console.log('Text content:', textContent);
-      
-      // Convert markdown to HTML
       marked.setOptions({
         breaks: true,
         gfm: true,
       });
       
       const htmlForEditor = marked.parse(textContent);
-      console.log('HTML for editor:', htmlForEditor);
       
-      // Load code blocks from API
-      let loadedBlocks = [];
-      if (solution.codeBlocks && solution.codeBlocks.length > 0) {
-        loadedBlocks = solution.codeBlocks.map((block, index) => ({
-          id: Date.now() + index,
-          code: block.code,
-          language: block.language
-        }));
-        console.log('Loaded code blocks:', loadedBlocks);
-      }
-      
-      // Update all states
       setFormData({
         title: solution.title,
         content: solution.content,
@@ -170,16 +180,17 @@ const [editorKey, setEditorKey] = useState(0);
       });
       
       setMarkdownForPreview(solution.content || '');
-      
-      // Use callback to ensure state updates
       setHtmlContent(htmlForEditor);
-      setCodeBlocks(loadedBlocks);
+      setCodeBlocks(extractedBlocks); // Use extracted blocks from markdown
       
-      // Force editor to re-render after state is set
+      console.log('✅ Loaded solution with code blocks:', {
+        totalBlocks: extractedBlocks.length,
+        blocks: extractedBlocks.map(b => ({ lang: b.language, lines: b.code.split('\n').length }))
+      });
+      
       setTimeout(() => {
         setEditorKey(prev => prev + 1);
         setIsDataLoaded(true);
-        console.log('States updated, editor key:', editorKey + 1);
       }, 100);
       
     } catch (error) {
@@ -192,10 +203,8 @@ const [editorKey, setEditorKey] = useState(0);
 
   const handleTabChange = (newTab) => {
     if (newTab === 'preview' && activeTab === 'edit') {
-      // Convert current HTML to Markdown for preview
       let markdown = turndownService.turndown(htmlContent);
       
-      // Append code blocks
       codeBlocks.forEach(block => {
         markdown += `\n\n\`\`\`${block.language}\n${block.code}\n\`\`\`\n`;
       });
@@ -252,7 +261,6 @@ const [editorKey, setEditorKey] = useState(0);
       return;
     }
 
-    // Add to code blocks array
     const newBlock = {
       id: Date.now(),
       code: currentCode,
@@ -289,10 +297,8 @@ const [editorKey, setEditorKey] = useState(0);
       return;
     }
 
-    // Convert HTML to Markdown
     let finalMarkdown = turndownService.turndown(htmlContent);
     
-    // Append code blocks to markdown for display
     codeBlocks.forEach(block => {
       finalMarkdown += `\n\n\`\`\`${block.language}\n${block.code}\n\`\`\`\n`;
     });
@@ -305,18 +311,17 @@ const [editorKey, setEditorKey] = useState(0);
     try {
       setLoading(true);
       
-      // Prepare code blocks data for API (without id)
       const apiCodeBlocks = codeBlocks.map(block => ({
         language: block.language,
         code: block.code,
-        explanation: '' // You can add explanation field if needed
+        explanation: ''
       }));
 
       const data = {
         ...formData,
         problemShortId: problemShortId,
         content: finalMarkdown,
-        codeBlocks: apiCodeBlocks // Send codeBlocks array
+        codeBlocks: apiCodeBlocks
       };
 
       if (solutionId) {
@@ -432,7 +437,6 @@ const [editorKey, setEditorKey] = useState(0);
           </TabsList>
 
           <TabsContent value="edit" className="mt-0 space-y-4">
-            {/* PostEditor for Algorithm Explanation */}
             <div>
               {loading ? (
                 <div className="flex items-center justify-center h-64 border rounded-lg bg-gray-50">
@@ -467,7 +471,6 @@ Mô tả ý tưởng chính của thuật toán...
               )}
             </div>
 
-            {/* Display existing code blocks */}
             {!loading && codeBlocks.length > 0 && (
               <div className="space-y-3 border-t pt-4">
                 <h4 className="font-semibold text-gray-900">Code Blocks ({codeBlocks.length})</h4>
@@ -517,7 +520,6 @@ Mô tả ý tưởng chính của thuật toán...
               </div>
             )}
 
-            {/* Add Code Block Button & Editor */}
             {!loading && (
               <div className="border-t pt-4">
                 <div className="flex items-center justify-between mb-3">
@@ -558,142 +560,328 @@ Mô tả ý tưởng chính của thuật toán...
           <TabsContent value="preview" className="mt-0">
             <div className="min-h-[400px] p-6 border-2 border-gray-200 rounded-lg bg-white">
               <style>{`
-                .prose-preview {
-                  color: #374151;
-                  line-height: 1.75;
-                  max-width: none;
-                }
-                .prose-preview h1 {
-                  font-size: 2em;
-                  font-weight: 700;
-                  margin-top: 1.5rem;
-                  margin-bottom: 1rem;
-                  color: #111827;
-                  line-height: 1.2;
-                }
-                .prose-preview h2 {
-                  font-size: 1.5em;
-                  font-weight: 700;
-                  margin-top: 1.25rem;
-                  margin-bottom: 0.75rem;
-                  padding-bottom: 0.5rem;
-                  border-bottom: 2px solid #e5e7eb;
-                  color: #111827;
-                  line-height: 1.3;
-                }
-                .prose-preview h3 {
-                  font-size: 1.25em;
-                  font-weight: 600;
-                  margin-top: 1rem;
-                  margin-bottom: 0.5rem;
-                  color: #111827;
-                  line-height: 1.4;
-                }
-                .prose-preview p {
-                  margin-top: 0.75rem;
-                  margin-bottom: 0.75rem;
-                  color: #374151;
-                  line-height: 1.75;
-                }
-                .prose-preview ul {
-                  list-style-type: disc;
-                  list-style-position: outside;
-                  padding-left: 2rem;
-                  margin-top: 0.75rem;
-                  margin-bottom: 0.75rem;
-                }
-                .prose-preview ol {
-                  list-style-type: decimal;
-                  list-style-position: outside;
-                  padding-left: 2rem;
-                  margin-top: 0.75rem;
-                  margin-bottom: 0.75rem;
-                }
-                .prose-preview li {
-                  margin-top: 0.5rem;
-                  margin-bottom: 0.5rem;
-                  padding-left: 0.5rem;
-                  color: #374151;
-                  line-height: 1.75;
-                  display: list-item;
-                }
-                .prose-preview li::marker {
-                  color: #6b7280;
-                }
-                .prose-preview li p {
-                  display: inline;
-                  margin: 0;
-                }
-                .prose-preview li > p:only-child {
-                  display: inline;
-                }
-                .prose-preview strong {
-                  font-weight: 600;
-                  color: #111827;
-                }
-                .prose-preview code:not(pre code) {
-                  background-color: #f3f4f6;
-                  color: #dc2626;
-                  padding: 0.125rem 0.375rem;
+                /* Inline code styling */
+                .markdown-preview code:not(pre code) {
+                  background-color: rgba(253, 230, 138, 0.5);
+                  color: #b45309;
+                  padding: 0.15rem 0.4rem;
                   border-radius: 0.25rem;
-                  font-size: 0.875em;
+                  font-size: 0.9em;
                   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
                   font-weight: 500;
-                  display: inline;
+                  border: 1px solid rgba(251, 191, 36, 0.4);
                   white-space: nowrap;
                 }
-                .prose-preview pre {
-                  margin-top: 1rem;
+
+                /* Headers styling */
+                .markdown-preview h1 {
+                  font-size: 2rem;
+                  font-weight: 700;
+                  margin-top: 2rem;
                   margin-bottom: 1rem;
+                  padding-bottom: 0.5rem;
+                  border-bottom: 3px solid #3b82f6;
+                  color: #111827;
+                }
+
+                .markdown-preview h2 {
+                  font-size: 1.5rem;
+                  font-weight: 700;
+                  margin-top: 1.75rem;
+                  margin-bottom: 0.75rem;
+                  padding-bottom: 0.4rem;
+                  border-bottom: 2px solid #e5e7eb;
+                  color: #1f2937;
+                }
+
+                .markdown-preview h3 {
+                  font-size: 1.25rem;
+                  font-weight: 600;
+                  margin-top: 1.5rem;
+                  margin-bottom: 0.5rem;
+                  color: #374151;
+                }
+
+                /* Paragraph and text */
+                .markdown-preview p {
+                  margin: 1rem 0;
+                  line-height: 1.75;
+                  color: #374151;
+                }
+
+                /* Lists */
+                .markdown-preview ul, .markdown-preview ol {
+                  margin: 1rem 0;
+                  padding-left: 2rem;
+                  line-height: 1.75;
+                }
+
+                .markdown-preview ul {
+                  list-style-type: disc;
+                }
+
+                .markdown-preview ol {
+                  list-style-type: decimal;
+                  list-style-position: outside;
+                }
+
+                .markdown-preview li {
+                  margin: 0.5rem 0;
+                  color: #374151;
+                  padding-left: 0.5rem;
+                }
+
+                .markdown-preview li::marker {
+                  color: #6b7280;
+                  font-weight: 600;
+                }
+
+                /* Nested lists */
+                .markdown-preview ol ol {
+                  list-style-type: lower-alpha;
+                  margin-top: 0.25rem;
+                }
+
+                .markdown-preview ol ol ol {
+                  list-style-type: lower-roman;
+                }
+
+                .markdown-preview ul ul {
+                  list-style-type: circle;
+                  margin-top: 0.25rem;
+                }
+
+                .markdown-preview ul ul ul {
+                  list-style-type: square;
+                }
+
+                /* Links */
+                .markdown-preview a {
+                  color: #2563eb;
+                  text-decoration: underline;
+                  font-weight: 500;
+                }
+
+                .markdown-preview a:hover {
+                  color: #1d4ed8;
+                }
+
+                /* Code blocks with line numbers */
+                .code-block-wrapper {
+                  margin: 1.5rem 0;
                   border-radius: 0.5rem;
                   overflow: hidden;
-                  background-color: #f6f8fa;
                   border: 1px solid #e5e7eb;
+                  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                 }
-                .prose-preview pre code {
+
+                .code-block-header {
+                  background: linear-gradient(to right, #1e293b, #334155);
+                  color: white;
+                  padding: 0.75rem 1rem;
+                  font-size: 0.75rem;
+                  font-weight: 600;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                }
+
+                .code-block-content {
+                  background: #282c34;
+                  position: relative;
+                  overflow-x: auto;
+                }
+
+                .code-block-content pre {
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  background: transparent !important;
+                  overflow: visible !important;
+                  display: flex;
+                }
+
+                .line-numbers {
+                  padding: 1rem 0;
+                  text-align: right;
+                  user-select: none;
+                  color: #636d83;
+                  background: #21252b;
+                  border-right: 1px solid #3e4451;
+                  min-width: 3rem;
+                  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+                  font-size: 0.875rem;
+                  line-height: 1.5;
+                }
+
+                .line-numbers span {
                   display: block;
+                  padding: 0 0.75rem;
+                }
+
+                .code-content {
+                  flex: 1;
                   padding: 1rem;
                   overflow-x: auto;
-                  font-size: 0.875rem;
-                  line-height: 1.7;
+                }
+
+                .code-content code {
+                  background: transparent !important;
+                  color: #abb2bf !important;
                   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-                  background: transparent;
-                  color: #24292e;
+                  font-size: 0.875rem !important;
+                  line-height: 1.5 !important;
+                  display: block;
                   white-space: pre;
                 }
-                /* Nested lists */
-                .prose-preview li > * {
-                  display: inline;
+
+                /* Table styling */
+                .markdown-preview table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin: 1.5rem 0;
+                  border: 1px solid #e5e7eb;
+                  border-radius: 0.5rem;
+                  overflow: hidden;
+                  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                 }
-                .prose-preview li > ul,
-                .prose-preview li > ol {
-                  display: block;
+
+                .markdown-preview thead {
+                  background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+                }
+
+                .markdown-preview th {
+                  padding: 0.75rem 1rem;
+                  text-align: left;
+                  font-weight: 600;
+                  font-size: 0.875rem;
+                  color: #374151;
+                  border-bottom: 2px solid #d1d5db;
+                  text-transform: uppercase;
+                  letter-spacing: 0.025em;
+                }
+
+                .markdown-preview td {
+                  padding: 0.75rem 1rem;
+                  border-bottom: 1px solid #e5e7eb;
+                  color: #4b5563;
+                }
+
+                .markdown-preview tbody tr:hover {
+                  background-color: #f9fafb;
+                }
+
+                .markdown-preview tbody tr:last-child td {
+                  border-bottom: none;
+                }
+
+                /* Blockquote */
+                .markdown-preview blockquote {
+                  border-left: 4px solid #3b82f6;
+                  padding-left: 1rem;
+                  margin: 1.5rem 0;
+                  color: #6b7280;
+                  font-style: italic;
+                }
+
+                /* Images */
+                .markdown-preview img {
+                  max-width: 100%;
+                  height: auto;
+                  border-radius: 0.5rem;
+                  margin: 1.5rem 0;
+                  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                }
+
+                /* Math (KaTeX) */
+                .markdown-preview .katex {
+                  font-size: 1.1em;
+                }
+
+                .markdown-preview .katex-display {
+                  margin: 1.5rem 0;
+                  overflow-x: auto;
+                  overflow-y: hidden;
+                }
+
+                /* Horizontal rule */
+                .markdown-preview hr {
+                  border: none;
+                  border-top: 2px solid #e5e7eb;
+                  margin: 2rem 0;
+                }
+
+                /* Strong and emphasis */
+                .markdown-preview strong {
+                  font-weight: 700;
+                  color: #111827;
+                }
+
+                .markdown-preview em {
+                  font-style: italic;
                 }
               `}</style>
-              <div className="prose-preview">
+
+              <div className="markdown-preview">
                 <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeHighlight, rehypeRaw]}
+                  remarkPlugins={[remarkGfm, remarkMath]}
+                  rehypePlugins={[rehypeKatex, rehypeHighlight, rehypeRaw]}
                   components={{
-                    code({ node, inline, className, children, ...props }) {
-                      const match = /language-(\w+)/.exec(className || '');
-                      return !inline ? (
-                        <div className="relative my-4 border rounded-lg overflow-hidden">
-                          {match && (
-                            <div className="bg-gray-100 text-gray-700 px-4 py-2 text-xs font-semibold uppercase border-b">
-                              {match[1]}
-                            </div>
-                          )}
-                          <code className={className} {...props}>
-                            {children}
-                          </code>
+                    h1({ children }) {
+                      return <h1>{children}</h1>;
+                    },
+                    h2({ children }) {
+                      return <h2>{children}</h2>;
+                    },
+                    h3({ children }) {
+                      return <h3>{children}</h3>;
+                    },
+                    table({ children }) {
+                      return (
+                        <div className="overflow-x-auto">
+                          <table>{children}</table>
                         </div>
-                      ) : (
-                        <code {...props}>
-                          {children}
-                        </code>
                       );
                     },
+                    code({ inline, className, children, ...props }) {
+                      const match = /language-(\w+)/.exec(className || '');
+                      
+                      if (!inline && match) {
+                        const code = String(children).replace(/\n$/, '');
+                        const lines = code.split('\n');
+                        const lineNumbers = lines.map((_, i) => i + 1);
+
+                        return (
+                          <div className="code-block-wrapper">
+                            <div className="code-block-header">
+                              <Code2 className="w-4 h-4" />
+                              {match[1].toUpperCase()}
+                            </div>
+                            <div className="code-block-content">
+                              <pre>
+                                <div className="line-numbers">
+                                  {lineNumbers.map(num => (
+                                    <span key={num}>{num}</span>
+                                  ))}
+                                </div>
+                                <div className="code-content">
+                                  <code className={className} {...props}>
+                                    {children}
+                                  </code>
+                                </div>
+                              </pre>
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      return inline ? (
+                        <code {...props}>{children}</code>
+                      ) : (
+                        <code className={className} {...props}>{children}</code>
+                      );
+                    }
                   }}
                 >
                   {markdownForPreview || '*Chưa có nội dung. Bắt đầu viết solution của bạn...*'}

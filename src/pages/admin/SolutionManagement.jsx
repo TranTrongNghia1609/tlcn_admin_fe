@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useLocation } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router'
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
