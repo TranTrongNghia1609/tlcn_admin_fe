@@ -9,7 +9,7 @@ import WorkSpace from "@/components/workspace/WorkSpace";
 import LandingPage from "@/pages/LandingPage";
 import UserManagement from "@/pages/admin/UserManagement";
 import AdminLayout from "@/components/layout/AdminLayout";
-import NavBar from "@/components/layout/NavBar"; // Import NavBar ở đây
+import NavBar from "@/components/layout/NavBar";
 import { useAuth } from "@/context/AuthContext";
 import PostManagement from "@/pages/admin/PostManagement";
 import ProblemManagement from "@/pages/admin/ProblemManagement";
@@ -20,6 +20,9 @@ import UpdateProblem from "@/pages/admin/UpdateProblem";
 import ContestForm from "@/components/admin/contests/ContestForm";
 import SubmissionManagement from "@/pages/admin/SubmissionManagement";
 import Submission from "@/pages/admin/Submision";
+import SolutionManagement from "@/pages/admin/SolutionManagement";
+import SolutionFormPage from "@/pages/admin/SolutionFormPage";
+
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
@@ -123,6 +126,7 @@ const AppRoutes = () => {
         }
       />
 
+      {/* Admin Routes */}
       <Route
         path="/dashboard"
         element={
@@ -140,6 +144,7 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
+
       <Route
         path="/posts"
         element={
@@ -148,6 +153,7 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
+
       <Route
         path="/problems"
         element={
@@ -166,11 +172,30 @@ const AppRoutes = () => {
         }
       />
 
-<Route
+      <Route
         path="/problems/:id"
         element={
           <AdminRoute>
             <UpdateProblem />
+          </AdminRoute>
+        }
+      />
+
+      {/* Solution Routes - IMPORTANT: Đặt route cụ thể TRƯỚC route general */}
+      <Route
+        path="/problems/:id/solution"
+        element={
+          <AdminRoute>
+            <SolutionFormPage />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/problems/:id/edit-solution"
+        element={
+          <AdminRoute>
+            <SolutionFormPage />
           </AdminRoute>
         }
       />
@@ -180,6 +205,15 @@ const AppRoutes = () => {
         element={
           <AdminRoute>
             <ContestManagement />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/solutions"
+        element={
+          <AdminRoute>
+            <SolutionManagement />
           </AdminRoute>
         }
       />
@@ -201,26 +235,24 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
-      
+
       <Route
         path="/submissions"
         element={
           <AdminRoute>
-            <SubmissionManagement/>
-          </AdminRoute>
-        }
-      />
-      
-      <Route
-        path="/submission/:id"
-        element={
-          <AdminRoute>
-            <Submission/>
+            <SubmissionManagement />
           </AdminRoute>
         }
       />
 
-      
+      <Route
+        path="/submission/:id"
+        element={
+          <AdminRoute>
+            <Submission />
+          </AdminRoute>
+        }
+      />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

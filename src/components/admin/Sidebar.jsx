@@ -12,7 +12,8 @@ import {
   LogOut,
   BarChart3,
   Trophy,
-  Book
+  Book,
+  BookOpen
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useAuth } from '@/context/AuthContext';
@@ -57,6 +58,12 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       title: 'Quản lý bài nộp',
       icon: Book,
       path: '/submissions',
+      badge: null
+    },
+    {
+      title: 'Quản lý solution',
+      icon: BookOpen,
+      path: '/solutions',
       badge: null
     },
 

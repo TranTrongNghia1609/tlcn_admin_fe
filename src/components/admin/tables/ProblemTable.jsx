@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Table, 
   TableBody, 
@@ -11,10 +12,12 @@ import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
 import { 
   MoreVertical, 
-  Trash2, 
   Eye,
   EyeOff,
-  Edit
+  Edit,
+  FileText,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -27,8 +30,10 @@ const ProblemTable = ({
   problems, 
   loading, 
   onToggleStatus, 
-  onViewDetail 
+  onViewDetail
 }) => {
+  const navigate = useNavigate();
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -60,6 +65,28 @@ const ProblemTable = ({
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
+  const handleSolutionClick = (problem) => {
+  // Navigate to admin solution form page
+  if (problem.hasSolution && problem.solutionId) {
+    // Edit existing solution
+    navigate(`/problems/${problem._id}/edit-solution?edit=${problem.solutionId}`, {
+      state: {
+        problemShortId: problem.shortId,
+        problemName: problem.name,
+        solutionId: problem.solutionId
+      }
+    });
+  } else {
+    // Create new solution
+    navigate(`/problems/${problem._id}/solution`, {
+      state: {
+        problemShortId: problem.shortId,
+        problemName: problem.name
+      }
+    });
+  }
+};
+
   return (
     <div className="border rounded-lg overflow-hidden">
       <Table>
@@ -69,6 +96,7 @@ const ProblemTable = ({
             <TableHead className="font-semibold">Tên bài</TableHead>
             <TableHead className="font-semibold">Lượt nộp</TableHead>
             <TableHead className="font-semibold">Thành công</TableHead>
+            <TableHead className="font-semibold">Giải pháp</TableHead>
             <TableHead className="font-semibold">Trạng thái</TableHead>
             <TableHead className="font-semibold">Ngày tạo</TableHead>
             <TableHead className="text-center font-semibold">Hành động</TableHead>
@@ -85,12 +113,28 @@ const ProblemTable = ({
               </TableCell>
               <TableCell>{problem.numberOfSubmissions || 0}</TableCell>
               <TableCell>{problem.numberOfAccepted || 0}</TableCell>
+              
+              {/* Solution Status Column */}
+              <TableCell>
+                {problem.hasSolution ? (
+                  <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Có
+                  </Badge>
+                ) : (
+                  <Badge className="bg-gray-100 text-gray-600 hover:bg-gray-200">
+                    <XCircle className="w-3 h-3 mr-1" />
+                    Chưa có
+                  </Badge>
+                )}
+              </TableCell>
+
               <TableCell>
                 <Badge 
                   variant={problem.isActive ? 'default' : 'secondary'}
                   className={
                     problem.isActive 
-                      ? 'bg-green-600 hover:bg-green-700' 
+                      ? 'bg-blue-600 hover:bg-blue-700' 
                       : 'bg-gray-400 hover:bg-gray-500'
                   }
                 >
@@ -110,6 +154,25 @@ const ProblemTable = ({
                       <Eye className="mr-2 h-4 w-4" />
                       Xem chi tiết
                     </DropdownMenuItem>
+                    
+                    {/* Solution Action - Navigate to solution page using problem._id */}
+                    <DropdownMenuItem 
+                      onClick={() => handleSolutionClick(problem)}
+                      className={problem.hasSolution ? "text-green-600" : "text-blue-600"}
+                    >
+                      {problem.hasSolution ? (
+                        <>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Cập nhật giải pháp
+                        </>
+                      ) : (
+                        <>
+                          <FileText className="mr-2 h-4 w-4" />
+                          Tạo giải pháp
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                    
                     <DropdownMenuItem onClick={() => onToggleStatus(problem._id, problem.isActive)}>
                       {problem.isActive ? (
                         <>
