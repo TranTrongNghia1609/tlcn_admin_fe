@@ -1,105 +1,100 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card } from '@/components/ui/card';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Save } from 'lucide-react';
-import SolutionForm from '@/components/solution/SolutionForm';
+import { ArrowLeft } from 'lucide-react';
+import AdminSolutionEditor from '@/components/solution/AdminSolutionEditor';
 import solutionService from '@/services/solutionService';
 import { getProblemById } from '@/services/problemService';
 import { toast } from 'sonner';
 
 const SolutionFormPage = () => {
-  const { id } = useParams(); // Get problem ID from URL
+  const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const editSolutionId = searchParams.get('edit');
+
   const [problem, setProblem] = useState(null);
+  const [solution, setSolution] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [solutionId, setSolutionId] = useState(null);
-  const [formDraft, setFormDraft] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const { problemShortId, problemName, solutionId } = location.state || {};
 
   useEffect(() => {
-    const initializePage = async () => {
-      await loadProblemInfo();
-    };
+    loadData();
+  }, [id, editSolutionId]);
 
-    initializePage();
-  }, [id]);
-
-  // Load problem information using ID
-  const loadProblemInfo = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const response = await getProblemById(id);
 
-      if (response.success && response.data) {
-        const problemData = response.data;
-        setProblem(problemData);
-
-        // Check if solution exists for this problem
-        await checkExistingSolution(problemData.shortId);
+      if (problemShortId && problemName) {
+        setProblem({ shortId: problemShortId, name: problemName });
       } else {
-        toast.error('Không tìm thấy bài tập');
-        navigate('/problems');
+        const response = await getProblemById(id);
+        if (response.success && response.data) {
+          setProblem(response.data);
+        } else {
+          throw new Error('Không tìm thấy bài tập');
+        }
       }
+
+      if (editSolutionId || solutionId) {
+        const solId = editSolutionId || solutionId;
+        const solResponse = await solutionService.getSolutionById(solId);
+        if (solResponse.success && solResponse.data) {
+          setSolution(solResponse.data);
+          console.log('✅ Loaded solution for edit:', solResponse.data);
+        } else {
+          throw new Error('Không tìm thấy solution');
+        }
+      }
+
     } catch (error) {
-      console.error('Error loading problem:', error);
-      toast.error('Không thể tải thông tin bài tập');
+      console.error('Error loading data:', error);
+      toast.error(error.message || 'Không thể tải dữ liệu');
       navigate('/problems');
     } finally {
       setLoading(false);
     }
   };
 
-  // Check if solution already exists
-  const checkExistingSolution = async (problemShortId) => {
+  const handleSubmit = async (data) => {
     try {
-      const response = await solutionService.checkSolutionExists(problemShortId);
+      setSubmitting(true);
 
-      if (response.data.exists) {
-        setSolutionId(response.data.solution._id);
-        toast.info('Đang chỉnh sửa solution có sẵn');
+      if (editSolutionId || solutionId) {
+        const solId = editSolutionId || solutionId;
+        await solutionService.updateSolution(solId, data);
+        toast.success('Cập nhật solution thành công!');
       } else {
-        // Initialize draft for new solution
-        setFormDraft({
-          title: `Hướng giải cho bài ${problem.name}`,
-          content: '',
-          approach: 'brute-force',
-          complexity: { time: 'O(n)', space: 'O(1)' },
-          tags: [],
-          codeBlocks: [],
-          problemShortId: problemShortId,
-          classroomId: null,
-          contestId: null
-        });
+        await solutionService.createSolution(data);
+        toast.success('Tạo solution thành công!');
       }
-    } catch (error) {
-      console.error('Error checking solution:', error);
-      // Don't block page load if solution check fails
-    }
-  };
 
-  const handleSuccess = () => {
-    toast.success('Solution đã được lưu thành công!');
-    navigate('/problems');
+      navigate('/problems');
+    } catch (error) {
+      console.error('Submit solution error:', error);
+      toast.error(error.response?.data?.message || 'Lỗi khi xử lý solution');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleCancel = () => {
-    if (formDraft && !solutionId) {
-      const confirmLeave = window.confirm(
-        'Bạn có dữ liệu chưa lưu. Bạn có chắc muốn rời đi?'
-      );
-      if (!confirmLeave) return;
+    if (window.confirm('Bạn có chắc muốn hủy? Các thay đổi sẽ không được lưu.')) {
+      navigate('/problems');
     }
-    navigate('/problems');
-  };
-
-  const handleFormChange = (data) => {
-    setFormDraft(data);
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Đang tải...</p>
+        </div>
       </div>
     );
   }
@@ -107,57 +102,41 @@ const SolutionFormPage = () => {
   if (!problem) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Không tìm thấy bài tập
-          </h2>
-          <Button onClick={() => navigate('/problems')}>
-            Quay lại danh sách
-          </Button>
-        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Không tìm thấy bài tập</h2>
+        <Button onClick={() => navigate('/problems')}>Quay lại danh sách</Button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen ">
-      {/* Header */}
-
-      <div className="max-w-[1400px] mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCancel}
-              className="hover:bg-gray-100"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Quay lại
-            </Button>
-
-          </div>
-
+    <div className="min-h-screen bg-gray-50">
+      {/* Header - Chỉ có nút Quay lại */}
+      <div >
+        <div className="max-w-[1400px] mx-auto px-6 py-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/problems')}
+            className="hover:bg-gray-100 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Quay lại
+          </Button>
         </div>
       </div>
-      <div className='flex items-center justify-center'>
-        <h2 className="text-3xl font-bold text-gray-900">
-          Tạo Giải Pháp Cho Bài Tập
-        </h2>
-      </div>
-      {/* Form Content */}
+
+      {/* Content */}
       <div className="max-w-[1400px] mx-auto px-6 py-8">
-        <Card className="p-8 shadow-lg">
-          <SolutionForm
-            solutionId={solutionId}
-            problemShortId={problem.shortId}
-            problemName={problem.name}
-            onSuccess={handleSuccess}
-            onCancel={handleCancel}
-            onFormChange={handleFormChange}
-            initialData={formDraft}
-          />
-        </Card>
+        <AdminSolutionEditor
+          problemShortId={problem.shortId}
+          problemName={problem.name}
+          solutionId={solution?._id}
+          initialData={solution}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          submitting={submitting}
+          isEditMode={!!(editSolutionId || solutionId)}
+        />
       </div>
     </div>
   );

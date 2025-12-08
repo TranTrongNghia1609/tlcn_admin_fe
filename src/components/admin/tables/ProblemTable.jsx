@@ -65,10 +65,27 @@ const ProblemTable = ({
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
 
-  const handleSolutionClick = (problemId) => {
-    // Use problem._id instead of shortId
-    navigate(`/problems/${problemId}/solution`);
-  };
+  const handleSolutionClick = (problem) => {
+  // Navigate to admin solution form page
+  if (problem.hasSolution && problem.solutionId) {
+    // Edit existing solution
+    navigate(`/problems/${problem._id}/edit-solution?edit=${problem.solutionId}`, {
+      state: {
+        problemShortId: problem.shortId,
+        problemName: problem.name,
+        solutionId: problem.solutionId
+      }
+    });
+  } else {
+    // Create new solution
+    navigate(`/problems/${problem._id}/solution`, {
+      state: {
+        problemShortId: problem.shortId,
+        problemName: problem.name
+      }
+    });
+  }
+};
 
   return (
     <div className="border rounded-lg overflow-hidden">
@@ -140,8 +157,8 @@ const ProblemTable = ({
                     
                     {/* Solution Action - Navigate to solution page using problem._id */}
                     <DropdownMenuItem 
-                      onClick={() => handleSolutionClick(problem._id)}
-                      className={problem.hasSolution ? "text-orange-600" : "text-blue-600"}
+                      onClick={() => handleSolutionClick(problem)}
+                      className={problem.hasSolution ? "text-green-600" : "text-blue-600"}
                     >
                       {problem.hasSolution ? (
                         <>

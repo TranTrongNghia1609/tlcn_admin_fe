@@ -9,7 +9,7 @@ import WorkSpace from "@/components/workspace/WorkSpace";
 import LandingPage from "@/pages/LandingPage";
 import UserManagement from "@/pages/admin/UserManagement";
 import AdminLayout from "@/components/layout/AdminLayout";
-import NavBar from "@/components/layout/NavBar"; // Import NavBar ở đây
+import NavBar from "@/components/layout/NavBar";
 import { useAuth } from "@/context/AuthContext";
 import PostManagement from "@/pages/admin/PostManagement";
 import ProblemManagement from "@/pages/admin/ProblemManagement";
@@ -126,6 +126,7 @@ const AppRoutes = () => {
         }
       />
 
+      {/* Admin Routes */}
       <Route
         path="/dashboard"
         element={
@@ -143,6 +144,7 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
+
       <Route
         path="/posts"
         element={
@@ -151,6 +153,7 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
+
       <Route
         path="/problems"
         element={
@@ -168,6 +171,17 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
+
+      <Route
+        path="/problems/:id"
+        element={
+          <AdminRoute>
+            <UpdateProblem />
+          </AdminRoute>
+        }
+      />
+
+      {/* Solution Routes - IMPORTANT: Đặt route cụ thể TRƯỚC route general */}
       <Route
         path="/problems/:id/solution"
         element={
@@ -178,10 +192,10 @@ const AppRoutes = () => {
       />
 
       <Route
-        path="/problems/:id"
+        path="/problems/:id/edit-solution"
         element={
           <AdminRoute>
-            <UpdateProblem />
+            <SolutionFormPage />
           </AdminRoute>
         }
       />
@@ -194,6 +208,7 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
+
       <Route
         path="/solutions"
         element={
@@ -211,7 +226,6 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
-
 
       <Route
         path="/contest/:id"
@@ -239,8 +253,6 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
-
-
 
       <Route path="*" element={<NotFound />} />
     </Routes>

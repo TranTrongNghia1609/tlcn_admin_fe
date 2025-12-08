@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router'
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,12 +7,15 @@ import SolutionForm from '@/components/solution/SolutionForm';
 import solutionService from '@/services/solutionService';
 import { toast } from 'sonner';
 import { Eye, Edit, Trash2, CheckCircle, XCircle, Search, Filter, X } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const SolutionManagement = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [solutions, setSolutions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false); // Để handle animation
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const [selectedSolution, setSelectedSolution] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -22,10 +25,6 @@ const SolutionManagement = () => {
     search: ''
   });
 
-  // State để lưu draft form data
-  const [formDraft, setFormDraft] = useState(null);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const location = useLocation();
   useEffect(() => {
     loadSolutions();
   }, [page, filter]);
@@ -40,7 +39,7 @@ const SolutionManagement = () => {
         ...(filter.search && { search: filter.search })
       };
       const response = await solutionService.getAllSolutions(params);
-      
+
       if (response.success) {
         setSolutions(response.data.items || []);
         setTotalPages(response.data.totalPages || 1);
@@ -52,62 +51,6 @@ const SolutionManagement = () => {
       console.error('Load solutions error:', error);
       toast.error(error.message || 'Không thể tải danh sách solution');
       setSolutions([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // Create new solution
-    if (location.state?.createNew && location.state?.problemShortId) {
-      const { problemShortId, problemName } = location.state;
-      
-      setFormDraft({
-        title: `Solution for ${problemName}`,
-        content: '',
-        approach: 'brute-force',
-        complexity: { time: 'O(n)', space: 'O(1)' },
-        tags: [],
-        codeBlocks: [],
-        problemShortId: problemShortId,
-        classroomId: null,
-        contestId: null
-      });
-      
-      setSelectedSolution(null);
-      setIsEditMode(false);
-      setShowForm(true);
-      setTimeout(() => setIsAnimating(true), 10);
-      
-      window.history.replaceState({}, document.title);
-      toast.success(`Tạo solution cho bài: ${problemName}`);
-    }
-    
-    // Edit existing solution
-    if (location.state?.editSolution && location.state?.solutionId) {
-      const { solutionId, problemShortId, problemName } = location.state;
-      
-      // Load solution data
-      loadSolutionForEdit(solutionId);
-      
-      window.history.replaceState({}, document.title);
-      toast.info(`Chỉnh sửa solution cho bài: ${problemName}`);
-    }
-  }, [location]);
-
-  const loadSolutionForEdit = async (solutionId) => {
-    try {
-      setLoading(true);
-      const response = await solutionService.getSolutionById(solutionId);
-      const solution = response.data;
-      
-      setSelectedSolution(solution);
-      setFormDraft(null);
-      setIsEditMode(true);
-      setShowForm(true);
-      setTimeout(() => setIsAnimating(true), 10);
-    } catch (error) {
-      toast.error('Không thể tải solution');
     } finally {
       setLoading(false);
     }
@@ -129,7 +72,7 @@ const SolutionManagement = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Bạn có chắc muốn xóa solution này?')) return;
-    
+
     try {
       const response = await solutionService.deleteSolution(id);
       if (response.success) {
@@ -164,79 +107,54 @@ const SolutionManagement = () => {
     setPage(1);
   };
 
-  // Mở form với animation
-  const openForm = () => {
-    setShowForm(true);
-    // Delay nhỏ để trigger animation
+  // View solution - Open modal with preview only
+  const handleView = (solution) => {
+    setSelectedSolution(solution);
+    openViewModal();
+  };
+
+  // Edit solution - Navigate to EditMySolutionPage
+  const handleEdit = (solution) => {
+  const currentUserId = user?.id;
+  const solutionAuthorId = solution.author?._id || solution.author?.id;
+
+  if (currentUserId !== solutionAuthorId) {
+    toast.error('Không thể chỉnh sửa solution của người khác. Bạn chỉ có thể duyệt/từ chối/xóa.', {
+      duration: 4000
+    });
+    return;
+  }
+
+  // Get problemId from solution object
+  const problemId = solution.problem?._id || solution.problem || solution.problemId;
+  
+  if (!problemId) {
+    toast.error('Không tìm thấy thông tin bài tập');
+    console.error('Missing problemId in solution:', solution);
+    return;
+  }
+
+  // Navigate with problemId in URL
+  navigate(`/problems/${problemId}/solution?edit=${solution._id}`, {
+    state: {
+      solution,
+      problemShortId: solution.problemShortId,
+      problemName: solution.problemName || solution.problem?.name || ''
+    }
+  });
+};
+
+  const openViewModal = () => {
+    setShowViewModal(true);
     setTimeout(() => setIsAnimating(true), 10);
   };
 
-  // Đóng form với animation
-  const handleCloseForm = () => {
-    setIsAnimating(false);
-    // Đợi animation complete rồi mới unmount
-    setTimeout(() => setShowForm(false), 300);
-  };
-
-  const handleFormSuccess = () => {
+  const handleCloseViewModal = () => {
     setIsAnimating(false);
     setTimeout(() => {
-      setShowForm(false);
+      setShowViewModal(false);
       setSelectedSolution(null);
-      setFormDraft(null);
-      setIsEditMode(false);
-      loadSolutions();
     }, 300);
-  };
-
-  const handleCreateNew = () => {
-    if (formDraft && !isEditMode) {
-      const confirmDiscard = window.confirm(
-        'Bạn đang có dữ liệu chưa lưu. Bạn có muốn bỏ qua và tạo mới?'
-      );
-      if (!confirmDiscard) {
-        openForm();
-        return;
-      }
-    }
-    
-    setSelectedSolution(null);
-    setFormDraft(null);
-    setIsEditMode(false);
-    openForm();
-  };
-
-  const handleEdit = (solution) => {
-    if (formDraft && !isEditMode) {
-      const confirmDiscard = window.confirm(
-        'Bạn đang có dữ liệu chưa lưu. Bạn có muốn bỏ qua và chỉnh sửa solution khác?'
-      );
-      if (!confirmDiscard) {
-        openForm();
-        return;
-      }
-    }
-
-    setSelectedSolution(solution);
-    setFormDraft(null);
-    setIsEditMode(true);
-    openForm();
-  };
-
-  const handleFormChange = (data) => {
-    setFormDraft(data);
-  };
-
-  const handleResetForm = () => {
-    const confirmReset = window.confirm(
-      'Bạn có chắc muốn xóa toàn bộ dữ liệu đã nhập?'
-    );
-    if (confirmReset) {
-      setSelectedSolution(null);
-      setFormDraft(null);
-      setIsEditMode(false);
-      handleCloseForm();
-    }
   };
 
   return (
@@ -247,30 +165,9 @@ const SolutionManagement = () => {
           <h1 className="text-2xl font-bold text-gray-900">Quản lý Solutions</h1>
           <p className="text-sm text-gray-500 mt-1">
             Tổng: {total} solutions
-            {formDraft && !showForm && (
-              <span className="ml-2 text-orange-600">
-                • Có dữ liệu chưa lưu
-              </span>
-            )}
           </p>
         </div>
-        <div className="flex gap-2">
-          {formDraft && !showForm && (
-            <Button 
-              onClick={openForm}
-              variant="outline"
-              className="border-orange-500 text-orange-600 hover:bg-orange-50"
-            >
-              📝 Tiếp tục chỉnh sửa
-            </Button>
-          )}
-          <Button 
-            onClick={handleCreateNew}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-          >
-            + Tạo Solution Mới
-          </Button>
-        </div>
+        {/* REMOVED: Tạo Solution Mới button */}
       </div>
 
       {/* Filters */}
@@ -286,7 +183,7 @@ const SolutionManagement = () => {
               onChange={handleSearchChange}
             />
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Filter className="w-5 h-5 text-gray-400" />
             <select
@@ -318,9 +215,9 @@ const SolutionManagement = () => {
               Không tìm thấy solution nào
             </h3>
             <p className="text-sm text-gray-500">
-              {filter.search || filter.status !== 'all' 
+              {filter.search || filter.status !== 'all'
                 ? 'Thử thay đổi bộ lọc để xem kết quả khác'
-                : 'Bắt đầu bằng cách tạo solution đầu tiên'}
+                : 'Chưa có solution nào trong hệ thống'}
             </p>
           </div>
         </Card>
@@ -341,16 +238,16 @@ const SolutionManagement = () => {
                       </Badge>
                     )}
                   </div>
-                  
+
                   <p className="text-sm text-gray-600 mb-2">
                     Problem: <span className="font-medium text-blue-600">
                       {solution.problemShortId}
                     </span>
                   </p>
-                  
+
                   <div className="flex flex-wrap gap-2 mb-3">
                     <Badge variant="outline" className="text-xs">
-                      {solution.approach?.split('-').map(w => 
+                      {solution.approach?.split('-').map(w =>
                         w.charAt(0).toUpperCase() + w.slice(1)
                       ).join(' ')}
                     </Badge>
@@ -361,7 +258,7 @@ const SolutionManagement = () => {
                       💾 {solution.complexity?.space || 'N/A'}
                     </Badge>
                   </div>
-                  
+
                   <div className="flex items-center gap-4 text-sm text-gray-500">
                     <span>👤 {solution.author?.userName || 'Unknown'}</span>
                     <span>👍 {solution.upvoteCount || 0}</span>
@@ -376,7 +273,7 @@ const SolutionManagement = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-green-600 hover:bg-green-50 hover:text-green-700"
+                        className="text-green-600 hover:bg-green-50 hover:text-green-700 cursor-pointer"
                         onClick={() => handleModerate(solution._id, 'approve')}
                       >
                         <CheckCircle className="w-4 h-4 mr-1" />
@@ -385,7 +282,7 @@ const SolutionManagement = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                        className="text-red-600 hover:bg-red-50 hover:text-red-700 cursor-pointer"
                         onClick={() => {
                           const reason = prompt('Lý do từ chối:');
                           if (reason) handleModerate(solution._id, 'reject', reason);
@@ -396,20 +293,33 @@ const SolutionManagement = () => {
                       </Button>
                     </>
                   )}
-                  
+
+                  {/* View button - always available */}
                   <Button
                     size="sm"
                     variant="outline"
-                    className="hover:bg-blue-50 hover:text-blue-700"
-                    onClick={() => handleEdit(solution)}
+                    className="hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
+                    onClick={() => handleView(solution)}
                   >
-                    <Edit className="w-4 h-4" />
+                    <Eye className="w-4 h-4" />
                   </Button>
-                  
+
+                  {/* Edit button - only for own solutions */}
+                  {user?.id === (solution.author?._id || solution.author?.id) && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="hover:bg-orange-50 hover:text-orange-700 cursor-pointer"
+                      onClick={() => handleEdit(solution)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  )}
+
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                    className="text-red-600 hover:bg-red-50 hover:text-red-700 cursor-pointer"
                     onClick={() => handleDelete(solution._id)}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -431,7 +341,7 @@ const SolutionManagement = () => {
           >
             ← Trước
           </Button>
-          
+
           <div className="flex items-center gap-1">
             {[...Array(totalPages)].map((_, index) => {
               const pageNum = index + 1;
@@ -468,71 +378,57 @@ const SolutionManagement = () => {
         </div>
       )}
 
-      {/* Sliding Form Panel - Pure Tailwind CSS */}
-      {showForm && (
+      {/* View Modal - Preview Only */}
+      {showViewModal && selectedSolution && (
         <>
-          {/* Backdrop/Overlay */}
+          {/* Backdrop */}
           <div
             className={`
               fixed inset-0 bg-black/50 z-40
               transition-opacity duration-300
               ${isAnimating ? 'opacity-100' : 'opacity-0'}
             `}
-            onClick={handleCloseForm}
+            onClick={handleCloseViewModal}
           />
 
-          {/* Sliding Panel from Right */}
+          {/* Sliding Panel */}
           <div
             className={`
-              fixed right-0 top-0 h-screen w-full md:w-[800px] lg:w-[900px] 
+              fixed right-0 top-0 h-screen w-full md:w-[800px] lg:w-[1000px]
               bg-white shadow-2xl z-50 overflow-y-auto
               transform transition-transform duration-500 ease-in-out
               ${isAnimating ? 'translate-x-0' : 'translate-x-full'}
             `}
           >
-            {/* Sticky Header */}
+            {/* Header */}
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10 shadow-sm">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">
-                  {selectedSolution ? '✏️ Chỉnh sửa Solution' : '➕ Tạo Solution Mới'}
+                  👁️ Xem Solution
                 </h2>
-                {formDraft && (
-                  <p className="text-xs text-orange-600 mt-1">
-                    💾 Dữ liệu được lưu tự động
-                  </p>
-                )}
+                <p className="text-sm text-gray-600 mt-1">
+                  Chế độ xem - Không thể chỉnh sửa
+                </p>
               </div>
-              <div className="flex gap-2">
-                {formDraft && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleResetForm}
-                    className="text-red-600 hover:bg-red-50"
-                  >
-                    Xóa dữ liệu
-                  </Button>
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCloseForm}
-                  className="hover:bg-gray-100"
-                >
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCloseViewModal}
+                className="hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </Button>
             </div>
 
-            {/* Form Content */}
+            {/* Content - Preview Only */}
             <div className="p-6">
               <SolutionForm
-                solutionId={selectedSolution?._id}
-                problemShortId={selectedSolution?.problemShortId}
-                onSuccess={handleFormSuccess}
-                onCancel={handleCloseForm}
-                onFormChange={handleFormChange}
-                initialData={formDraft}
+                solutionId={selectedSolution._id}
+                problemShortId={selectedSolution.problemShortId}
+                problemName={selectedSolution.problemName || ''}
+                onSuccess={handleCloseViewModal}
+                onCancel={handleCloseViewModal}
+                viewMode={true} // Force view mode
               />
             </div>
           </div>
