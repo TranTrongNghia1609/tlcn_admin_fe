@@ -96,4 +96,13 @@ export const SUBMISSION_ENDPOINTS = {
   GET_SUBMISSION_STATS: '/admin/submissions/stats',
   JUDGE_SUBMISSION: (id) => `/submissions/${id}/judge`,
   STATS: '/admin/submissions/stats',
+  ALL_STATUS_STATS: '/admin/submissions/statistics/all-status',
+
 }
+export const STATISTICS_ENDPOINTS = {
+  PUBLIC: '/statistics/public',
+  DASHBOARD: '/statistics/dashboard',
+  USER_GROWTH: '/statistics/user-growth',
+  SUBMISSIONS_BY_LANGUAGE: '/statistics/submissions-by-language',
+  PROBLEMS_BY_TAGS: '/statistics/problems-by-tags',
+};

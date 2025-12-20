@@ -2,8 +2,9 @@
 export const formatChartData = (data, period) => {
   if (!data || !data.data) return [];
 
-  const chartData = data.data.map(item => ({
-    date: formatDateLabel(item.date, period),
+  // ✅ Map data với index để xử lý quarter
+  const chartData = data.data.map((item, index) => ({
+    date: formatDateLabel(item.date, period, index),
     count: item.count,
     rawDate: item.date
   }));
@@ -12,8 +13,8 @@ export const formatChartData = (data, period) => {
   return fillMissingDataPoints(chartData, data.points, period);
 };
 
-// Format label cho trục X dựa trên period
-const formatDateLabel = (dateStr, period) => {
+// ✅ Format label cho trục X dựa trên period
+const formatDateLabel = (dateStr, period, index = 0) => {
   const date = new Date(dateStr);
   
   switch (period) {
@@ -30,8 +31,8 @@ const formatDateLabel = (dateStr, period) => {
       });
       
     case 'quarter':
-      const weekNum = dateStr.split('-W')[1];
-      return `Tuần ${weekNum}`;
+      // ✅ Fixed: Use index parameter for quarter
+      return `Tuần ${index + 1}`;
       
     case 'year':
       return date.toLocaleDateString('vi-VN', { 
@@ -44,40 +45,45 @@ const formatDateLabel = (dateStr, period) => {
   }
 };
 
-// Điền các điểm dữ liệu thiếu
+// ✅ Điền các điểm dữ liệu thiếu
 const fillMissingDataPoints = (data, expectedPoints, period) => {
   const filledData = [];
   const now = new Date();
   
   for (let i = expectedPoints - 1; i >= 0; i--) {
     let date;
+    let formattedDate;
     
     switch (period) {
       case 'week':
         date = new Date(now);
         date.setDate(date.getDate() - i);
+        formattedDate = formatDateLabel(date.toISOString(), period, i);
         break;
         
       case 'month':
         date = new Date(now);
         date.setDate(date.getDate() - i);
+        formattedDate = formatDateLabel(date.toISOString(), period, i);
         break;
         
       case 'quarter':
-        date = new Date(now);
-        date.setDate(date.getDate() - (i * 7));
+        // ✅ For quarter, calculate week index
+        const weekIndex = expectedPoints - 1 - i;
+        formattedDate = `Tuần ${weekIndex + 1}`;
         break;
         
       case 'year':
         date = new Date(now);
         date.setMonth(date.getMonth() - i);
+        formattedDate = formatDateLabel(date.toISOString(), period, i);
         break;
         
       default:
         date = new Date(now);
+        formattedDate = formatDateLabel(date.toISOString(), period, i);
     }
     
-    const formattedDate = formatDateLabel(date.toISOString(), period);
     const existingData = data.find(d => d.date === formattedDate);
     
     filledData.push({
@@ -127,14 +133,17 @@ export const getChartConfig = (period) => {
           display: false
         },
         ticks: {
-          maxRotation: 45,
-          minRotation: 45
+          maxRotation: period === 'year' ? 0 : 45,
+          minRotation: period === 'year' ? 0 : 45,
+          autoSkip: period === 'quarter' ? false : true, // ✅ Show all weeks for quarter
+          maxTicksLimit: period === 'quarter' ? undefined : 20
         }
       },
       y: {
         beginAtZero: true,
         ticks: {
-          precision: 0
+          precision: 0,
+          stepSize: 1 // ✅ Integer steps only
         },
         grid: {
           color: 'rgba(0, 0, 0, 0.05)'

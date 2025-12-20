@@ -29,3 +29,14 @@ export const getSubmissionStats = async () => {
     throw error;
   }
 }
+export const getAllStatusStatistics = async (filters = {}) => {
+  try {
+    const response = await API.get(SUBMISSION_ENDPOINTS.ALL_STATUS_STATS, { 
+      params: filters 
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error getting all status statistics:", error);
+    throw error;
+  }
+}
