@@ -1,25 +1,95 @@
-import React from 'react';
+import { React, useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, } from 'react-router-dom';
 import { useAuthModal } from '../context/AuthModalContext';
 import HeaderLandingPage from '../components/layout/HeaderLandingPage';
-
+import { getPublicStatistics } from '@/services/statisticsService';
+import anh1 from '../assets/anh1.jpg';
+import anh2 from '../assets/anh2.jpg';
+import anh3 from '../assets/anh3.jpg';
+import Footer from '@/components/layout/Footer';
 const LandingPage = () => {
   const navigate = useNavigate();
   const { openLogin, openRegister } = useAuthModal();
-  
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [stats, setStats] = useState({
+    users: 0,
+    problems: {
+      total: 0,
+      easy: 0,
+      medium: 0,
+      hard: 0
+    },
+    submissions: 0,
+    contests: 0
+  });
+  const images = [anh1, anh2, anh3];
   const navigationSections = [
     { id: 'about', label: 'Giới thiệu' },
     { id: 'problems', label: 'Bài tập' },
     { id: 'features', label: 'Tính năng' },
     { id: 'testimonials', label: 'Nhận xét' }
   ];
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      try {
+        const response = await getPublicStatistics();
+        console.log('📊 Statistics loaded:', response);
+        if (response.success) {
+          setStats(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch statistics:', error);
+        // Keep default values on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStatistics();
+  }, []);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === images.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 3000); // Change image every 3 seconds
+
+
+    return () => clearInterval(interval);
+  }, [images.length]);
+  const goToSlide = (index) => {
+    setCurrentImageIndex(index);
+  };
+
+  const goToPrevious = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === 0 ? images.length - 1 : prevIndex - 1
+    );
+  };
+
+  const goToNext = () => {
+    setCurrentImageIndex((prevIndex) =>
+      prevIndex === images.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+  const formatNumber = (num) => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M+';
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K+';
+    }
+    return num.toString();
+  };
+
 
   return (
     <div className="min-h-screen bg-white">
       <HeaderLandingPage sections={navigationSections} />
-      
+
       {/* Hero Section - LeetCode Style */}
       <section className="relative py-20 lg:py-32 px-4 sm:px-6 lg:px-8 overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50">
         {/* Background Pattern */}
@@ -38,17 +108,18 @@ const LandingPage = () => {
                 <span className="text-gray-900">Online Judge</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-600 mb-8 selectable-text leading-relaxed">
-                Nền tảng luyện tập lập trình hàng đầu với hơn{' '}
-                <span className="font-bold text-blue-600">5,000+</span> bài tập
+                Nền tảng luyện tập lập trình thú vị với hơn{' '} 
+                <span className="font-bold text-blue-600">{loading ? '...' : formatNumber(stats.problems.total)}
+                  </span> bài tập
               </p>
               <p className="text-lg text-gray-500 mb-10 selectable-text">
                 Nâng cao kỹ năng thuật toán, chuẩn bị phỏng vấn và tham gia các kỳ thi lập trình
               </p>
-              
+
               <div className="flex flex-wrap justify-center lg:justify-start gap-4">
-                <Button 
-                  size="lg" 
-                  onClick={() => navigate('/problems')}
+                <Button
+                  size="lg"
+                  onClick={() => navigate('/problemset')}
                   className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-6 hover-lift cursor-pointer"
                 >
                   Bắt đầu luyện tập
@@ -56,10 +127,10 @@ const LandingPage = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                   </svg>
                 </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  onClick={() => navigate('/explore')}
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => navigate('/home')}
                   className="text-lg px-8 py-6 hover:border-blue-600 hover:text-blue-600 cursor-pointer"
                 >
                   Khám phá
@@ -69,15 +140,19 @@ const LandingPage = () => {
               {/* Stats */}
               <div className="grid grid-cols-3 gap-6 mt-12">
                 <div className="text-center hover-lift cursor-pointer">
-                  <div className="text-3xl font-bold text-blue-600 mb-1">100K+</div>
+                  <div className="text-3xl font-bold text-blue-600 mb-1">{loading ? '...' : formatNumber(stats.users)}</div>
                   <div className="text-sm text-gray-600 selectable-text">Người dùng</div>
                 </div>
                 <div className="text-center hover-lift cursor-pointer">
-                  <div className="text-3xl font-bold text-purple-600 mb-1">5K+</div>
+                  <div className="text-3xl font-bold text-purple-600 mb-1"> 
+                    {loading ? '...' : formatNumber(stats.problems.total)}
+                    </div>
                   <div className="text-sm text-gray-600 selectable-text">Bài tập</div>
                 </div>
                 <div className="text-center hover-lift cursor-pointer">
-                  <div className="text-3xl font-bold text-indigo-600 mb-1">2M+</div>
+                  <div className="text-3xl font-bold text-indigo-600 mb-1">
+                    {loading ? '...' : formatNumber(stats.submissions)}
+                    </div>
                   <div className="text-sm text-gray-600 selectable-text">Bài nộp</div>
                 </div>
               </div>
@@ -86,7 +161,7 @@ const LandingPage = () => {
             {/* Right Illustration */}
             <div className="hidden lg:block float-animation">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-3xl transform rotate-6 opacity-20"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-500 rounded-3xl transform rotate-6 opacity-20"></div>
                 <Card className="relative bg-white p-8 rounded-3xl shadow-2xl border-2 border-gray-100">
                   {/* Code Editor Mock */}
                   <div className="space-y-4">
@@ -174,15 +249,60 @@ const LandingPage = () => {
 
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-purple-100 rounded-3xl transform rotate-3"></div>
-              <img 
-                src="/assets/about-illustration.svg" 
-                alt="Learning Illustration" 
-                className="relative rounded-3xl shadow-2xl hover-lift"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.parentElement.innerHTML = '<div class="relative bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-12 flex items-center justify-center h-96"><div class="text-center"><svg class="w-24 h-24 mx-auto mb-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg><p class="text-gray-600 text-lg">Học tập không giới hạn</p></div></div>';
-                }}
-              />
+
+              {/* Carousel Container */}
+              <div className="relative rounded-3xl shadow-2xl overflow-hidden bg-white">
+                {/* Images */}
+                <div className="relative h-96 md:h-[500px]">
+                  {images.map((image, index) => (
+                    <div
+                      key={index}
+                      className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                        }`}
+                    >
+                      <img
+                        src={image}
+                        alt={`Slide ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Previous Button */}
+                <button
+                  onClick={goToPrevious}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow-lg transition-all hover:scale-110 z-10"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-gray-800">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                  </svg>
+                </button>
+
+                {/* Next Button */}
+                <button
+                  onClick={goToNext}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-3 rounded-full shadow-lg transition-all hover:scale-110 z-10"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-gray-800">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                  </svg>
+                </button>
+
+                {/* Dots Indicator */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                  {images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`transition-all ${index === currentImageIndex
+                        ? 'w-8 bg-blue-600'
+                        : 'w-2 bg-white/60 hover:bg-white'
+                        } h-2 rounded-full`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -201,39 +321,48 @@ const LandingPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {/* Easy */}
             <Card className="p-8 text-center hover-lift bg-white cursor-pointer">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-green-600">E</span>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2 selectable-text">Easy</h3>
-              <p className="text-3xl font-bold text-green-600 mb-2">1,234</p>
+              <p className="text-3xl font-bold text-green-600 mb-2">
+                {loading ? '...' : stats.problems.easy.toLocaleString()}
+              </p>
               <p className="text-gray-600 selectable-text">bài tập cơ bản</p>
             </Card>
 
+            {/* Medium */}
             <Card className="p-8 text-center hover-lift bg-white cursor-pointer">
               <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-yellow-600">M</span>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2 selectable-text">Medium</h3>
-              <p className="text-3xl font-bold text-yellow-600 mb-2">2,456</p>
+              <p className="text-3xl font-bold text-yellow-600 mb-2">
+                {loading ? '...' : stats.problems.medium.toLocaleString()}
+              </p>
               <p className="text-gray-600 selectable-text">bài tập trung bình</p>
             </Card>
 
+            {/* Hard */}
             <Card className="p-8 text-center hover-lift bg-white cursor-pointer">
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-red-600">H</span>
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-2 selectable-text">Hard</h3>
-              <p className="text-3xl font-bold text-red-600 mb-2">1,310</p>
+              <p className="text-3xl font-bold text-red-600 mb-2">
+                {loading ? '...' : stats.problems.hard.toLocaleString()}
+              </p>
               <p className="text-gray-600 selectable-text">bài tập nâng cao</p>
             </Card>
           </div>
 
           <div className="text-center">
-            <Button 
+            <Button
               size="lg"
-              onClick={() => navigate('/problems')}
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-12 py-6 cursor-pointer"
+              onClick={() => navigate('/problemset')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-6 cursor-pointer"
             >
               Xem tất cả bài tập
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 ml-2">
@@ -319,7 +448,7 @@ const LandingPage = () => {
                 color: 'yellow'
               }
             ].map((feature, index) => (
-              <Card 
+              <Card
                 key={index}
                 className={`p-8 hover-lift bg-white border-2 border-transparent hover:border-${feature.color}-200 transition-all cursor-pointer`}
               >
@@ -374,7 +503,7 @@ const LandingPage = () => {
                 content: 'BN Online Judge đã thay đổi cách tôi học lập trình. Tôi đặc biệt yêu thích cộng đồng sôi động và sự hỗ trợ từ đội ngũ. Nhờ có nền tảng này, tôi đã nhận được công việc đầu tiên trong ngành IT.'
               }
             ].map((testimonial, index) => (
-              <Card 
+              <Card
                 key={index}
                 className="p-8 hover-lift bg-white shadow-lg cursor-pointer"
               >
@@ -389,8 +518,8 @@ const LandingPage = () => {
                   "{testimonial.content}"
                 </blockquote>
                 <div className="flex items-center pt-6 border-t">
-                  <img 
-                    src={testimonial.avatar} 
+                  <img
+                    src={testimonial.avatar}
                     alt={testimonial.name}
                     className="w-14 h-14 rounded-full mr-4"
                   />
@@ -406,112 +535,51 @@ const LandingPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white relative overflow-hidden">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 relative overflow-hidden">
         {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
+        <div className="absolute inset-0 opacity-30">
           <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232563eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }}></div>
         </div>
 
+        {/* Decorative Elements */}
+        <div className="absolute top-10 left-10 w-20 h-20 bg-blue-200 rounded-full opacity-20 blur-xl"></div>
+        <div className="absolute bottom-10 right-10 w-32 h-32 bg-purple-200 rounded-full opacity-20 blur-xl"></div>
+
         <div className="relative max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 selectable-text">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 selectable-text text-gray-900">
             Sẵn sàng bắt đầu?
           </h2>
-          <p className="text-xl md:text-2xl mb-10 text-blue-100 selectable-text leading-relaxed">
-            Tham gia cùng hàng nghìn lập trình viên đang học tập và phát triển mỗi ngày
+          <p className="text-xl md:text-2xl mb-10 text-gray-600 selectable-text leading-relaxed">
+            Tham gia cùng các lập trình viên đang học tập và phát triển mỗi ngày
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               onClick={openRegister}
-              className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-12 py-6 hover-lift shadow-2xl cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-12 py-6 hover-lift shadow-2xl cursor-pointer"
             >
-              Đăng ký miễn phí
+              Đăng ký ngay
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 ml-2">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
               </svg>
             </Button>
-            <Button 
+            <Button
               size="lg"
               variant="outline"
-              onClick={() => navigate('/explore')}
-              className="border-2 border-white text-white hover:bg-white hover:text-blue-600 text-lg px-12 py-6 cursor-pointer"
+              onClick={() => navigate('/home')}
+              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white text-lg px-12 py-6 cursor-pointer transition-all"
             >
               Khám phá ngay
             </Button>
           </div>
-          <p className="mt-6 text-blue-100 selectable-text">
-            Không cần thẻ tín dụng • Miễn phí mãi mãi
-          </p>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div className="md:col-span-2">
-              <h3 className="text-3xl font-bold text-white mb-4 gradient-text selectable-text">
-                BN Online Judge
-              </h3>
-              <p className="text-gray-400 mb-6 selectable-text leading-relaxed">
-                Nền tảng học tập lập trình hàng đầu, giúp bạn phát triển kỹ năng coding và chuẩn bị cho sự nghiệp IT.
-              </p>
-              <div className="flex gap-4">
-                {['facebook', 'twitter', 'github', 'linkedin'].map((social) => (
-                  <a 
-                    key={social}
-                    href="#"
-                    className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer"
-                  >
-                    <span className="sr-only">{social}</span>
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0z"/>
-                    </svg>
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-semibold text-white mb-4 selectable-text">Về chúng tôi</h4>
-              <ul className="space-y-3">
-                {['Giới thiệu', 'Đội ngũ', 'Tuyển dụng', 'Blog'].map((item) => (
-                  <li key={item}>
-                    <a href="#" className="hover:text-blue-400 transition-colors cursor-pointer selectable-text">
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-lg font-semibold text-white mb-4 selectable-text">Hỗ trợ</h4>
-              <ul className="space-y-3">
-                {['Trung tâm trợ giúp', 'Liên hệ', 'Điều khoản', 'Chính sách'].map((item) => (
-                  <li key={item}>
-                    <a href="#" className="hover:text-blue-400 transition-colors cursor-pointer selectable-text">
-                      {item}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 selectable-text">
-              © {new Date().getFullYear()} BN Online Judge. All rights reserved.
-            </p>
-            <p className="text-gray-400 selectable-text mt-4 md:mt-0">
-              Made with ❤️ by BN Team
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer/>
     </div>
+    
   );
 };
 

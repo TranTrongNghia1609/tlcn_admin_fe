@@ -12,65 +12,105 @@ import {
 } from 'lucide-react';
 import TimelineSelector from '@/components/admin/charts/TimelineSelector';
 import UserRegistrationChart from '@/components/admin/charts/UserRegistrationChart';
+import SubmissionStatusChart from '@/components/admin/submissions/SubmissionStatusChart';
 import { useUserAnalytics } from '@/hooks/useUserAnalytics';
-import { userStatsService } from '@/services/userStatsService';
+import { userStatsService } from '@/services/userStatsService'; 
+import { getDashboardStatistics } from '@/services/statisticsService';
 import { toast } from 'sonner';
 
 const Dashboard = () => {
   const [period, setPeriod] = useState('year');
-  const { stats, timelineData, loading: analyticsLoading } = useUserAnalytics(period);
   
-  // State cho thống kê tổng quan
+  //  User analytics from useUserAnalytics hook (unchanged)
+  const { stats: userStats, timelineData, loading: analyticsLoading } = useUserAnalytics(period);
+  
+  //  State for overview stats (combined from multiple sources)
   const [overviewStats, setOverviewStats] = useState({
+    // User stats (from userStatsService)
     totalUsers: 0,
-    totalProblems: 0,
-    totalExams: 0,
-    totalSubmissions: 0,
-    newUsersThisMonth: 0,
     activeUsers: 0,
-    growthRate: 0
+    newUsersThisMonth: 0,
+    growthRate: 0,
+    
+    // Problem, Contest, Submission stats (from statisticsService)
+    totalProblems: 0,
+    totalContests: 0,
+    totalSubmissions: 0,
+    acceptanceRate: 0,
+    acceptedSubmissions: 0
   });
   
-  // State cho người dùng hoạt động gần đây
   const [recentUsers, setRecentUsers] = useState([]);
   const [loadingStats, setLoadingStats] = useState(true);
 
-  // Fetch overview stats
   useEffect(() => {
-    fetchOverviewStats();
+    fetchAllStatistics();
     fetchRecentUsers();
   }, []);
 
-  const fetchOverviewStats = async () => {
+  //  Fetch statistics from both APIs
+  const fetchAllStatistics = async () => {
     try {
       setLoadingStats(true);
       
-      // Gọi API thống kê người dùng
-      const userStatsResponse = await userStatsService.getOverviewStats();
-      
-      // TODO: Thêm API calls cho problems và exams
-      // const problemsResponse = await problemService.getStats();
-      // const examsResponse = await examService.getStats();
-      
+      // Parallel fetch from both services
+      const [userStatsResponse, dashboardStatsResponse] = await Promise.all([
+        userStatsService.getOverviewStats(), // User stats
+        getDashboardStatistics() // Problems, Contests, Submissions stats
+      ]);
+
+      // Process user stats
+      let userStatsData = {
+        totalUsers: 0,
+        activeUsers: 0,
+        newUsersThisMonth: 0,
+        growthRate: 0
+      };
+
       if (userStatsResponse.success) {
-        setOverviewStats({
+        userStatsData = {
           totalUsers: userStatsResponse.data.totalUsers,
-          totalProblems: 0, // TODO: Cập nhật khi có API
-          totalExams: 0, // TODO: Cập nhật khi có API
-          totalSubmissions: 0, // TODO: Cập nhật khi có API
-          newUsersThisMonth: userStatsResponse.data.newUsersThisMonth,
           activeUsers: userStatsResponse.data.totalActive,
+          newUsersThisMonth: userStatsResponse.data.newUsersThisMonth,
           growthRate: userStatsResponse.data.growthRate
-        });
+        };
       }
+
+      // Process dashboard stats (problems, contests, submissions)
+      let dashboardStatsData = {
+        totalProblems: 0,
+        totalContests: 0,
+        totalSubmissions: 0,
+        acceptanceRate: 0,
+        acceptedSubmissions: 0
+      };
+
+      if (dashboardStatsResponse.success) {
+        const data = dashboardStatsResponse.data;
+        dashboardStatsData = {
+          totalProblems: data.problems.total,
+          totalContests: data.contests.total,
+          totalSubmissions: data.submissions.total,
+          acceptedSubmissions: data.submissions.accepted,
+          acceptanceRate: parseFloat(data.submissions.acceptanceRate)
+        };
+      }
+
+      // Combine all stats
+      setOverviewStats({
+        ...userStatsData,
+        ...dashboardStatsData
+      });
+
     } catch (error) {
-      console.error('Error fetching overview stats:', error);
+      console.error('Error fetching statistics:', error);
       toast.error('Không thể tải thống kê tổng quan');
     } finally {
       setLoadingStats(false);
     }
   };
 
+  //  Fetch recent users (from userStatsService)
   const fetchRecentUsers = async () => {
     try {
       const response = await userStatsService.getRecentUsers(5);
@@ -112,7 +152,7 @@ const Dashboard = () => {
 
       {/* Main Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Users Card */}
+        {/* Total Users Card -  From userStatsService */}
         <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
           <div className="flex items-center justify-between mb-4">
             <div className={`p-3 rounded-xl ${getColorClasses('blue')}`}>
@@ -123,7 +163,7 @@ const Dashboard = () => {
                 ? 'text-green-600 bg-green-50' 
                 : 'text-red-600 bg-red-50'
             } px-2 py-1 rounded-full`}>
-              {formatGrowthRate(overviewStats.growthRate)}
+              {loadingStats ? '...' : formatGrowthRate(overviewStats.growthRate)}
             </span>
           </div>
           <h3 className="text-3xl font-bold text-gray-900 mb-1">
@@ -135,11 +175,11 @@ const Dashboard = () => {
           </h3>
           <p className="text-sm text-gray-600 font-medium">Người dùng</p>
           <p className="text-xs text-gray-500 mt-1">
-            {overviewStats.activeUsers} đang hoạt động
+            {loadingStats ? '...' : `${overviewStats.activeUsers.toLocaleString()} đang hoạt động`}
           </p>
         </Card>
 
-        {/* Total Problems Card */}
+        {/* Total Problems Card -  From statisticsService */}
         <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
           <div className="flex items-center justify-between mb-4">
             <div className={`p-3 rounded-xl ${getColorClasses('green')}`}>
@@ -157,10 +197,12 @@ const Dashboard = () => {
             )}
           </h3>
           <p className="text-sm text-gray-600 font-medium">Bài tập</p>
-          <p className="text-xs text-gray-500 mt-1">Tổng số bài tập</p>
+          <p className="text-xs text-gray-500 mt-1">
+            {loadingStats ? '...' : 'Tổng số bài tập'}
+          </p>
         </Card>
 
-        {/* Total Exams Card */}
+        {/* Total Contests Card -  From statisticsService */}
         <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
           <div className="flex items-center justify-between mb-4">
             <div className={`p-3 rounded-xl ${getColorClasses('purple')}`}>
@@ -174,22 +216,22 @@ const Dashboard = () => {
             {loadingStats ? (
               <div className="animate-pulse bg-gray-200 h-8 w-20 rounded"></div>
             ) : (
-              overviewStats.totalExams.toLocaleString()
+              overviewStats.totalContests.toLocaleString()
             )}
           </h3>
           <p className="text-sm text-gray-600 font-medium">Kỳ thi</p>
-          <p className="text-xs text-gray-500 mt-1">Đã tổ chức</p>
+          <p className="text-xs text-gray-500 mt-1">
+            {loadingStats ? '...' : 'Đã tổ chức'}
+          </p>
         </Card>
 
-        {/* Total Submissions Card */}
+        {/* Total Submissions Card -  From statisticsService */}
         <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
           <div className="flex items-center justify-between mb-4">
             <div className={`p-3 rounded-xl ${getColorClasses('orange')}`}>
               <Target className="h-6 w-6" />
             </div>
-            <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full">
-              Lượt nộp
-            </span>
+            
           </div>
           <h3 className="text-3xl font-bold text-gray-900 mb-1">
             {loadingStats ? (
@@ -199,13 +241,13 @@ const Dashboard = () => {
             )}
           </h3>
           <p className="text-sm text-gray-600 font-medium">Lượt nộp bài</p>
-          <p className="text-xs text-gray-500 mt-1">Tổng submissions</p>
+          
         </Card>
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
-        {/* User Registration Chart - 7 columns */}
+        {/* User Registration Chart - 7 columns -  From useUserAnalytics */}
         <Card className="lg:col-span-7 p-6 border-0 shadow-md flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -218,29 +260,29 @@ const Dashboard = () => {
             />
           </div>
           
-          {/* Mini Stats */}
+          {/* Mini Stats -  From userStatsService */}
           <div className="grid grid-cols-3 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
             <div className="text-center">
               <p className="text-2xl font-bold text-gray-900">
-                {stats?.totalUsers || overviewStats.totalUsers}
+                {loadingStats ? '...' : (userStats?.totalUsers || overviewStats.totalUsers).toLocaleString()}
               </p>
               <p className="text-xs text-gray-500 mt-1">Tổng</p>
             </div>
             <div className="text-center border-l border-gray-200">
               <p className="text-2xl font-bold text-green-600">
-                {overviewStats.newUsersThisMonth}
+                {loadingStats ? '...' : overviewStats.newUsersThisMonth.toLocaleString()}
               </p>
               <p className="text-xs text-gray-500 mt-1">Tháng này</p>
             </div>
             <div className="text-center border-l border-gray-200">
               <p className="text-2xl font-bold text-blue-600">
-                {formatGrowthRate(overviewStats.growthRate)}
+                {loadingStats ? '...' : formatGrowthRate(overviewStats.growthRate)}
               </p>
               <p className="text-xs text-gray-500 mt-1">Tăng trưởng</p>
             </div>
           </div>
 
-          {/* Chart - với flex-1 để tự động fill */}
+          {/* Chart -  From useUserAnalytics */}
           <div className="flex-1 min-h-[300px]">
             <UserRegistrationChart 
               data={timelineData} 
@@ -250,26 +292,15 @@ const Dashboard = () => {
           </div>
         </Card>
 
-        {/* Placeholder for another chart - 3 columns */}
-        <Card className="lg:col-span-3 p-6 border-0 shadow-md flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">Submissions</h3>
-              <p className="text-sm text-gray-500 mt-1">Lượt nộp bài</p>
-            </div>
-          </div>
-          
-          <div className="flex-1 flex items-center justify-center bg-gray-50 rounded-lg min-h-[300px]">
-            <div className="text-center text-gray-400">
-              <FileText className="h-12 w-12 mx-auto mb-2" />
-              <p className="text-sm">Biểu đồ sẽ được thêm vào</p>
-            </div>
-          </div>
-        </Card>
+        {/* Submission Status Chart - 3 columns -  From submissionService */}
+        <div className="lg:col-span-3">
+          <SubmissionStatusChart />
+        </div>
       </div>
+
       {/* Activity Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Users */}
+        {/* Recent Users -  From userStatsService */}
         <Card className="p-6 border-0 shadow-md">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-gray-900">
@@ -321,7 +352,7 @@ const Dashboard = () => {
           </div>
         </Card>
 
-        {/* Quick Stats */}
+        {/* Quick Stats -  Combined from both services */}
         <Card className="p-6 border-0 shadow-md">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-gray-900">
@@ -333,31 +364,31 @@ const Dashboard = () => {
             <div className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg">
               <span className="text-sm font-medium text-gray-600">Người dùng hoạt động</span>
               <span className="text-base font-bold text-green-600">
-                {loadingStats ? '...' : overviewStats.activeUsers}
+                {loadingStats ? '...' : overviewStats.activeUsers.toLocaleString()}
               </span>
             </div>
             <div className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-600">Bài tập mới tháng này</span>
+              <span className="text-sm font-medium text-gray-600">Tổng submissions</span>
               <span className="text-base font-bold text-blue-600">
-                {loadingStats ? '...' : 0}
+                {loadingStats ? '...' : overviewStats.totalSubmissions.toLocaleString()}
               </span>
             </div>
             <div className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-600">Kỳ thi đang diễn ra</span>
-              <span className="text-base font-bold text-purple-600">
-                {loadingStats ? '...' : 0}
+              <span className="text-sm font-medium text-gray-600">Tỷ lệ AC</span>
+              <span className="text-base font-bold text-green-600">
+                {loadingStats ? '...' : `${overviewStats.acceptanceRate.toFixed(2)}%`}
               </span>
             </div>
             <div className="flex justify-between items-center p-2 hover:bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-600">Submissions hôm nay</span>
+              <span className="text-sm font-medium text-gray-600">Tổng bài tập</span>
               <span className="text-base font-bold text-orange-600">
-                {loadingStats ? '...' : 0}
+                {loadingStats ? '...' : overviewStats.totalProblems.toLocaleString()}
               </span>
             </div>
           </div>
         </Card>
 
-        {/* System Health or Another Widget */}
+        {/* System Health -  Combined from both services */}
         <Card className="p-6 border-0 shadow-md">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-gray-900">
@@ -380,14 +411,18 @@ const Dashboard = () => {
             </div>
             <div className="p-3 bg-blue-50 rounded-lg">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-blue-700">API Response</span>
-                <span className="text-xs text-blue-600 font-semibold">~45ms</span>
+                <span className="text-sm font-medium text-blue-700">Total Problems</span>
+                <span className="text-xs text-blue-600 font-semibold">
+                  {loadingStats ? '...' : overviewStats.totalProblems}
+                </span>
               </div>
             </div>
             <div className="p-3 bg-blue-50 rounded-lg">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-blue-700">Uptime</span>
-                <span className="text-xs text-blue-600 font-semibold">99.9%</span>
+                <span className="text-sm font-medium text-blue-700">Total Contests</span>
+                <span className="text-xs text-blue-600 font-semibold">
+                  {loadingStats ? '...' : overviewStats.totalContests}
+                </span>
               </div>
             </div>
           </div>

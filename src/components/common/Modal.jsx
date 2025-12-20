@@ -1,4 +1,3 @@
-import { faTruckMedical } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 
 const Modal = ({ 
@@ -12,7 +11,6 @@ const Modal = ({
   className = "",
   size = "default"
  }) => {
-  if (!isOpen) return null;
   const sizeClasses = {
     sm: "max-w-sm",
     md: "max-w-md", 
@@ -24,29 +22,35 @@ const Modal = ({
     "5xl": "max-w-5xl",
     default: "max-w-md"
   };
+
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget && closeOnBackdrop) {
       onClose();
     }
   };
+
   React.useEffect(() => {
-  const originalStyle = window.getComputedStyle(document.body).overflow;
-  const handleEscape = (e) => {
-    if (e.key === 'Escape') {
-      onClose();
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+      document.addEventListener('keydown', handleEscape);
+    } else {
+      document.body.classList.remove('modal-open');
     }
-  };
 
-  if (isOpen) {
-    document.addEventListener('keydown', handleEscape);
-    document.body.style.overflow = 'hidden';
-  }
+    return () => {
+      document.body.classList.remove('modal-open');
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
 
-  return () => {
-    document.removeEventListener('keydown', handleEscape);
-    document.body.style.overflow = originalStyle || 'auto';
-  };
-}, [isOpen, onClose]);
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
       {/* Backdrop */}
@@ -62,14 +66,14 @@ const Modal = ({
         ${className}
       `}>
         
-     
+        {/* Header with Title */}
         {title && (
           <div className="bg-white rounded-t-lg px-4 py-3 border-b border-gray-200 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1 "
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -79,11 +83,11 @@ const Modal = ({
           </div>
         )}
 
-       
+        {/* Close button without title */}
         {!title && showCloseButton && (
           <button
             onClick={onClose}
-            className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 text-gray-400 hover:text-gray-600 transition-colors p-1"
+            className="absolute top-2 right-2 sm:top-4 sm:right-4 z-20 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
           >
             <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -91,7 +95,7 @@ const Modal = ({
           </button>
         )}
 
-     
+        {/* Content */}
         <div className={title ? "bg-white rounded-b-lg" : "bg-white rounded-lg"}>
           {children}
         </div>

@@ -659,3 +659,21 @@
 .markdown-preview em {
   font-style: italic;
 }
+.gradient-text-blue {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.flare-bg-blue {
+  background: radial-gradient(50% 50% at 60% 60%, rgba(37,99,235,0.4) 0%, rgba(29,78,216,0.3) 40%, transparent 80%);
+  filter: blur(100px);
+}
+
+.gradient-button-blue {
+  background: linear-gradient(to right, #2563eb, #1e40af);
+}
+
+.gradient-button-blue:hover {
+  background: linear-gradient(to right, #1d4ed8, #1e3a8a);
+}   
