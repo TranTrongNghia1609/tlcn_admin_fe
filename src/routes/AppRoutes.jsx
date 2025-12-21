@@ -22,7 +22,7 @@ import SubmissionManagement from "@/pages/admin/SubmissionManagement";
 import Submission from "@/pages/admin/Submision";
 import SolutionManagement from "@/pages/admin/SolutionManagement";
 import SolutionFormPage from "@/pages/admin/SolutionFormPage";
-
+import CommentManagement from "@/pages/admin/CommentManagement";
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
@@ -97,6 +97,19 @@ const AppRoutes = () => {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/profile/:userName"
+        element={
+          <ProtectedRoute>
+            <>
+              <NavBar />
+              <main className="pt-16 lg:pt-20">
+                <Profile />
+              </main>
+            </>
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/profile"
@@ -159,6 +172,14 @@ const AppRoutes = () => {
         element={
           <AdminRoute>
             <ProblemManagement />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/comments"
+        element={
+          <AdminRoute>
+            <CommentManagement />
           </AdminRoute>
         }
       />

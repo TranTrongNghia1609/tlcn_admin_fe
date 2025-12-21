@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +24,9 @@ import {
   Image as ImageIcon,
   Code2,
   FileEdit,
-  FilePlus
+  FilePlus,
+  Upload,
+  FileText
 } from 'lucide-react';
 
 import ReactMarkdown from 'react-markdown';
@@ -44,7 +46,7 @@ const AdminSolutionEditor = ({
   onSubmit,
   submitting,
   onCancel,
-  isEditMode = false // NEW: Passed from parent
+  isEditMode = false
 }) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -71,6 +73,9 @@ public:
     tags: []
   });
   const [tagInput, setTagInput] = useState('');
+  
+  // ✅ NEW: Ref for file input
+  const fileInputRef = useRef(null);
 
   const approaches = [
     { value: 'brute-force', label: 'Brute Force' },
@@ -109,6 +114,90 @@ public:
       });
     }
   }, [initialData]);
+
+  // ✅ NEW: Handle file import
+  const handleFileImport = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Check file extension
+    if (!file.name.endsWith('.md') && !file.name.endsWith('.markdown')) {
+      toast.error('Vui lòng chọn file Markdown (.md hoặc .markdown)');
+      return;
+    }
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File quá lớn. Vui lòng chọn file nhỏ hơn 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result;
+        if (typeof content === 'string') {
+          setFormData(prev => ({ ...prev, content }));
+          
+          // Auto-generate title from filename if title is empty
+          if (!formData.title.trim()) {
+            const fileName = file.name.replace(/\.(md|markdown)$/i, '');
+            setFormData(prev => ({ ...prev, title: fileName }));
+          }
+          
+          toast.success('Đã import file Markdown thành công');
+        }
+      } catch (error) {
+        console.error('Error reading file:', error);
+        toast.error('Không thể đọc file. Vui lòng thử lại');
+      }
+    };
+
+    reader.onerror = () => {
+      toast.error('Lỗi khi đọc file');
+    };
+
+    reader.readAsText(file);
+    
+    // Reset input để có thể import lại cùng file
+    event.target.value = '';
+  };
+
+  // ✅ NEW: Trigger file input
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // ✅ NEW: Export to MD file
+  const handleExportToMD = () => {
+    if (!formData.content.trim()) {
+      toast.error('Không có nội dung để export');
+      return;
+    }
+
+    try {
+      const blob = new Blob([formData.content], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      const fileName = formData.title.trim() 
+        ? `${formData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.md`
+        : 'solution.md';
+      
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.success('Đã export file Markdown');
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Không thể export file');
+    }
+  };
 
   const insertMarkdown = (syntax, placeholder = '') => {
     const textarea = document.getElementById('solution-content');
@@ -207,6 +296,15 @@ public:
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".md,.markdown"
+        onChange={handleFileImport}
+        className="hidden"
+      />
+
       {/* Header với Problem Info */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
         <div className="flex items-start justify-between">
@@ -231,12 +329,39 @@ public:
             </div>
           </div>
 
-          {isEditMode && (
-            <Badge className="bg-orange-100 text-orange-700 border-orange-300">
-              <FileEdit className="w-3 h-3 mr-1" />
-              Đang chỉnh sửa
-            </Badge>
-          )}
+          <div className="flex gap-2">
+            {isEditMode && (
+              <Badge className="bg-orange-100 text-orange-700 border-orange-300">
+                <FileEdit className="w-3 h-3 mr-1" />
+                Đang chỉnh sửa
+              </Badge>
+            )}
+            
+            {/* ✅ NEW: Import/Export buttons */}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleImportClick}
+              disabled={submitting}
+              className="gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              Import MD
+            </Button>
+            
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleExportToMD}
+              disabled={submitting || !formData.content.trim()}
+              className="gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              Export MD
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -322,7 +447,22 @@ public:
             </div>
 
             <div className="space-y-2">
-              <Label>Content <span className="text-red-500">*</span></Label>
+              <div className="flex items-center justify-between">
+                <Label>Content <span className="text-red-500">*</span></Label>
+                {/* ✅ NEW: Import button in content section */}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleImportClick}
+                  disabled={submitting}
+                  className="text-xs gap-1 h-7"
+                >
+                  <Upload className="w-3 h-3" />
+                  Import file MD
+                </Button>
+              </div>
+              
               <div className="border rounded-lg overflow-hidden">
                 <div className="bg-gray-50 border-b p-2 flex flex-wrap gap-1 items-center">
                   <Button
@@ -449,7 +589,7 @@ public:
                   className="min-h-96 font-mono text-sm resize-none border-0 focus:ring-0"
                   value={formData.content}
                   onChange={e => setFormData(p => ({ ...p, content: e.target.value }))}
-                  placeholder="Viết solution bằng Markdown..."
+                  placeholder="Viết solution bằng Markdown hoặc import file .md..."
                   disabled={submitting}
                 />
               </div>

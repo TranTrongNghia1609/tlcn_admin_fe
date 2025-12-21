@@ -124,13 +124,12 @@ const SubmissionStatusChart = () => {
               data={chartData}
               dataKey="count"
               nameKey="status"
-              label={({ percentage }) => `${percentage}%`}
+              label={({ percentage }) => `${percentage}`}
               labelLine={false}
               isAnimationActive={true}
               stroke="white"
               strokeWidth={2}
             >
-              {/* ✅ Add Cell for each data point with explicit fill color */}
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
