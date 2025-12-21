@@ -82,3 +82,22 @@ export const getContestStatistics = async () => {
     throw error;
   }
 }
+
+export const getContestParticipants = async (id, page, size = 10) => {
+  try {
+    const response = await API.get(CONTEST_ENDPOINTS.GET_PARTICIPANTS(id), { params: { page, size } });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const toggleParticipantStatus = async (contestId, participantId) => {
+  try {
+    console.log('Toggling participant:', contestId, participantId);
+    const response = await API.patch(`${CONTEST_ENDPOINTS.TOGGLE_PARTICIPANT(contestId, participantId)}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}

@@ -78,7 +78,7 @@ const ContestForm = ({ mode = 'create' }) => {
       
       // Set existing problems
       if (contest.problems && contest.problems.length > 0) {
-        const formattedProblems = contest.problems.map((item) => ({
+        const formattedProblems = contest.problems.filter(m => m.problemId).map((item) => ({
           _id: item.problemId._id,
           name: item.problemId.name,
           // Add other fields from problemId if needed
@@ -89,6 +89,7 @@ const ContestForm = ({ mode = 'create' }) => {
         setAddedProblems(formattedProblems);
       }
     } catch (error) {
+      console.log('Error loading contest data:', error);
       toast.error('Không thể tải thông tin kỳ thi');
       navigate('/contests');
     } finally {

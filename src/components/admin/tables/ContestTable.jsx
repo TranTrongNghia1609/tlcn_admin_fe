@@ -14,7 +14,8 @@ import {
   Trash2, 
   Eye,
   EyeOff,
-  Edit
+  Edit,
+  UserRound
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -22,6 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../../ui/DropdownMenu';
+import { useNavigate } from 'react-router-dom';
 
 const ContestTable = ({ 
   contests, 
@@ -29,6 +31,7 @@ const ContestTable = ({
   onToggleStatus, 
   onViewDetail 
 }) => {
+  const navigate = useNavigate();
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -157,6 +160,10 @@ const ContestTable = ({
                             Hiển thị
                           </>
                         )}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate(`/contest/${contest._id}/participants`) }>
+                        <UserRound className="mr-2 h-4 w-4" />
+                        Xem thí sinh
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
