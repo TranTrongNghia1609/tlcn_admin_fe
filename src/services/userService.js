@@ -107,5 +107,15 @@ export const userService ={
       console.error('Error fetching user detail:', error);
       throw error.response?.data || { message: 'Failed to fetch user detail' };
     }
-  }
+  },
+  getProfileByUsername: async (username) => {
+    try {      
+      const response = await API.get(USER_ENDPOINTS.GET_PROFILE(username)); 
+      return response.data;
+      
+    } catch (error) {
+      console.error('Get profile by username error:', error);
+      throw error.response?.data || { message: 'Failed to fetch profile' };
+    }
+  },
 }

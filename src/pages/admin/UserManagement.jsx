@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; // ✅ NEW: Import useNavigate
 import { Card } from '../../components/ui/card';
 import UserTable from '../../components/admin/tables/UserTable';
-import Pagination from '../../components/admin/tables/Pagination';
 import SearchBar from '../../components/admin/tables/SearchBar';
-import UserDetailModal from '../../components/admin/users/UserDetailModal';
 import { userService } from '../../services/userService';
 import { userStatsService } from '../../services/userStatsService';
 import { toast } from 'sonner';
@@ -12,6 +11,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import TablePagination from '@/components/common/TablePagination';
 
 const UserManagement = () => {
+  const navigate = useNavigate(); // ✅ NEW: Initialize navigate
   const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -29,19 +29,14 @@ const UserManagement = () => {
     totalActive: 0
   });
   const [recentUsers, setRecentUsers] = useState([]);
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  // Refs to track if data has been fetched
   const statsInitialized = useRef(false);
   const recentUsersInitialized = useRef(false);
 
-  // Fetch users when page/search/filter changes
   useEffect(() => {
     fetchUsers();
   }, [currentPage, searchTerm, selectedRole]);
 
-  // Fetch stats and recent users only once on mount
   useEffect(() => {
     if (!statsInitialized.current) {
       fetchStats();
@@ -112,7 +107,6 @@ const UserManagement = () => {
     }
   };
 
-  // Refresh all data (called after delete/update)
   const refreshAllData = useCallback(() => {
     fetchUsers();
     fetchStats();
@@ -138,19 +132,10 @@ const UserManagement = () => {
     }
   }, [currentPage, pagination.totalPages]);
 
-  const handleViewUserDetail = useCallback((userId) => {
-    console.log('Opening modal for user:', userId);
-    setSelectedUserId(userId);
-    setIsDetailModalOpen(true);
-  }, []);
-
-  const handleCloseDetailModal = useCallback(() => {
-    setIsDetailModalOpen(false);
-    // Delay để tránh flash
-    setTimeout(() => {
-      setSelectedUserId(null);
-    }, 200);
-  }, []);
+  // ✅ NEW: Navigate to profile page
+  const handleViewUserDetail = useCallback((userName) => {
+    navigate(`/profile/${userName}`);
+  }, [navigate]);
 
   const handleDeleteUser = useCallback(async (userId) => {
     const confirmed = window.confirm('Bạn có chắc chắn muốn xóa người dùng này?');
@@ -158,11 +143,6 @@ const UserManagement = () => {
 
     toast.promise(
       userService.deleteUser(userId).then(() => {
-        // Close modal if viewing deleted user
-        if (isDetailModalOpen && selectedUserId === userId) {
-          handleCloseDetailModal();
-        }
-        // Refresh all data
         refreshAllData();
       }),
       {
@@ -171,7 +151,7 @@ const UserManagement = () => {
         error: 'Không thể xóa người dùng',
       }
     );
-  }, [isDetailModalOpen, selectedUserId, handleCloseDetailModal, refreshAllData]);
+  }, [refreshAllData]);
 
   const regularUsers = useMemo(() => 
     stats.totalUsers - stats.totalTeachers - stats.totalAdmins, 
@@ -219,7 +199,7 @@ const UserManagement = () => {
 
       {/* Statistics and Sidebar Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        {/* Stats Cards - 3 columns */}
+        {/* Stats Cards */}
         <Card className="p-6 border-0 shadow-md hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <div className="p-3 bg-blue-100 rounded-xl">
@@ -262,7 +242,7 @@ const UserManagement = () => {
           <p className="text-xs text-gray-500 mt-2">Đang quản lý</p>
         </Card>
 
-        {/* Sidebar - 2 columns */}
+        {/* Sidebar */}
         <Card className="md:col-span-2 p-6 border-0 shadow-md">
           <h3 className="text-lg font-bold text-gray-900 mb-4">Phân bố vai trò</h3>
           
@@ -309,7 +289,6 @@ const UserManagement = () => {
 
             {/* Legend and Recent Users */}
             <div className="flex-1 space-y-4">
-              {/* Legend */}
               <div className="space-y-2">
                 {chartData.map((item, index) => (
                   <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
@@ -330,7 +309,6 @@ const UserManagement = () => {
                 ))}
               </div>
 
-              {/* Total */}
               <div className="pt-3 border-t border-gray-200">
                 <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
                   <span className="text-sm font-medium text-gray-700">Tổng cộng</span>
@@ -342,7 +320,7 @@ const UserManagement = () => {
         </Card>
       </div>
 
-      {/* Recent Users */}
+      {/* Recent Users - ✅ UPDATED: Navigate to profile */}
       <Card className="p-6 border-0 shadow-md">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-gray-900">Người dùng mới</h3>
@@ -407,7 +385,6 @@ const UserManagement = () => {
       {/* Users Table Card */}
       <Card className="p-6 border-0 shadow-md">
         <div className="space-y-4">
-          {/* Header with Search */}
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-gray-900">Danh sách người dùng</h2>
             <div className="w-72">
@@ -415,7 +392,6 @@ const UserManagement = () => {
             </div>
           </div>
 
-          {/* Role Filter Buttons */}
           <div className="flex gap-3 flex-wrap">
             {roleFilters.map((filter) => {
               const Icon = filter.icon;
@@ -451,14 +427,12 @@ const UserManagement = () => {
             })}
           </div>
 
-          {/* Table */}
           <UserTable
             users={users}
             loading={usersLoading}
             onDeleteUser={handleDeleteUser}
           />
 
-          {/* Pagination */}
           <TablePagination
             currentPage={currentPage}
             totalPages={pagination.totalPages}
@@ -467,15 +441,6 @@ const UserManagement = () => {
           />
         </div>
       </Card>
-
-      {/* User Detail Modal */}
-      {isDetailModalOpen && (
-        <UserDetailModal
-          isOpen={isDetailModalOpen}
-          onClose={handleCloseDetailModal}
-          userId={selectedUserId}
-        />
-      )}
     </div>
   );
 };
