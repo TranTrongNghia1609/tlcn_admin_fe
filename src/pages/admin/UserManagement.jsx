@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom'; // ✅ NEW: Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import { Card } from '../../components/ui/card';
+import { Skeleton } from '../../components/ui/skeleton';
 import UserTable from '../../components/admin/tables/UserTable';
 import SearchBar from '../../components/admin/tables/SearchBar';
 import { userService } from '../../services/userService';
@@ -10,8 +11,47 @@ import { Users, GraduationCap, Shield, TrendingUp, Activity } from 'lucide-react
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import TablePagination from '@/components/common/TablePagination';
 
+// Skeleton Components
+const StatCardSkeleton = () => (
+  <Card className="p-6 border-0 shadow-md">
+    <div className="flex items-center justify-between mb-4">
+      <Skeleton className="w-12 h-12 rounded-xl" />
+    </div>
+    <Skeleton className="h-9 w-20 mb-2" />
+    <Skeleton className="h-4 w-32 mb-2" />
+    <Skeleton className="h-3 w-28" />
+  </Card>
+);
+
+const ChartCardSkeleton = () => (
+  <Card className="md:col-span-2 p-6 border-0 shadow-md">
+    <Skeleton className="h-6 w-32 mb-4" />
+    <div className="flex items-center gap-6">
+      <Skeleton className="w-40 h-40 rounded-full" />
+      <div className="flex-1 space-y-4">
+        <div className="space-y-2">
+          {[...Array(3)].map((_, index) => (
+            <Skeleton key={index} className="h-10 w-full rounded-lg" />
+          ))}
+        </div>
+        <Skeleton className="h-12 w-full rounded-lg" />
+      </div>
+    </div>
+  </Card>
+);
+
+const RecentUserCardSkeleton = () => (
+  <div className="flex flex-col items-center p-4 rounded-lg border border-gray-100">
+    <Skeleton className="w-16 h-16 rounded-full mb-3" />
+    <Skeleton className="h-4 w-24 mb-1" />
+    <Skeleton className="h-3 w-20 mb-2" />
+    <Skeleton className="h-5 w-16 rounded-full mb-2" />
+    <Skeleton className="h-3 w-12" />
+  </div>
+);
+
 const UserManagement = () => {
-  const navigate = useNavigate(); // ✅ NEW: Initialize navigate
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,7 +68,9 @@ const UserManagement = () => {
     totalAdmins: 0,
     totalActive: 0
   });
+  const [statsLoading, setStatsLoading] = useState(true);
   const [recentUsers, setRecentUsers] = useState([]);
+  const [recentUsersLoading, setRecentUsersLoading] = useState(true);
 
   const statsInitialized = useRef(false);
   const recentUsersInitialized = useRef(false);
@@ -79,6 +121,7 @@ const UserManagement = () => {
 
   const fetchStats = async () => {
     try {
+      setStatsLoading(true);
       const response = await userStatsService.getOverviewStats();
       
       if (response.success) {
@@ -92,11 +135,14 @@ const UserManagement = () => {
     } catch (error) {
       console.error('Error fetching stats:', error);
       toast.error('Không thể tải thống kê');
+    } finally {
+      setStatsLoading(false);
     }
   };
 
   const fetchRecentUsers = async () => {
     try {
+      setRecentUsersLoading(true);
       const response = await userStatsService.getRecentUsers(5);
       
       if (response.success) {
@@ -104,6 +150,8 @@ const UserManagement = () => {
       }
     } catch (error) {
       console.error('Error fetching recent users:', error);
+    } finally {
+      setRecentUsersLoading(false);
     }
   };
 
@@ -132,7 +180,6 @@ const UserManagement = () => {
     }
   }, [currentPage, pagination.totalPages]);
 
-  // ✅ NEW: Navigate to profile page
   const handleViewUserDetail = useCallback((userName) => {
     navigate(`/profile/${userName}`);
   }, [navigate]);
@@ -200,127 +247,138 @@ const UserManagement = () => {
       {/* Statistics and Sidebar Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {/* Stats Cards */}
-        <Card className="p-6 border-0 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-blue-100 rounded-xl">
-              <Users className="w-6 h-6 text-blue-600" />
-            </div>
-          </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {stats.totalUsers}
-          </h3>
-          <p className="text-sm text-gray-600 font-medium">Tổng người dùng</p>
-          <p className="text-xs text-green-600 mt-2 flex items-center">
-            <TrendingUp className="w-3 h-3 mr-1" />
-            {stats.totalActive} đang hoạt động
-          </p>
-        </Card>
-
-        <Card className="p-6 border-0 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-green-100 rounded-xl">
-              <GraduationCap className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {stats.totalTeachers}
-          </h3>
-          <p className="text-sm text-gray-600 font-medium">Giáo viên</p>
-          <p className="text-xs text-gray-500 mt-2">Đang giảng dạy</p>
-        </Card>
-
-        <Card className="p-6 border-0 shadow-md hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-purple-100 rounded-xl">
-              <Shield className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {stats.totalAdmins}
-          </h3>
-          <p className="text-sm text-gray-600 font-medium">Quản trị viên</p>
-          <p className="text-xs text-gray-500 mt-2">Đang quản lý</p>
-        </Card>
-
-        {/* Sidebar */}
-        <Card className="md:col-span-2 p-6 border-0 shadow-md">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Phân bố vai trò</h3>
-          
-          <div className="flex items-center gap-6">
-            {/* Chart */}
-            <div className="flex-shrink-0">
-              {chartData.length > 0 ? (
-                <div className="w-40 h-40">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={chartData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={40}
-                        outerRadius={65}
-                        fill="#8884d8"
-                        dataKey="value"
-                        paddingAngle={3}
-                      >
-                        {chartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        formatter={(value) => `${value} người`}
-                        contentStyle={{
-                          backgroundColor: 'white',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '8px',
-                          fontSize: '12px',
-                          padding: '8px 12px'
-                        }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
+        {statsLoading ? (
+          <>
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <ChartCardSkeleton />
+          </>
+        ) : (
+          <>
+            <Card className="p-6 border-0 shadow-md hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-blue-100 rounded-xl">
+                  <Users className="w-6 h-6 text-blue-600" />
                 </div>
-              ) : (
-                <div className="w-40 h-40 flex items-center justify-center text-gray-400">
-                  <p className="text-sm">Chưa có dữ liệu</p>
-                </div>
-              )}
-            </div>
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-1">
+                {stats.totalUsers}
+              </h3>
+              <p className="text-sm text-gray-600 font-medium">Tổng người dùng</p>
+              <p className="text-xs text-green-600 mt-2 flex items-center">
+                <TrendingUp className="w-3 h-3 mr-1" />
+                {stats.totalActive} đang hoạt động
+              </p>
+            </Card>
 
-            {/* Legend and Recent Users */}
-            <div className="flex-1 space-y-4">
-              <div className="space-y-2">
-                {chartData.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full flex-shrink-0" 
-                        style={{ backgroundColor: item.color }}
-                      ></div>
-                      <span className="text-sm text-gray-700">{item.name}</span>
+            <Card className="p-6 border-0 shadow-md hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-green-100 rounded-xl">
+                  <GraduationCap className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-1">
+                {stats.totalTeachers}
+              </h3>
+              <p className="text-sm text-gray-600 font-medium">Giáo viên</p>
+              <p className="text-xs text-gray-500 mt-2">Đang giảng dạy</p>
+            </Card>
+
+            <Card className="p-6 border-0 shadow-md hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-purple-100 rounded-xl">
+                  <Shield className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-1">
+                {stats.totalAdmins}
+              </h3>
+              <p className="text-sm text-gray-600 font-medium">Quản trị viên</p>
+              <p className="text-xs text-gray-500 mt-2">Đang quản lý</p>
+            </Card>
+
+            {/* Sidebar */}
+            <Card className="md:col-span-2 p-6 border-0 shadow-md">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Phân bố vai trò</h3>
+              
+              <div className="flex items-center gap-6">
+                {/* Chart */}
+                <div className="flex-shrink-0">
+                  {chartData.length > 0 ? (
+                    <div className="w-40 h-40">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={chartData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={40}
+                            outerRadius={65}
+                            fill="#8884d8"
+                            dataKey="value"
+                            paddingAngle={3}
+                          >
+                            {chartData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip 
+                            formatter={(value) => `${value} người`}
+                            contentStyle={{
+                              backgroundColor: 'white',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              fontSize: '12px',
+                              padding: '8px 12px'
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">{item.value}</span>
-                      <span className="text-sm font-bold" style={{ color: item.color }}>
-                        {item.percentage}%
-                      </span>
+                  ) : (
+                    <div className="w-40 h-40 flex items-center justify-center text-gray-400">
+                      <p className="text-sm">Chưa có dữ liệu</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Legend */}
+                <div className="flex-1 space-y-4">
+                  <div className="space-y-2">
+                    {chartData.map((item, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full flex-shrink-0" 
+                            style={{ backgroundColor: item.color }}
+                          ></div>
+                          <span className="text-sm text-gray-700">{item.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-500">{item.value}</span>
+                          <span className="text-sm font-bold" style={{ color: item.color }}>
+                            {item.percentage}%
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-3 border-t border-gray-200">
+                    <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-700">Tổng cộng</span>
+                      <span className="text-lg font-bold text-blue-600">{stats.totalUsers}</span>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              <div className="pt-3 border-t border-gray-200">
-                <div className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
-                  <span className="text-sm font-medium text-gray-700">Tổng cộng</span>
-                  <span className="text-lg font-bold text-blue-600">{stats.totalUsers}</span>
                 </div>
               </div>
-            </div>
-          </div>
-        </Card>
+            </Card>
+          </>
+        )}
       </div>
 
-      {/* Recent Users - ✅ UPDATED: Navigate to profile */}
+      {/* Recent Users */}
       <Card className="p-6 border-0 shadow-md">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-gray-900">Người dùng mới</h3>
@@ -328,7 +386,11 @@ const UserManagement = () => {
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          {recentUsers.length === 0 ? (
+          {recentUsersLoading ? (
+            [...Array(5)].map((_, index) => (
+              <RecentUserCardSkeleton key={index} />
+            ))
+          ) : recentUsers.length === 0 ? (
             <div className="col-span-5 text-center py-8 text-gray-500">
               <p className="text-sm">Chưa có người dùng mới</p>
             </div>
@@ -392,40 +454,51 @@ const UserManagement = () => {
             </div>
           </div>
 
-          <div className="flex gap-3 flex-wrap">
-            {roleFilters.map((filter) => {
-              const Icon = filter.icon;
-              const isActive = selectedRole === filter.key;
-              
-              let count = 0;
-              if (filter.key === 'all') count = stats.totalUsers;
-              else if (filter.key === 'user') count = regularUsers;
-              else if (filter.key === 'teacher') count = stats.totalTeachers;
-              else if (filter.key === 'admin') count = stats.totalAdmins;
-              
-              return (
-                <button
-                  key={filter.key}
-                  onClick={() => handleRoleFilter(filter.key)}
-                  className={`
-                    flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all
-                    ${isActive 
-                      ? `${filter.color} text-white shadow-md` 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }
-                  `}
-                >
-                  <Icon className="w-4 h-4" />
-                  {filter.label}
-                  <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
-                    isActive ? 'bg-white/20' : 'bg-gray-200'
-                  }`}>
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          {/* Role Filters */}
+          {statsLoading ? (
+            <div className="flex gap-3 flex-wrap">
+              {[...Array(4)].map((_, index) => (
+                <Skeleton key={index} className="h-10 w-32 rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <div className="flex gap-3 flex-wrap">
+              {roleFilters.map((filter) => {
+                const Icon = filter.icon;
+                const isActive = selectedRole === filter.key;
+                
+                let count = 0;
+                if (filter.key === 'all') count = stats.totalUsers;
+                else if (filter.key === 'user') count = regularUsers;
+                else if (filter.key === 'teacher') count = stats.totalTeachers;
+                else if (filter.key === 'admin') count = stats.totalAdmins;
+                
+                return (
+                  <button
+                    key={filter.key}
+                    onClick={() => handleRoleFilter(filter.key)}
+                    disabled={statsLoading}
+                    className={`
+                      flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all
+                      ${isActive 
+                        ? `${filter.color} text-white shadow-md` 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }
+                      ${statsLoading && 'opacity-50 cursor-not-allowed'}
+                    `}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {filter.label}
+                    <span className={`ml-1 px-2 py-0.5 rounded-full text-xs ${
+                      isActive ? 'bg-white/20' : 'bg-gray-200'
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           <UserTable
             users={users}

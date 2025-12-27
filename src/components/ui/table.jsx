@@ -1,4 +1,5 @@
 import React from 'react';
+import { Skeleton } from './skeleton';
 
 const Table = React.forwardRef(({ className, ...props }, ref) => (
   <div className="relative w-full overflow-auto">
@@ -70,6 +71,54 @@ const TableCaption = React.forwardRef(({ className, ...props }, ref) => (
 ));
 TableCaption.displayName = "TableCaption";
 
+// Skeleton Components for Table
+const TableRowSkeleton = ({ columns = 5, className }) => (
+  <TableRow className={className}>
+    {[...Array(columns)].map((_, index) => (
+      <TableCell key={index}>
+        <Skeleton className="h-4 w-full" />
+      </TableCell>
+    ))}
+  </TableRow>
+);
+TableRowSkeleton.displayName = "TableRowSkeleton";
+
+const TableSkeleton = ({ 
+  rows = 5, 
+  columns = 5, 
+  showHeader = true,
+  headerLabels = [],
+  className 
+}) => (
+  <div className={`relative w-full overflow-auto ${className || ''}`}>
+    <table className="w-full caption-bottom text-sm">
+      {showHeader && (
+        <TableHeader>
+          <TableRow>
+            {headerLabels.length > 0 ? (
+              headerLabels.map((label, index) => (
+                <TableHead key={index}>{label}</TableHead>
+              ))
+            ) : (
+              [...Array(columns)].map((_, index) => (
+                <TableHead key={index}>
+                  <Skeleton className="h-4 w-20" />
+                </TableHead>
+              ))
+            )}
+          </TableRow>
+        </TableHeader>
+      )}
+      <TableBody>
+        {[...Array(rows)].map((_, index) => (
+          <TableRowSkeleton key={index} columns={columns} />
+        ))}
+      </TableBody>
+    </table>
+  </div>
+);
+TableSkeleton.displayName = "TableSkeleton";
+
 export {
   Table,
   TableHeader,
@@ -79,4 +128,6 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  TableRowSkeleton,
+  TableSkeleton,
 };

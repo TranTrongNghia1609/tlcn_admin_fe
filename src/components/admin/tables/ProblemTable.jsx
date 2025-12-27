@@ -6,7 +6,8 @@ import {
   TableCell, 
   TableHead, 
   TableHeader, 
-  TableRow 
+  TableRow,
+  TableSkeleton
 } from '../../ui/table';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
@@ -36,8 +37,13 @@ const ProblemTable = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="border rounded-lg overflow-hidden">
+        <TableSkeleton
+          rows={10}
+          columns={8}
+          showHeader={true}
+          headerLabels={['Mã bài', 'Tên bài', 'Lượt nộp', 'Thành công', 'Giải pháp', 'Trạng thái', 'Ngày tạo', 'Hành động']}
+        />
       </div>
     );
   }
@@ -66,26 +72,23 @@ const ProblemTable = ({
   };
 
   const handleSolutionClick = (problem) => {
-  // Navigate to admin solution form page
-  if (problem.hasSolution && problem.solutionId) {
-    // Edit existing solution
-    navigate(`/problems/${problem._id}/edit-solution?edit=${problem.solutionId}`, {
-      state: {
-        problemShortId: problem.shortId,
-        problemName: problem.name,
-        solutionId: problem.solutionId
-      }
-    });
-  } else {
-    // Create new solution
-    navigate(`/problems/${problem._id}/solution`, {
-      state: {
-        problemShortId: problem.shortId,
-        problemName: problem.name
-      }
-    });
-  }
-};
+    if (problem.hasSolution && problem.solutionId) {
+      navigate(`/problems/${problem._id}/edit-solution?edit=${problem.solutionId}`, {
+        state: {
+          problemShortId: problem.shortId,
+          problemName: problem.name,
+          solutionId: problem.solutionId
+        }
+      });
+    } else {
+      navigate(`/problems/${problem._id}/solution`, {
+        state: {
+          problemShortId: problem.shortId,
+          problemName: problem.name
+        }
+      });
+    }
+  };
 
   return (
     <div className="border rounded-lg overflow-hidden">
@@ -114,7 +117,6 @@ const ProblemTable = ({
               <TableCell>{problem.numberOfSubmissions || 0}</TableCell>
               <TableCell>{problem.numberOfAccepted || 0}</TableCell>
               
-              {/* Solution Status Column */}
               <TableCell>
                 {problem.hasSolution ? (
                   <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
@@ -155,7 +157,6 @@ const ProblemTable = ({
                       Xem chi tiết
                     </DropdownMenuItem>
                     
-                    {/* Solution Action - Navigate to solution page using problem._id */}
                     <DropdownMenuItem 
                       onClick={() => handleSolutionClick(problem)}
                       className={problem.hasSolution ? "text-green-600" : "text-blue-600"}

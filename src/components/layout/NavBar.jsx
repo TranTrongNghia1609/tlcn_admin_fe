@@ -4,6 +4,7 @@ import { useAuthModal } from '../../context/AuthModalContext.jsx';
 import UserMenu from './UserMenu';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '@/components/common/NotificationBell';
+import logoImage from '@/assets/logo.png';
 
 const Navbar = () => {
   const { openLogin, openRegister } = useAuthModal();
@@ -40,14 +41,15 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group">
             <div className="relative">
-              <div className="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-200">
-                <span className="text-white font-bold text-lg lg:text-xl">BN</span>
-              </div>
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+              <img 
+                src={logoImage} 
+                alt="BN Online Judge" 
+                className="w-10 h-10 lg:w-12 lg:h-12 object-contain transform group-hover:scale-110 transition-transform duration-200"
+              />
             </div>
             <div className="hidden sm:block">
               <h1 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                BN
+                BNOJ
               </h1>
               <p className="text-xs text-gray-500 -mt-1">Online Judge</p>
             </div>
