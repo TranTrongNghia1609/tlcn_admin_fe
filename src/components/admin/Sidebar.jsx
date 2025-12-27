@@ -18,7 +18,7 @@ import {
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
-import logoImage from '@/assets/logo.png';
+import logo from '@/assets/logo.png';
 
 // Sidebar Skeleton Component
 const SidebarSkeleton = ({ isCollapsed }) => {
@@ -162,11 +162,10 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
       <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
         {!isCollapsed && (
           <div className="flex items-center space-x-2">
-            <img 
-              src={logoImage} 
-              alt="BNOJ Logo" 
-              className="w-8 h-8 object-contain"
-            />
+            <div className="w-12 h-12 lg:w-13 lg:h-13 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-200">
+              <img src={logo}/>
+            </div>
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
             <div>
               <h1 className="font-bold text-gray-900">Admin Portal</h1>
               <p className="text-xs text-gray-500">BN Online Judge</p>

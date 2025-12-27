@@ -50,8 +50,10 @@ export const CONTEST_ENDPOINTS = {
   TOGGLE_STATUS: (id) => `/admin/contests/${id}/toggle`,
   CODE_CHECKING: "/contests/code/check",
   GET_BY_ID: (id) => `/contests/${id}`,
-  STATS: "/admin/contests/stats",
-};
+  STATS: '/admin/contests/stats',
+  GET_PARTICIPANTS: (id) => `/admin/contests/${id}/participants`,
+  TOGGLE_PARTICIPANT: (contestId, userId) => `/admin/contests/${contestId}/toggle/${userId}`,
+}
 export const POST_ENDPOINTS = {
   GET_ALL: "/posts/all",
   GET_POPULAR: "/posts/popular",

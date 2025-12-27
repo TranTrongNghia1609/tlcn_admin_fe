@@ -332,7 +332,7 @@ const ProblemContest = ({ contestId, initialProblems = [], onProblemUpdated }) =
                   <TableCell>
                     <GripVertical className="h-5 w-5 text-gray-400" />
                   </TableCell>
-                  <TableCell>{problem.order}</TableCell>
+                  <TableCell>{index + 1}</TableCell>
                   <TableCell>
                     <div>
                       <div className="font-medium">{problem.name}</div>

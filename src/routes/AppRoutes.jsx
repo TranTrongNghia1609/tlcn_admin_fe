@@ -23,6 +23,8 @@ import Submission from "@/pages/admin/Submision";
 import SolutionManagement from "@/pages/admin/SolutionManagement";
 import SolutionFormPage from "@/pages/admin/SolutionFormPage";
 import CommentManagement from "@/pages/admin/CommentManagement";
+import ContestParticipants from "@/pages/admin/ContestParticipants";
+
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
@@ -253,6 +255,15 @@ const AppRoutes = () => {
         element={
           <AdminRoute>
             <ContestForm mode="edit" />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/contest/:id/participants"
+        element={
+          <AdminRoute>
+            <ContestParticipants/>
           </AdminRoute>
         }
       />

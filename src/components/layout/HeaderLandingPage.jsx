@@ -1,21 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '../ui/button';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthModal } from '../../context/AuthModalContext';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import logoImage from '@/assets/logo.png';
+import UserMenu from './UserMenu';
+import logo from '@/assets/logo.png';
 
 const HeaderLandingPage = ({ sections = [] }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const { openLogin, openRegister } = useAuthModal();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
 
   // Detect active section on scroll
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPosition = window.scrollY + 100; // offset for header height
+      const scrollPosition = window.scrollY + 100;
 
       for (const section of sections) {
         const element = document.getElementById(section.id);
@@ -30,15 +31,14 @@ const HeaderLandingPage = ({ sections = [] }) => {
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial check
-
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, [sections]);
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const offsetTop = element.offsetTop - 80; // offset for sticky header
+      const offsetTop = element.offsetTop - 80;
       window.scrollTo({
         top: offsetTop,
         behavior: 'smooth'
@@ -48,35 +48,25 @@ const HeaderLandingPage = ({ sections = [] }) => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
-
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo & Brand */}
-          <div 
-            className="flex items-center space-x-3 cursor-pointer group"
-            onClick={() => navigate('/')}
-          >
-            <img 
-              src={logoImage} 
-              alt="BNOJ Logo" 
-              className="w-10 h-10 object-contain transform transition-transform group-hover:scale-110"
-            />
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                BNOJ
-              </h1>
+          <Link to="/" className="flex items-center space-x-2 group">
+            <div className="relative">
+              <div className="w-12 h-12 lg:w-13 lg:h-13 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-200">
+                <img src={logo}/>
+              </div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
             </div>
-          </div>
+            <div className="hidden sm:block">
+              <h1 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                BN
+              </h1>
+              <p className="text-xs text-gray-500 -mt-1">Online Judge</p>
+            </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-2">
@@ -93,14 +83,12 @@ const HeaderLandingPage = ({ sections = [] }) => {
                 `}
               >
                 {section.label}
-                {/* Active indicator */}
                 <span 
                   className={`
                     absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 bg-blue-600 transition-all duration-300
                     ${activeSection === section.id ? 'w-3/4' : 'w-0 group-hover:w-1/2'}
                   `}
                 />
-                {/* Hover background */}
                 <span 
                   className={`
                     absolute inset-0 rounded-lg bg-blue-50 transition-opacity duration-300
@@ -110,43 +98,28 @@ const HeaderLandingPage = ({ sections = [] }) => {
                 />
               </button>
             ))}
+            
+            {/* Kỳ thi */}
+            <button
+              onClick={() => navigate('/contests')}
+              className="relative px-4 py-2 font-medium rounded-lg transition-all duration-300 cursor-pointer text-gray-600 hover:text-blue-600 flex items-center gap-1"
+            >
+              Kỳ thi
+            </button>
           </nav>
 
-          {/* Desktop Auth Buttons */}
+          {/* Desktop Auth Buttons / User Menu */}
           <div className="hidden md:flex items-center space-x-4">
-            {isAuthenticated ? (
-              <>
-                <div className="flex items-center space-x-3 animate-fadeIn">
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900">
-                      {user?.userName || user?.email}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {user?.role || 'User'}
-                    </p>
-                  </div>
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center transform transition-transform hover:scale-110">
-                    <span className="text-white font-medium text-sm">
-                      {(user?.userName || user?.email)?.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('/dashboard')}
-                  className="text-gray-600 hover:text-blue-600 hover:border-blue-600 transition-all duration-300 transform hover:scale-105"
-                >
-                  Dashboard
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={handleLogout}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-300 transform hover:scale-105"
-                >
-                  Đăng xuất
-                </Button>
-              </>
+            {loading ? (
+              // Loading spinner while checking auth
+              <div className="flex items-center">
+                <div className="w-8 h-8 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
+              </div>
+            ) : isAuthenticated ? (
+              // Show User Menu when authenticated
+              <UserMenu />
             ) : (
+              // Show Auth Buttons when not authenticated
               <>
                 <Button
                   variant="ghost"
@@ -167,7 +140,7 @@ const HeaderLandingPage = ({ sections = [] }) => {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors duration-300"
+            className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             <svg
@@ -179,17 +152,9 @@ const HeaderLandingPage = ({ sections = [] }) => {
               className={`w-6 h-6 transition-transform duration-300 ${mobileMenuOpen ? 'rotate-90' : ''}`}
             >
               {mobileMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
               ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
               )}
             </svg>
           </button>
@@ -230,56 +195,47 @@ const HeaderLandingPage = ({ sections = [] }) => {
                 </button>
               ))}
               
+              {/* Kỳ thi Mobile */}
+              <button
+                onClick={() => {
+                  navigate('/contests');
+                  setMobileMenuOpen(false);
+                }}
+                className="text-left px-4 py-3 rounded-lg font-medium transition-all duration-300 transform hover:translate-x-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50"
+              >
+                Kỳ thi
+              </button>
+              
+              {/* Mobile Auth Section */}
               <div className="flex flex-col space-y-2 px-4 pt-4 border-t border-gray-200">
-                {isAuthenticated ? (
-                  <>
-                    <div className="flex items-center space-x-3 px-4 py-2 animate-fadeIn">
-                      <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                        <span className="text-white font-medium">
-                          {(user?.userName || user?.email)?.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {user?.userName || user?.email}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {user?.role || 'User'}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        navigate('/dashboard');
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full transform transition-all duration-300 hover:scale-105"
-                    >
-                      Dashboard
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        handleLogout();
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full text-red-600 hover:text-red-700 transform transition-all duration-300 hover:scale-105"
-                    >
-                      Đăng xuất
-                    </Button>
-                  </>
+                {loading ? (
+                  // Loading state
+                  <div className="flex items-center justify-center py-4">
+                    <div className="w-8 h-8 border-2 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
+                  </div>
+                ) : isAuthenticated ? (
+                  // Show UserMenu component for mobile
+                  <div className="block md:hidden">
+                    <UserMenu isMobile onNavigate={() => setMobileMenuOpen(false)} />
+                  </div>
                 ) : (
+                  // Show Auth Buttons when not authenticated
                   <>
                     <Button
                       variant="outline"
-                      onClick={openLogin}
+                      onClick={() => {
+                        openLogin();
+                        setMobileMenuOpen(false);
+                      }}
                       className="w-full transform transition-all duration-300 hover:scale-105"
                     >
                       Đăng nhập
                     </Button>
                     <Button 
-                      onClick={openRegister} 
+                      onClick={() => {
+                        openRegister();
+                        setMobileMenuOpen(false);
+                      }}
                       className="w-full bg-blue-600 hover:bg-blue-700 transform transition-all duration-300 hover:scale-105"
                     >
                       Đăng ký
