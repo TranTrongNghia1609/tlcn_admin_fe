@@ -5,7 +5,8 @@ import {
   TableCell, 
   TableHead, 
   TableHeader, 
-  TableRow 
+  TableRow,
+  TableSkeleton
 } from '../../ui/table';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
@@ -31,8 +32,13 @@ const ContestTable = ({
 }) => {
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="border rounded-lg overflow-hidden">
+        <TableSkeleton
+          rows={10}
+          columns={8}
+          showHeader={true}
+          headerLabels={['Mã cuộc thi', 'Tên cuộc thi', 'Thời gian bắt đầu', 'Thời gian kết thúc', 'Loại', 'Trạng thái', 'Tình trạng', 'Hành động']}
+        />
       </div>
     );
   }

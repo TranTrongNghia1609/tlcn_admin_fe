@@ -3,6 +3,7 @@ import { Button } from '../ui/button';
 import { useAuthModal } from '../../context/AuthModalContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import logoImage from '@/assets/logo.png';
 
 const HeaderLandingPage = ({ sections = [] }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -65,9 +66,11 @@ const HeaderLandingPage = ({ sections = [] }) => {
             className="flex items-center space-x-3 cursor-pointer group"
             onClick={() => navigate('/')}
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center transform transition-transform group-hover:scale-110 cursor-pointer">
-              <span className="text-white font-bold text-xl">BN</span>
-            </div>
+            <img 
+              src={logoImage} 
+              alt="BNOJ Logo" 
+              className="w-10 h-10 object-contain transform transition-transform group-hover:scale-110"
+            />
             <div>
               <h1 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
                 BNOJ

@@ -5,7 +5,8 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
+  TableSkeleton
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -46,13 +47,11 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
 
   const handleToggleHide = async (comment) => {
     if (!comment.isHidden) {
-      // Show dialog to get reason
       setSelectedComment(comment);
       setHideDialogOpen(true);
       return;
     }
 
-    // Unhide directly
     await performToggleHide(comment._id, null);
   };
 
@@ -134,8 +133,13 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="border rounded-lg overflow-hidden">
+        <TableSkeleton
+          rows={10}
+          columns={6}
+          showHeader={true}
+          headerLabels={['Người dùng', 'Nội dung', 'Loại', 'Trạng thái', 'Ngày tạo', 'Hành động']}
+        />
       </div>
     );
   }
@@ -168,7 +172,6 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
               
               return (
                 <TableRow key={comment._id} className="hover:bg-gray-50">
-                  {/* User Info */}
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="flex-shrink-0">
@@ -195,7 +198,6 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
                     </div>
                   </TableCell>
 
-                  {/* Content */}
                   <TableCell>
                     <div className="max-w-md">
                       <p className="text-sm text-gray-700 line-clamp-2">
@@ -213,14 +215,12 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
                     </div>
                   </TableCell>
 
-                  {/* Target Type */}
                   <TableCell>
                     <Badge className={targetBadge.color}>
                       {targetBadge.label}
                     </Badge>
                   </TableCell>
 
-                  {/* Status */}
                   <TableCell>
                     <Badge
                       variant={comment.isHidden ? 'secondary' : 'default'}
@@ -230,14 +230,12 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
                     </Badge>
                   </TableCell>
 
-                  {/* Created Date */}
                   <TableCell>
                     <span className="text-sm text-gray-600">
                       {formatDate(comment.createdAt)}
                     </span>
                   </TableCell>
 
-                  {/* Actions */}
                   <TableCell className="text-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -285,7 +283,6 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
         </Table>
       </div>
 
-      {/* Hide Reason Dialog */}
       <Dialog open={hideDialogOpen} onOpenChange={setHideDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -304,7 +301,7 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
             <div className="flex justify-end gap-3">
               <Button
                 className="border-2 cursor-pointer hover:bg-gray-100"
-                variant="outline "
+                variant="outline"
                 onClick={() => {
                   setHideDialogOpen(false);
                   setSelectedComment(null);

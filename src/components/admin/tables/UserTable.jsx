@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // ✅ NEW: Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow
+  TableRow,
+  TableSkeleton
 } from '../../ui/table';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
@@ -30,16 +31,14 @@ const UserTable = ({
   loading,
   onDeleteUser
 }) => {
-  const navigate = useNavigate(); // ✅ NEW: Initialize navigate
+  const navigate = useNavigate();
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const [users, setUsers] = useState(initialUsers);
 
-  // Sync với prop users khi thay đổi
   React.useEffect(() => {
     setUsers(initialUsers);
   }, [initialUsers]);
 
-  // ✅ NEW: Navigate to profile page
   const handleViewDetail = (userName) => {
     navigate(`/profile/${userName}`);
   };
@@ -80,8 +79,13 @@ const UserTable = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="border rounded-lg overflow-hidden">
+        <TableSkeleton
+          rows={10}
+          columns={5}
+          showHeader={true}
+          headerLabels={['Người dùng', 'Email', 'Trạng thái', 'Ngày tạo', 'Hành động']}
+        />
       </div>
     );
   }
@@ -120,7 +124,6 @@ const UserTable = ({
           {users.map((user) => {
             return (
               <TableRow key={user._id} className="hover:bg-gray-50">
-                {/* User Info with Avatar */}
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div className="flex-shrink-0">
@@ -152,12 +155,10 @@ const UserTable = ({
                   </div>
                 </TableCell>
 
-                {/* Email */}
                 <TableCell>
                   <span className="text-sm text-gray-700">{user.email || 'N/A'}</span>
                 </TableCell>
 
-                {/* Status */}
                 <TableCell>
                   <Badge
                     variant={user.active ? 'default' : 'secondary'}
@@ -167,12 +168,10 @@ const UserTable = ({
                   </Badge>
                 </TableCell>
 
-                {/* Created Date */}
                 <TableCell>
                   <span className="text-sm text-gray-600">{formatDate(user.createdAt)}</span>
                 </TableCell>
 
-                {/* Actions */}
                 <TableCell className="text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -190,7 +189,6 @@ const UserTable = ({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {/* ✅ UPDATED: Navigate instead of modal */}
                       <DropdownMenuItem onClick={() => handleViewDetail(user.userName)}>
                         <Eye className="mr-2 h-4 w-4" />
                         Xem chi tiết

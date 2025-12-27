@@ -16,9 +16,79 @@ import {
   BookOpen
 } from 'lucide-react';
 import { Button } from '../ui/button';
+import { Skeleton } from '../ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
+import logoImage from '@/assets/logo.png';
 
-const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
+// Sidebar Skeleton Component
+const SidebarSkeleton = ({ isCollapsed }) => {
+  return (
+    <div
+      className={`
+        fixed left-0 top-0 h-screen bg-white border-r border-gray-200 
+        transition-all duration-300 z-50
+        ${isCollapsed ? 'w-20' : 'w-64'}
+      `}
+    >
+      {/* Header Skeleton */}
+      <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+        {!isCollapsed ? (
+          <div className="flex items-center space-x-2 flex-1">
+            <Skeleton className="w-8 h-8 rounded-lg" />
+            <div className="flex-1 space-y-1">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          </div>
+        ) : (
+          <Skeleton className="w-8 h-8 rounded-lg mx-auto" />
+        )}
+        <Skeleton className="h-8 w-8 rounded" />
+      </div>
+
+      {/* User Info Skeleton */}
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center space-x-3">
+          <Skeleton className="w-10 h-10 rounded-full" />
+          {!isCollapsed && (
+            <div className="flex-1 space-y-1">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Navigation Menu Skeleton */}
+      <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+        {[...Array(8)].map((_, index) => (
+          <div
+            key={index}
+            className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg`}
+          >
+            <Skeleton className="h-5 w-5 rounded" />
+            {!isCollapsed && <Skeleton className="h-4 flex-1" />}
+          </div>
+        ))}
+      </nav>
+
+      {/* Logout Button Skeleton */}
+      <div className="p-4 border-t border-gray-200">
+        <div
+          className={`
+            w-full flex items-center space-x-3 px-3 py-2
+            ${isCollapsed ? 'justify-center' : 'justify-start'}
+          `}
+        >
+          <Skeleton className="h-5 w-5 rounded" />
+          {!isCollapsed && <Skeleton className="h-4 w-20" />}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
   const location = useLocation();
   const { user, logout } = useAuth();
 
@@ -53,7 +123,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       path: '/contests',
       badge: null
     },
-    
     {
       title: 'Quản lý bài nộp',
       icon: Book,
@@ -66,28 +135,20 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       path: '/solutions',
       badge: null
     },
-
     {
       title: 'Bình luận',
       icon: MessageSquare,
       path: '/comments',
-      badge: 'Soon'
-    },
-    {
-      title: 'Thống kê',
-      icon: BarChart3,
-      path: '/analytics',
-      badge: 'Soon'
-    },
-    {
-      title: 'Cài đặt',
-      icon: Settings,
-      path: '/settings',
       badge: null
-    }
+    },
   ];
 
   const isActive = (path) => location.pathname === path;
+
+  // Show skeleton when loading
+  if (loading) {
+    return <SidebarSkeleton isCollapsed={isCollapsed} />;
+  }
 
   return (
     <div
@@ -101,14 +162,23 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
         {!isCollapsed && (
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">BN</span>
-            </div>
+            <img 
+              src={logoImage} 
+              alt="BNOJ Logo" 
+              className="w-8 h-8 object-contain"
+            />
             <div>
               <h1 className="font-bold text-gray-900">Admin Portal</h1>
               <p className="text-xs text-gray-500">BN Online Judge</p>
             </div>
           </div>
+        )}
+        {isCollapsed && (
+          <img 
+            src={logoImage} 
+            alt="BNOJ Logo" 
+            className="w-8 h-8 object-contain mx-auto"
+          />
         )}
         <Button
           variant="ghost"
@@ -207,4 +277,5 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
   );
 };
 
+export { SidebarSkeleton };
 export default Sidebar;

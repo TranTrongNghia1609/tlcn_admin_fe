@@ -5,7 +5,8 @@ import {
   TableCell, 
   TableHead, 
   TableHeader, 
-  TableRow 
+  TableRow,
+  TableSkeleton
 } from '../../ui/table';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
@@ -32,8 +33,13 @@ const PostTable = ({
 }) => {
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="border rounded-lg overflow-hidden">
+        <TableSkeleton
+          rows={10}
+          columns={8}
+          showHeader={true}
+          headerLabels={['Tiêu đề', 'Tác giả', 'Lượt xem', 'Lượt thích', 'Bình luận', 'Trạng thái', 'Ngày tạo', 'Hành động']}
+        />
       </div>
     );
   }

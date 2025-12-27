@@ -5,7 +5,8 @@ import {
   TableCell, 
   TableHead, 
   TableHeader, 
-  TableRow 
+  TableRow,
+  TableSkeleton
 } from '../../ui/table';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
@@ -38,8 +39,13 @@ const SubmissionTable = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="border rounded-lg overflow-hidden">
+        <TableSkeleton
+          rows={10}
+          columns={5}
+          showHeader={true}
+          headerLabels={['Ngày nộp', 'Username', 'Bài tập', 'Kỳ thi', 'Trạng thái']}
+        />
       </div>
     );
   }
@@ -56,6 +62,7 @@ const SubmissionTable = ({
     if (!text) return 'N/A';
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };
+
   const getStatusIcon = (status) => {
     switch (status) {
       case 'Accepted':
@@ -116,7 +123,11 @@ const SubmissionTable = ({
         </TableHeader>
         <TableBody>
           {submissions.map((submission) => (
-            <TableRow onClick={() => navigate(`/submission/${submission._id}`)} key={submission._id} className="hover:bg-gray-50 cursor-pointer">
+            <TableRow 
+              onClick={() => navigate(`/submission/${submission._id}`)} 
+              key={submission._id} 
+              className="hover:bg-gray-50 cursor-pointer"
+            >
               <TableCell className="font-medium">
                 {formatDateTime(submission.createdAt) || 'N/A'}
               </TableCell>
@@ -126,7 +137,6 @@ const SubmissionTable = ({
               <TableCell className="max-w-xs">
                 {truncateText(submission.problem?.name, 60)}
               </TableCell>
-
               <TableCell className="max-w-xs">
                 {submission.contest ? truncateText(submission.contest.code, 60) : ''}
               </TableCell>
