@@ -5,7 +5,7 @@ import { AuthModalProvider } from './context/AuthModalContext';
 import { UserProvider } from './context/UserContext';
 import LoginModal from './components/auth/LoginModal';
 import RegisterModal from './components/auth/RegisterModal';
-import Navbar from './components/layout/Navbar';
+import Navbar from './components/layout/NavBar';
 import { PostProvider } from './context/PostContext';
 import AppRoutes from './routes/AppRoutes';
 import { AuthProvider, useAuth } from './context/AuthContext';
