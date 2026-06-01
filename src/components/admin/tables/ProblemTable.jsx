@@ -37,20 +37,16 @@ const ProblemTable = ({
 
   if (loading) {
     return (
-      <div className="border rounded-lg overflow-hidden">
-        <TableSkeleton
-          rows={10}
-          columns={8}
-          showHeader={true}
-          headerLabels={['Mã bài', 'Tên bài', 'Lượt nộp', 'Thành công', 'Giải pháp', 'Trạng thái', 'Ngày tạo', 'Hành động']}
-        />
+      <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
+        <TableSkeleton rows={10} columns={8} showHeader={true}
+          headerLabels={['Mã bài', 'Tên bài', 'Lượt nộp', 'Thành công', 'Giải pháp', 'Trạng thái', 'Ngày tạo', 'Hành động']} />
       </div>
     );
   }
 
   if (!problems || problems.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-slate-400">
         Không có bài tập nào
       </div>
     );
@@ -91,23 +87,23 @@ const ProblemTable = ({
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="font-semibold">Mã bài</TableHead>
-            <TableHead className="font-semibold">Tên bài</TableHead>
-            <TableHead className="font-semibold">Lượt nộp</TableHead>
-            <TableHead className="font-semibold">Thành công</TableHead>
-            <TableHead className="font-semibold">Giải pháp</TableHead>
-            <TableHead className="font-semibold">Trạng thái</TableHead>
-            <TableHead className="font-semibold">Ngày tạo</TableHead>
-            <TableHead className="text-center font-semibold">Hành động</TableHead>
+          <TableRow className="bg-gray-50 dark:bg-slate-700/50">
+            <TableHead className="font-semibold dark:text-slate-300">Mã bài</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Tên bài</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Lượt nộp</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Thành công</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Giải pháp</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Trạng thái</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Ngày tạo</TableHead>
+            <TableHead className="text-center font-semibold dark:text-slate-300">Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {problems.map((problem) => (
-            <TableRow key={problem._id} className="hover:bg-gray-50">
+            <TableRow key={problem._id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40 dark:border-slate-700">
               <TableCell className="font-medium">
                 {problem.shortId || 'N/A'}
               </TableCell>

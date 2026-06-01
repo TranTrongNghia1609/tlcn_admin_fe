@@ -35,20 +35,16 @@ const ContestTable = ({
   const navigate = useNavigate();
   if (loading) {
     return (
-      <div className="border rounded-lg overflow-hidden">
-        <TableSkeleton
-          rows={10}
-          columns={8}
-          showHeader={true}
-          headerLabels={['Mã cuộc thi', 'Tên cuộc thi', 'Thời gian bắt đầu', 'Thời gian kết thúc', 'Loại', 'Trạng thái', 'Tình trạng', 'Hành động']}
-        />
+      <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
+        <TableSkeleton rows={10} columns={8} showHeader={true}
+          headerLabels={['Mã cuộc thi', 'Tên cuộc thi', 'Thời gian bắt đầu', 'Thời gian kết thúc', 'Loại', 'Trạng thái', 'Tình trạng', 'Hành động']} />
       </div>
     );
   }
 
   if (!contests || contests.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-slate-400">
         Không có cuộc thi nào
       </div>
     );
@@ -82,18 +78,18 @@ const ContestTable = ({
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="font-semibold">Mã cuộc thi</TableHead>
-            <TableHead className="font-semibold">Tên cuộc thi</TableHead>
-            <TableHead className="font-semibold">Thời gian bắt đầu</TableHead>
-            <TableHead className="font-semibold">Thời gian kết thúc</TableHead>
-            <TableHead className="font-semibold">Loại</TableHead>
-            <TableHead className="font-semibold">Trạng thái</TableHead>
-            <TableHead className="font-semibold">Tình trạng</TableHead>
-            <TableHead className="text-center font-semibold">Hành động</TableHead>
+          <TableRow className="bg-gray-50 dark:bg-slate-700/50">
+            <TableHead className="font-semibold dark:text-slate-300">Mã cuộc thi</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Tên cuộc thi</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Thời gian bắt đầu</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Thời gian kết thúc</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Loại</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Trạng thái</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Tình trạng</TableHead>
+            <TableHead className="text-center font-semibold dark:text-slate-300">Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -101,7 +97,7 @@ const ContestTable = ({
             const contestStatus = getContestStatus(contest.startTime, contest.endTime);
             
             return (
-              <TableRow key={contest._id} className="hover:bg-gray-50">
+              <TableRow key={contest._id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40 dark:border-slate-700">
                 <TableCell className="font-medium">
                   {contest.code || 'N/A'}
                 </TableCell>

@@ -212,18 +212,18 @@ function ContestParticipants() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-md border">
+          <div className="rounded-md border dark:border-slate-700">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[250px]">Thí sinh</TableHead>
-                  <TableHead className="w-[200px]">Email</TableHead>
-                  <TableHead className="w-[120px] text-center">Trạng thái</TableHead>
-                  <TableHead className="w-[100px] text-center">Điểm số</TableHead>
-                  <TableHead className="w-[120px] text-center">Số lần nộp</TableHead>
-                  <TableHead className="w-[150px]">Thời gian tham gia</TableHead>
-                  <TableHead className="w-[150px]">Lần nộp gần nhất</TableHead>
-                  <TableHead className="w-[100px] text-center">Hành động</TableHead>
+                <TableRow className="dark:border-slate-700">
+                  <TableHead className="w-[250px] dark:text-slate-300">Thí sinh</TableHead>
+                  <TableHead className="w-[200px] dark:text-slate-300">Email</TableHead>
+                  <TableHead className="w-[120px] text-center dark:text-slate-300">Trạng thái</TableHead>
+                  <TableHead className="w-[100px] text-center dark:text-slate-300">Điểm số</TableHead>
+                  <TableHead className="w-[120px] text-center dark:text-slate-300">Số lần nộp</TableHead>
+                  <TableHead className="w-[150px] dark:text-slate-300">Thời gian tham gia</TableHead>
+                  <TableHead className="w-[150px] dark:text-slate-300">Lần nộp gần nhất</TableHead>
+                  <TableHead className="w-[100px] text-center dark:text-slate-300">Hành động</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -249,7 +249,7 @@ function ContestParticipants() {
                     return (
                       <TableRow 
                         key={record.id}
-                        className={record.isDisqualified ? 'bg-red-50 hover:bg-red-100' : ''}
+                        className={record.isDisqualified ? 'bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30' : 'dark:hover:bg-slate-700/40 dark:border-slate-700'}
                       >
                         <TableCell>
                           <div className="flex items-center gap-3">

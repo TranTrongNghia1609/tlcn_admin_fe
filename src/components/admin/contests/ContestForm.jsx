@@ -237,16 +237,16 @@ const ContestForm = ({ mode = 'create' }) => {
   }
 
   return (
-    <div className="p-8 space-y-6 max-w-[1400px] mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-6 max-w-full mx-auto text-slate-800 dark:text-slate-100">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button
             variant="ghost"
             onClick={handleCancel}
-            className="hover:bg-gray-100"
+            className="text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
           >
-            <ArrowLeft className="h-5 w-5 mr-2" />
+            <ArrowLeft className="h-5 w-5 mr-2 text-slate-700 dark:text-white" />
             Quay lại
           </Button>
         </div>
@@ -254,7 +254,7 @@ const ContestForm = ({ mode = 'create' }) => {
           <Button
             onClick={handleSaveContest}
             disabled={loading || loadingCheckCode}
-            className="bg-blue-500 hover:bg-blue-600"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-md font-bold px-6 py-2.5 transition-all duration-200 border-0"
           >
             {loading ? 'Đang lưu...' : isEditMode ? 'Cập nhật kỳ thi' : 'Lưu kỳ thi'}
           </Button>
@@ -262,119 +262,121 @@ const ContestForm = ({ mode = 'create' }) => {
       </div>
       
       <div className='flex items-center justify-center'>
-        <h2 className="text-3xl font-bold text-gray-900">
+        <h2 className="text-3xl font-black text-slate-900 dark:text-white">
           {isEditMode ? 'Chỉnh sửa kỳ thi' : 'Tạo kỳ thi mới'}
         </h2>
       </div>
 
       <div className="space-y-6">
         {/* Thông tin kỳ thi */}
-          <Card className="p-6">
-            <h3 className="text-xl font-semibold mb-4">Thông tin kỳ thi</h3>
-            <div className="space-y-4">
-              <div className='flex justify-between gap-6'>
-                <div className='flex-3'>
-            <label className="block text-sm font-medium mb-1">Tên kỳ thi *</label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-                </div>
-                <div className='flex-1'>
-            <label className="block text-sm font-medium mb-1">Mã kỳ thi *</label>
-            <input
-              type="text"
-              name="code"
-              value={formData.code}
-              onChange={handleChange}
-              required
-              disabled={isEditMode}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                isEditMode ? 'bg-gray-100 cursor-not-allowed' : ''
-              } ${
-                codeError ? 'border-red-500 focus:ring-red-500' : 'focus:ring-blue-500'
-              }`}
-            />
-            {loadingCheckCode && (
-              <p className="text-sm text-gray-500 mt-1">Đang kiểm tra...</p>
-            )}
-            {codeError && (
-              <p className="text-sm text-red-500 mt-1">{codeError}</p>
-            )}
-            {isEditMode && (
-              <p className="text-sm text-gray-500 mt-1">Mã kỳ thi không thể thay đổi</p>
-            )}
-                </div>
+        <Card className="p-6 border border-slate-100 dark:border-slate-800 shadow-lg bg-white dark:bg-slate-800 rounded-2xl">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Thông tin kỳ thi</h3>
+          <div className="space-y-4">
+            <div className='flex flex-col md:flex-row justify-between gap-6'>
+              <div className='flex-3 w-full'>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Tên kỳ thi *</label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-sm"
+                />
+              </div>
+              <div className='flex-1 w-full'>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Mã kỳ thi *</label>
+                <input
+                  type="text"
+                  name="code"
+                  value={formData.code}
+                  onChange={handleChange}
+                  required
+                  disabled={isEditMode}
+                  className={`w-full px-3 py-2.5 border rounded-xl focus:outline-none focus:ring-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-sm ${
+                    isEditMode ? 'bg-slate-100 dark:bg-slate-850 cursor-not-allowed opacity-70' : ''
+                  } ${
+                    codeError ? 'border-red-500 focus:ring-red-500 dark:border-red-500/60' : 'border-slate-200 dark:border-slate-700 focus:ring-blue-500'
+                  }`}
+                />
+                {loadingCheckCode && (
+                  <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">Đang kiểm tra...</p>
+                )}
+                {codeError && (
+                  <p className="text-sm text-red-500 dark:text-red-400 mt-1">{codeError}</p>
+                )}
+                {isEditMode && (
+                  <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">Mã kỳ thi không thể thay đổi</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Mô tả *</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                required
+                rows={4}
+                className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-sm"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Thời gian bắt đầu *</label>
+                <input
+                  type="datetime-local"
+                  name="startTime"
+                  value={formData.startTime}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-sm"
+                />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Mô tả *</label>
-                <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-            rows={4}
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-            <label className="block text-sm font-medium mb-1">Thời gian bắt đầu *</label>
-            <input
-              type="datetime-local"
-              name="startTime"
-              value={formData.startTime}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-                </div>
-
-                <div>
-            <label className="block text-sm font-medium mb-1">Thời gian kết thúc *</label>
-            <input
-              type="datetime-local"
-              name="endTime"
-              value={formData.endTime}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-                </div>
-              </div>
-
-              <div className="">
-                <label className="flex items-center flex-3">
-            <input
-              type="checkbox"
-              name="isPrivate"
-              checked={formData.isPrivate}
-              onChange={handleChange}
-              className="mr-2"
-            />
-            <span className="text-sm font-medium">Kỳ thi riêng tư</span>
-                </label>
-              </div>
-              <div className={`flex items-center gap-4 overflow-hidden transition-all duration-300 ease-in-out ${
-                formData.isPrivate ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0'
-              }`}>
-                <label>Password</label>
-                <Input type="password" className="flex-2 max-w-1/4"
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
+                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Thời gian kết thúc *</label>
+                <input
+                  type="datetime-local"
+                  name="endTime"
+                  value={formData.endTime}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-sm"
                 />
               </div>
             </div>
-          </Card>
 
-          {/* Bài tập */}
-        <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Quản lý bài tập</h3>
+            <div className="pt-2">
+              <label className="flex items-center flex-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isPrivate"
+                  checked={formData.isPrivate}
+                  onChange={handleChange}
+                  className="mr-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900"
+                />
+                <span className="text-sm font-bold text-slate-700 dark:text-slate-300">Kỳ thi riêng tư</span>
+              </label>
+            </div>
+            <div className={`flex items-center gap-4 overflow-hidden transition-all duration-300 ease-in-out ${
+              formData.isPrivate ? 'max-h-20 opacity-100 mt-2' : 'max-h-0 opacity-0'
+            }`}>
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Password</label>
+              <Input 
+                type="password" 
+                className="flex-2 max-w-1/4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-xl"
+                onChange={(e) => setFormData({...formData, password: e.target.value})}
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Bài tập */}
+        <Card className="p-6 border border-slate-100 dark:border-slate-800 shadow-lg bg-white dark:bg-slate-800 rounded-2xl">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Quản lý bài tập</h3>
           <ProblemContest 
             contestId={isEditMode ? id : null}
             initialProblems={addedProblems}

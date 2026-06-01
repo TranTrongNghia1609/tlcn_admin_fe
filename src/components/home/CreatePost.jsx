@@ -6,7 +6,7 @@ import Modal from '../common/Modal';
 import { useModalManager } from '../../hooks/useModalManager';
 import ModalContentRenderer from './CreatePostComponent/ModalContentRenderer';
 
-const CreatePost = ({ onPostCreated }) => {
+const CreatePost = ({ onPostCreated, forceOpen = false, onCancel }) => {
   const { user } = useUser();
   
   const modalManager = useModalManager();
@@ -246,11 +246,23 @@ const CreatePost = ({ onPostCreated }) => {
     });
     setShowCodeEditor(false);
     modalManager.closeModal();
+    
+    // Call external onCancel callback if provided
+    if (onCancel) {
+      onCancel();
+    }
   };
 
   const handleOpenModal = () => {
     modalManager.openModal('create');
   };
+
+  // Auto open modal when forceOpen is true
+  React.useEffect(() => {
+    if (forceOpen && !modalManager.isModalOpen) {
+      modalManager.openModal('create');
+    }
+  }, [forceOpen]);
 
   // Cleanup on unmount
   React.useEffect(() => {
@@ -278,8 +290,8 @@ const CreatePost = ({ onPostCreated }) => {
 
   return (
     <>
-      {/* Trigger Button */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+      {/* Trigger Button - Only show if not forced open from outside */}
+      {!forceOpen && <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
         <div className="p-6">
           <div className="flex items-center space-x-4">
             <img
@@ -295,7 +307,7 @@ const CreatePost = ({ onPostCreated }) => {
             </button>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* ✅ Single Modal với dynamic content */}
       <Modal

@@ -107,75 +107,58 @@ const ContestManagement = () => {
   };  
 
   return (
-    <div className="p-8 space-y-8 max-w-[1600px] mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Quản lý kỳ thi</h1>
-          <p className="text-gray-600 mt-2 text-lg">Theo dõi và quản lý kỳ thi trên hệ thống</p>
-        </div>
-        <div className='cursor-pointer'>
-          <Button className={'bg-blue-600/80 hover:bg-blue-600'}>
-            <a href="/contest/create">Thêm</a>
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-8 max-w-full mx-auto">
+      {/* Header Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 p-8 shadow-xl">
+        {/* Decorative blobs */}
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -translate-y-20 translate-x-20"
+          style={{ background: 'radial-gradient(circle, white, transparent)' }} />
+        <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full opacity-10 translate-y-12"
+          style={{ background: 'radial-gradient(circle, white, transparent)' }} />
+        
+        <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="text-3xl font-black text-white mb-2">Quản lý kỳ thi</h1>
+            <p className="text-blue-100 text-base">Cấu hình, giám sát và vận hành các kỳ thi lập trình (Contests)</p>
+          </div>
+          <div>
+            <Button 
+              onClick={() => navigate('/contest/create')}
+              className="px-6 py-3 bg-white/15 hover:bg-white/25 border border-white/20 text-white rounded-xl font-bold backdrop-blur-sm shadow-lg hover:scale-105 active:scale-95 transition-all duration-200"
+            >
+              Thêm kỳ thi mới
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-xl bg-blue-100 text-blue-600">
-              <FileText className="h-6 w-6" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { title: 'Tổng kỳ thi', value: stats?.totalContests || 0, icon: FileText, iconColor: 'text-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/30' },
+          { title: 'Đang diễn ra', value: stats?.onGoingContests || 0, icon: Eye, iconColor: 'text-emerald-500', iconBg: 'bg-emerald-50 dark:bg-emerald-900/30' },
+          { title: 'Sắp diễn ra', value: stats?.upcomingContests || 0, icon: BookMinus, iconColor: 'text-orange-500', iconBg: 'bg-orange-50 dark:bg-orange-900/30' },
+          { title: 'Đã kết thúc', value: stats?.pastContests || 0, icon: BicepsFlexed, iconColor: 'text-red-500', iconBg: 'bg-red-50 dark:bg-red-900/30' },
+        ].map((c) => (
+          <Card key={c.title} className="relative overflow-hidden p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-700/80 shadow-md bg-white dark:bg-slate-800 rounded-2xl">
+            <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-[0.03] dark:opacity-[0.05] -translate-y-4 translate-x-4 bg-slate-900 dark:bg-white" />
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-3 rounded-xl ${c.iconBg}`}>
+                <c.icon className={`h-6 w-6 ${c.iconColor}`} />
+              </div>
             </div>
-          </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-2">
-            {stats?.totalContests || 0}
-          </h3>
-          <p className="text-sm text-gray-600 font-medium">Tổng kỳ thi</p>
-        </Card>
-
-        <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-xl bg-green-100 text-green-600">
-              <Eye className="h-6 w-6" />
-            </div>
-          </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-2">
-            {stats?.onGoingContests || 0}
-          </h3>
-          <p className="text-sm text-gray-600 font-medium">Đang diễn ra</p>
-        </Card>
-
-        <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-xl bg-orange-100 text-orange-600">
-              <BookMinus className="h-6 w-6" />
-            </div>
-          </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-2">
-            {stats?.upcomingContests || 0}
-          </h3>
-          <p className="text-sm text-gray-600 font-medium">Sắp diễn ra</p>
-        </Card>
-
-        <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 rounded-xl bg-red-100 text-red-600">
-              <BicepsFlexed className="h-6 w-6" />
-            </div>
-          </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-2">
-            {stats?.pastContests || 0}
-          </h3>
-          <p className="text-sm text-gray-600 font-medium">Đã kết thúc</p>
-        </Card>
+            <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-1 tracking-tight">
+              {c.value.toLocaleString()}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-slate-400 font-semibold">{c.title}</p>
+          </Card>
+        ))}
       </div>
 
-      {/* Posts Table Card */}
-      <Card className="p-6 border-0 shadow-md">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Danh sách kỳ thi</h2>
+      {/* Contests Table Card */}
+      <Card className="p-6 border border-slate-100 dark:border-slate-700/80 shadow-lg bg-white dark:bg-slate-800 rounded-2xl">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Danh sách kỳ thi</h2>
           <div className="flex items-center space-x-4">
             <div className="w-72">
               <SearchBar onSearch={handleSearch} placeholder={"Tìm kiếm mã, tên kỳ thi"}/>

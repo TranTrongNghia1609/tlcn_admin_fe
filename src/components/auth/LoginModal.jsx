@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import Modal from '../common/Modal';
 import { useAuthModal } from '../../context/AuthModalContext';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const LoginModal = () => {
   const { isLoginOpen, closeModals, openRegister, switchToForgotPassword, modalOptions } = useAuthModal();
   const [username, setUsername] = useState('');
   const { login } = useAuth();
+  const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -36,7 +38,9 @@ const LoginModal = () => {
       setUsername('');
       setPassword('');
       setError('');
-      window.location.reload();
+      
+      // Điều hướng đến dashboard sau khi login thành công
+      navigate('/dashboard');
     } catch (error) {
       console.error('Login error', error);
       setError(error.message || 'Đăng nhập không thành công');

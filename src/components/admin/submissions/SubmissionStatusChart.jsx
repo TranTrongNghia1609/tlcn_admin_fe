@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Pie, PieChart, Cell } from 'recharts'; 
+import { Pie, PieChart, Cell } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { getAllStatusStatistics } from '@/services/submissionService';
 import { Loader2 } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
 
 const SubmissionStatusChart = () => {
   const [chartData, setChartData] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { isDark } = useTheme();
 
   const statusColors = {
     "Accepted": "hsl(142, 76%, 36%)",
@@ -39,7 +41,7 @@ const SubmissionStatusChart = () => {
     try {
       setLoading(true);
       const response = await getAllStatusStatistics();
-      
+
       if (response.success) {
         const data = response.data;
         setStats(data);
@@ -49,7 +51,7 @@ const SubmissionStatusChart = () => {
           .filter(([_, count]) => count > 0) // Only include statuses with count > 0
           .map(([status, count]) => ({
             status: statusLabels[status] || status,
-            statusCode: status, // ✅ Keep original status code
+            statusCode: status, //   Keep original status code
             count: count,
             fill: statusColors[status] || "hsl(0, 0%, 63%)",
             percentage: data.statusPercentages[status] || 0
@@ -65,7 +67,7 @@ const SubmissionStatusChart = () => {
     }
   };
 
-  // ✅ Updated chartConfig with theme colors
+  //   Updated chartConfig with theme colors
   const chartConfig = Object.entries(statusLabels).reduce((acc, [code, label]) => {
     acc[label] = {
       label: label,
@@ -76,10 +78,10 @@ const SubmissionStatusChart = () => {
 
   if (loading) {
     return (
-      <Card className="flex flex-col">
+      <Card className="flex flex-col dark:bg-slate-800 dark:border-slate-700">
         <CardHeader className="items-center pb-0">
-          <CardTitle>Thống kê Submissions</CardTitle>
-          <CardDescription>Phân bố trạng thái bài nộp</CardDescription>
+          <CardTitle className="dark:text-white">Thống kê Submissions</CardTitle>
+          <CardDescription className="dark:text-slate-400">Phân bố trạng thái bài nộp</CardDescription>
         </CardHeader>
         <CardContent className="flex-1 flex items-center justify-center min-h-[300px]">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -89,12 +91,12 @@ const SubmissionStatusChart = () => {
   }
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col dark:bg-slate-800 dark:border-slate-700">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Thống kê Submissions</CardTitle>
-        <CardDescription>Phân bố trạng thái bài nộp</CardDescription>
+        <CardTitle className="dark:text-white">Thống kê Submissions</CardTitle>
+        <CardDescription className="dark:text-slate-400">Phân bố trạng thái bài nộp</CardDescription>
       </CardHeader>
-      
+
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
@@ -106,13 +108,13 @@ const SubmissionStatusChart = () => {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
                   return (
-                    <div className="bg-white p-3 border rounded-lg shadow-lg">
-                      <p className="font-semibold text-sm">{data.status}</p>
-                      <p className="text-sm text-gray-600">
-                        Count: <span className="font-bold">{data.count.toLocaleString()}</span>
+                    <div className="bg-white dark:bg-slate-800 p-3 border dark:border-slate-700 rounded-lg shadow-lg">
+                      <p className="font-semibold text-sm dark:text-white">{data.status}</p>
+                      <p className="text-sm text-gray-600 dark:text-slate-300">
+                        Count: <span className="font-bold dark:text-white">{data.count.toLocaleString()}</span>
                       </p>
-                      <p className="text-sm text-gray-600">
-                        Percentage: <span className="font-bold">{data.percentage}%</span>
+                      <p className="text-sm text-gray-600 dark:text-slate-300">
+                        Percentage: <span className="font-bold dark:text-white">{data.percentage}%</span>
                       </p>
                     </div>
                   );
@@ -127,7 +129,7 @@ const SubmissionStatusChart = () => {
               label={({ percentage }) => `${percentage}`}
               labelLine={false}
               isAnimationActive={true}
-              stroke="white"
+              stroke={isDark ? "#1e293b" : "white"}
               strokeWidth={2}
             >
               {chartData.map((entry, index) => (
@@ -140,18 +142,18 @@ const SubmissionStatusChart = () => {
 
       <CardFooter className="flex-col gap-3 text-sm pt-4">
         {/* Stats Summary */}
-        <div className="w-full grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+        <div className="w-full grid grid-cols-2 gap-4 p-4 bg-gray-50 dark:bg-slate-700/40 rounded-lg">
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {stats?.total?.toLocaleString() || 0}
             </p>
-            <p className="text-xs text-gray-600 mt-1">Tổng submissions</p>
+            <p className="text-xs text-gray-600 dark:text-slate-400 mt-1">Tổng submissions</p>
           </div>
-          <div className="text-center border-l border-gray-200">
-            <p className="text-2xl font-bold text-green-600">
+          <div className="text-center border-l border-gray-200 dark:border-slate-700">
+            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
               {stats?.acceptanceRate?.toFixed(2) || 0}%
             </p>
-            <p className="text-xs text-gray-600 mt-1">Tỷ lệ AC</p>
+            <p className="text-xs text-gray-600 dark:text-slate-400 mt-1">Tỷ lệ AC</p>
           </div>
         </div>
 
@@ -163,8 +165,8 @@ const SubmissionStatusChart = () => {
                 className="w-3 h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: item.fill }}
               />
-              <span className="text-xs text-gray-600 truncate">
-                {item.status}: <span className="font-semibold">{item.count}</span>
+              <span className="text-xs text-gray-600 dark:text-slate-300 truncate">
+                {item.status}: <span className="font-semibold dark:text-white">{item.count}</span>
               </span>
             </div>
           ))}

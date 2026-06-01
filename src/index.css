@@ -685,4 +685,58 @@
 
 .gradient-button-blue:hover {
   background: linear-gradient(to right, #1d4ed8, #1e3a8a);
+}
+
+/* ========================================
+   PRIMEREACT STEPPER DARK THEME OVERRIDES
+   ======================================== */
+.dark .p-stepper {
+  background-color: transparent !important;
+  color: #f8fafc !important;
+}
+.dark .p-stepper-header {
+  background-color: transparent !important;
+}
+.dark .p-stepper-title {
+  color: #cbd5e1 !important;
+}
+.dark .p-stepper-number {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+.dark .p-stepper-nav {
+  background-color: transparent !important;
+  border-color: #334155 !important;
+}
+.dark .p-stepper-panels {
+  background-color: transparent !important;
+  color: #f8fafc !important;
+  border: none !important;
+}
+.dark .p-stepper-panel {
+  background-color: transparent !important;
+}
+.dark .p-stepper-content {
+  background-color: transparent !important;
+  color: #f8fafc !important;
+  border: none !important;
+}
+.dark .p-stepper-action {
+  background-color: transparent !important;
+}
+.dark .p-stepper-action .p-stepper-number {
+  background-color: #334155 !important;
+  color: #f8fafc !important;
+}
+.dark .p-stepper-action .p-stepper-title {
+  color: #cbd5e1 !important;
+}
+.dark .p-stepper-active .p-stepper-action .p-stepper-number {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+.dark .p-stepper-active .p-stepper-action .p-stepper-title {
+  color: #ffffff !important;
+  font-weight: 700 !important;
 }   

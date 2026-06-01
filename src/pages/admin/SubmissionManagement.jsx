@@ -102,90 +102,70 @@ const SubmissionManagement = () => {
 
 
   return (
-    <div className="p-8 space-y-8 max-w-[1600px] mx-auto">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Quản lý bài nộp</h1>
-          <p className="text-gray-600 mt-2 text-lg">Theo dõi và quản lý bài nộp trên hệ thống</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-8 max-w-full mx-auto">
+      {/* Header Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-red-600 p-8 shadow-xl">
+        {/* Decorative blobs */}
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -translate-y-20 translate-x-20"
+          style={{ background: 'radial-gradient(circle, white, transparent)' }} />
+        <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full opacity-10 translate-y-12"
+          style={{ background: 'radial-gradient(circle, white, transparent)' }} />
+        
+        <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="text-3xl font-black text-white mb-2">Quản lý bài nộp</h1>
+            <p className="text-amber-100 text-base">Theo dõi, phân tích và giám sát kết quả các bài nộp code trên hệ thống</p>
+          </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { title: 'Tổng bài nộp', value: stats?.totalSubmissions || 0, icon: FileText, iconColor: 'text-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/30' },
+          { title: 'Bài nộp thành công', value: stats?.acSubmissions || 0, icon: CheckCircle, iconColor: 'text-green-500', iconBg: 'bg-green-50 dark:bg-green-900/30' },
+          { title: 'Bài nộp sai', value: stats?.waSubmission || 0, icon: XCircle, iconColor: 'text-orange-500', iconBg: 'bg-orange-50 dark:bg-orange-900/30' },
+          { title: 'Trạng thái còn lại', value: stats?.otherSubmission || 0, icon: AlertCircle, iconColor: 'text-red-500', iconBg: 'bg-red-50 dark:bg-red-900/30' },
+        ].map((c) => (
+          <Card key={c.title} className="relative overflow-hidden p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-700/80 shadow-md bg-white dark:bg-slate-800 rounded-2xl">
+            <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-[0.03] dark:opacity-[0.05] -translate-y-4 translate-x-4 bg-slate-900 dark:bg-white" />
             <div className="flex items-center justify-between mb-4">
-          <div className="p-3 rounded-xl bg-blue-100 text-blue-600">
-            <FileText className="h-6 w-6" />
-          </div>
+              <div className={`p-3 rounded-xl ${c.iconBg}`}>
+                <c.icon className={`h-6 w-6 ${c.iconColor}`} />
+              </div>
             </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-2">
-          {stats?.totalSubmissions || 0}
+            <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-1 tracking-tight">
+              {c.value.toLocaleString()}
             </h3>
-            <p className="text-sm text-gray-600 font-medium">Tổng bài nộp</p>
+            <p className="text-sm text-gray-500 dark:text-slate-400 font-semibold">{c.title}</p>
           </Card>
+        ))}
+      </div>
 
-          <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
-            <div className="flex items-center justify-between mb-4">
-          <div className="p-3 rounded-xl bg-green-100 text-green-600">
-            <CheckCircle className="h-6 w-6 text-green-500" />
-          </div>
-            </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-2">
-          {stats?.acSubmissions || 0}
-            </h3>
-            <p className="text-sm text-gray-600 font-medium">Bài nộp thành công</p>
-          </Card>
+      {showFilterModal && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-40 transition-opacity duration-300 h-full backdrop-blur-sm"
+          onClick={() => setShowFilterModal(false)}
+        />
+      )}
 
-          <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
-            <div className="flex items-center justify-between mb-4">
-          <div className="p-3 rounded-xl bg-orange-100 text-orange-600">
-            <XCircle className="h-6 w-6" />
-          </div>
-            </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-2">
-          {stats?.waSubmission || 0}
-            </h3>
-            <p className="text-sm text-gray-600 font-medium">Bài nộp sai</p>
-          </Card>
+      {/* Filter Modal - Always rendered, controlled by CSS */}
+      <div className={`fixed top-0 right-0 z-50 min-w-[350px] h-[100vh] transition-transform duration-300 ${showFilterModal ? 'translate-x-0' : 'translate-x-full'}`}>
+        <SubmissionFilter 
+          currentFilter={filter}
+          onClose={() => setShowFilterModal(false)}
+          onFilterChange={handleSearchByFilter}
+        />
+      </div>
 
-          <Card className="p-6 hover:shadow-lg transition-all duration-200 border-0 shadow-md">
-            <div className="flex items-center justify-between mb-4">
-          <div className="p-3 rounded-xl bg-red-100 text-red-600">
-            <AlertCircle className="h-6 w-6" />
-          </div>
-            </div>
-            <h3 className="text-3xl font-bold text-gray-900 mb-2">
-          {stats?.otherSubmission || 0}
-            </h3>
-            <p className="text-sm text-gray-600 font-medium">Trạng thái còn lại</p>
-          </Card>
-        </div>
-        
-          {showFilterModal && (
-            <div 
-              className="fixed inset-0 bg-black/20 z-40 transition-opacity duration-300 h-full"
-              onClick={() => setShowFilterModal(false)}
-            />
-          )}
-
-          {/* Filter Modal - Always rendered, controlled by CSS */}
-          <div className={`fixed top-0 right-0 z-50 min-w-[350px] h-[100vh] transition-transform duration-300 ${showFilterModal ? 'translate-x-0' : 'translate-x-full'}`}
-            >
-            <SubmissionFilter 
-              currentFilter={filter}
-              onClose={() => setShowFilterModal(false)}
-              onFilterChange={handleSearchByFilter}
-            />
-          </div>
-          
-          {/* Posts Table Card */}
-      <Card className="p-6 border-0 shadow-md">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Danh sách bài nộp</h2>
-          <div className='cursor-pointer p-2 rounded-md hover:bg-gray-100 transition-colors'
-              onClick={() => {setShowFilterModal(true);}}
+      {/* Submission Table Card */}
+      <Card className="p-6 border border-slate-100 dark:border-slate-700/80 shadow-lg bg-white dark:bg-slate-800 rounded-2xl">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Danh sách bài nộp</h2>
+          <div className="cursor-pointer p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all shadow-sm flex items-center justify-center bg-white dark:bg-slate-800"
+            onClick={() => setShowFilterModal(true)}
           >
-            <ListFilterPlus />
+            <ListFilterPlus className="h-5 w-5 text-gray-600 dark:text-slate-300" />
           </div>
         </div>
 
@@ -195,7 +175,6 @@ const SubmissionManagement = () => {
           onViewDetail={handleViewDetail}
         />
 
-        {/* Pagination */}
         <TablePagination
           currentPage={currentPage}
           totalPages={pagination.totalPages}

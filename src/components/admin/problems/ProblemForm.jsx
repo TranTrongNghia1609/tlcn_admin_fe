@@ -52,6 +52,7 @@ const ProblemForm = ({
     time: 1,
     memory: 512,
     difficulty: 'Easy',
+    rating: 100,
     img: [],
     isPrivate: false,
     isPdf: false,
@@ -59,7 +60,22 @@ const ProblemForm = ({
     examplesOutput: []
   });
   
-  const formDataRef = useRef(null);
+  const formDataRef = useRef({
+    name: '',
+    statement: '',
+    input: '',
+    output: '',
+    tags: [],
+    time: 1,
+    memory: 512,
+    difficulty: 'Easy',
+    rating: 100,
+    img: [],
+    isPrivate: false,
+    isPdf: false,
+    examplesInput: [],
+    examplesOutput: []
+  });
   const stepperRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -84,17 +100,31 @@ const ProblemForm = ({
 
     setFormData((prev) => {
       const updated = { ...prev, [field]: newValue };
+      
+      if (field === 'difficulty') {
+        let estimatedRating = 200;
+        if (newValue === 'Medium') estimatedRating = 500;
+        else if (newValue === 'Hard') estimatedRating = 800;
+        updated.rating = estimatedRating;
+      }
+
       if (mode == 'edit'){
         formDataRef.current = {
           ...formDataRef.current,
           [field]: value
         };
+        if (field === 'difficulty') {
+          formDataRef.current.rating = updated.rating;
+        }
       }
-      else{
+      else {
         formDataRef.current = {
           ...prev,
           [field]: value
         };
+        if (field === 'difficulty') {
+          formDataRef.current.rating = updated.rating;
+        }
       }
       return updated;
     });
@@ -107,8 +137,12 @@ const ProblemForm = ({
         examplesInput: [...prev.examplesInput, ''],
         examplesOutput: [...prev.examplesOutput, '']
       };
-      formDataRef.current.examplesInput = updated.examplesInput;
-      formDataRef.current.examplesOutput = updated.examplesOutput;
+      if (!formDataRef.current) {
+        formDataRef.current = { ...updated };
+      } else {
+        formDataRef.current.examplesInput = updated.examplesInput;
+        formDataRef.current.examplesOutput = updated.examplesOutput;
+      }
       return updated;
     });
   }, []);
@@ -120,8 +154,12 @@ const ProblemForm = ({
         examplesInput: prev.examplesInput.filter((_, i) => i !== index),
         examplesOutput: prev.examplesOutput.filter((_, i) => i !== index)
       };
-      formDataRef.current.examplesInput = updated.examplesInput;
-      formDataRef.current.examplesOutput = updated.examplesOutput;
+      if (!formDataRef.current) {
+        formDataRef.current = { ...updated };
+      } else {
+        formDataRef.current.examplesInput = updated.examplesInput;
+        formDataRef.current.examplesOutput = updated.examplesOutput;
+      }
       return updated;
     });
   }, []);
@@ -135,8 +173,12 @@ const ProblemForm = ({
             i === index ? value : item
           )
       };
-      formDataRef.current.examplesInput = updated.examplesInput;
-      formDataRef.current.examplesOutput = updated.examplesOutput;
+      if (!formDataRef.current) {
+        formDataRef.current = { ...updated };
+      } else {
+        formDataRef.current.examplesInput = updated.examplesInput;
+        formDataRef.current.examplesOutput = updated.examplesOutput;
+      }
       return updated;
     });
   }, []);
@@ -152,6 +194,12 @@ const ProblemForm = ({
   };
 
   const handleUploadTest = async (file) => {
+    const ratingVal = Number(formData.rating || 100);
+    if (isNaN(ratingVal) || ratingVal < 100 || ratingVal > 1000) {
+      toast.error('Rating must be an integer between 100 and 1000');
+      return;
+    }
+
     setIsUploading(true);
   
     try {
@@ -217,7 +265,7 @@ const ProblemForm = ({
   }
 
   return (
-    <div className={isInContestMode ? 'space-y-6' : 'p-8 space-y-6 max-w-[1400px] mx-auto'}>
+    <div className={isInContestMode ? 'space-y-6 text-slate-800 dark:text-slate-100' : 'min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-6 max-w-full mx-auto text-slate-800 dark:text-slate-100'}>
       {/*  Only show header when NOT in contest mode */}
       {!isInContestMode && (
         <>
@@ -227,17 +275,17 @@ const ProblemForm = ({
               <Button
                 variant="ghost"
                 onClick={handleCancel}
-                className="hover:bg-gray-100"
+                className="text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
                 disabled={isUploading}
               >
-                <ArrowLeft className="h-5 w-5 mr-2" />
+                <ArrowLeft className="h-5 w-5 mr-2 text-slate-700 dark:text-white" />
                 Quay lại
               </Button>
             </div>
           </div>
           
           <div className='flex items-center justify-center'>
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h2 className="text-3xl font-black text-slate-900 dark:text-white">
               {mode === 'create' ? 'Tạo bài tập mới' : 'Cập nhật bài tập'}
             </h2>
           </div>
@@ -247,13 +295,13 @@ const ProblemForm = ({
       {/*  Show title in contest mode */}
       {isInContestMode && (
         <div className='flex items-center justify-center'>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white">
             {mode === 'create' ? 'Tạo bài tập mới cho kỳ thi' : 'Cập nhật bài tập'}
           </h2>
         </div>
       )}
       
-      <Card className={'pt-10 px-2'}>
+      <Card className={'pt-10 px-6 pb-6 border border-slate-100 dark:border-slate-800 shadow-lg bg-white dark:bg-slate-800 rounded-2xl'}>
         <div className={isUploading ? 'pointer-events-none opacity-50' : ''}>
           <Stepper ref={stepperRef} style={{ flexBasis: '50rem' }}>
             <StepperPanel header="Thông tin">
@@ -267,9 +315,9 @@ const ProblemForm = ({
                   difficultyOptions={DIFFICULTY_OPTIONS}
                 />
               </div>
-              <div className="flex pt-4 justify-end">
-                <Button className={'bg-[#3b82f6]'} onClick={() => stepperRef.current.nextCallback()}>
-                  Next
+              <div className="flex pt-6 justify-end">
+                <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-md font-bold px-6 py-2.5 transition-all duration-200 border-0" onClick={() => stepperRef.current.nextCallback()}>
+                  Tiếp tục
                 </Button>
               </div>
             </StepperPanel>
@@ -278,12 +326,12 @@ const ProblemForm = ({
               <div className="flex flex-column h-full">
                 <PreviewProblem problem={formData}/>
               </div>
-              <div className="flex pt-4 justify-between">
-                <Button className={'bg-[#3b82f6]'} onClick={() => stepperRef.current.prevCallback()}>
-                  Back
+              <div className="flex pt-6 justify-between gap-4">
+                <Button variant="outline" className="border-slate-200 dark:border-slate-700 dark:text-slate-300 rounded-xl font-bold px-6 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-850" onClick={() => stepperRef.current.prevCallback()}>
+                  Quay lại
                 </Button>
-                <Button className={'bg-[#3b82f6]'} onClick={() => stepperRef.current.nextCallback()}>
-                  Next
+                <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-md font-bold px-6 py-2.5 transition-all duration-200 border-0" onClick={() => stepperRef.current.nextCallback()}>
+                  Tiếp tục
                 </Button>
               </div>
             </StepperPanel>
@@ -296,9 +344,9 @@ const ProblemForm = ({
                   zipName={initialData?.zipName}
                 />
               </div>
-              <div className="flex pt-4 justify-between">
-                <Button className={'bg-[#3b82f6]'} onClick={() => stepperRef.current.prevCallback()}>
-                  Back
+              <div className="flex pt-6 justify-between gap-4">
+                <Button variant="outline" className="border-slate-200 dark:border-slate-700 dark:text-slate-300 rounded-xl font-bold px-6 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-850" onClick={() => stepperRef.current.prevCallback()}>
+                  Quay lại
                 </Button>
                 {/*  Show cancel button in contest mode */}
                 {isInContestMode && (
@@ -306,6 +354,7 @@ const ProblemForm = ({
                     variant="outline" 
                     onClick={handleCancel}
                     disabled={isUploading}
+                    className="border-red-200 dark:border-red-800 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl font-bold px-6 py-2.5"
                   >
                     Hủy
                   </Button>

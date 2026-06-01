@@ -5,7 +5,6 @@ import { AuthModalProvider } from './context/AuthModalContext';
 import { UserProvider } from './context/UserContext';
 import LoginModal from './components/auth/LoginModal';
 import RegisterModal from './components/auth/RegisterModal';
-import Navbar from './components/layout/NavBar';
 import { PostProvider } from './context/PostContext';
 import AppRoutes from './routes/AppRoutes';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -14,7 +13,7 @@ import { CommentProvider } from './context/CommentContext';
 import { SocketProvider } from './context/SocketContext';
 import './index.css'
 import ForgotPasswordModal from './components/auth/ForgotPasswordModal';
-import Footer from './components/layout/Footer';
+import { ThemeProvider } from './context/ThemeContext';
 
 const AppContent = () => {
   const { loading } = useAuth();
@@ -50,11 +49,13 @@ const AppContent = () => {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </Router>
+    </ThemeProvider>
   );
 }
 

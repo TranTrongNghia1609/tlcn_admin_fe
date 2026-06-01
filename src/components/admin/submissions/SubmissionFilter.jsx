@@ -143,15 +143,15 @@ function SubmissionFilter({ onFilterChange, onClose }) {
   }
 
   return (
-    <div className='bg-white rounded-lg shadow-md'>
+    <div className='bg-white dark:bg-slate-800 rounded-lg shadow-md'>
       <div className='flex p-2'>
-        <div className='hover:bg-gray-100 p-1 rounded-2xl'>
-          <X className='cursor-pointer' onClick={onClose}/>
+        <div className='hover:bg-gray-100 dark:hover:bg-slate-700 p-1 rounded-2xl'>
+          <X className='cursor-pointer dark:text-slate-300' onClick={onClose}/>
         </div>
       </div>
     <div className="py-4 px-6 space-y-4 h-[100vh]">
       
-      <h2 className="text-xl font-semibold mb-4">Filter Submissions</h2>
+      <h2 className="text-xl font-semibold mb-4 dark:text-white">Filter Submissions</h2>
       
       <div className="flex-row space-y-4">
       <div className="relative space-y-1">
@@ -180,15 +180,15 @@ function SubmissionFilter({ onFilterChange, onClose }) {
           />
         </div>
         {(loadingGetProblem || problemList.length > 0) && (
-          <div className='absolute z-10 w-full bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto'>
+          <div className='absolute z-10 w-full bg-white dark:bg-slate-700 border dark:border-slate-600 rounded-lg shadow-lg max-h-48 overflow-y-auto'>
             {loadingGetProblem ? (
-              <div className="p-2 text-center text-gray-500">Loading...</div>
+              <div className="p-2 text-center text-gray-500 dark:text-slate-400">Loading...</div>
             ): (
               <div className='space-y-2'>
                 {problemList.map((problem) => (
                   <div 
                     key={problem._id}
-                    className='p-2 hover:bg-gray-100 cursor-pointer flex justify-start items-center gap-2'
+                    className='p-2 hover:bg-gray-100 dark:hover:bg-slate-600 cursor-pointer flex justify-start items-center gap-2'
                     onMouseDown={(e) => {
                       e.preventDefault()
                       setFiltersDisplay(prev => ({...prev, problem: problem.name}))
@@ -196,7 +196,7 @@ function SubmissionFilter({ onFilterChange, onClose }) {
                       setProblemList([])
                     }}
                   >
-                    <p className='text-sm font-medium'>{problem.name}</p>
+                    <p className='text-sm font-medium dark:text-slate-200'>{problem.name}</p>
                   </div>
                 ))}
               </div>
@@ -231,15 +231,15 @@ function SubmissionFilter({ onFilterChange, onClose }) {
             />
           </div>
           {(loadingGetUser || userList.length > 0) && (
-            <div className='absolute z-10 w-full bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto'>
+            <div className='absolute z-10 w-full bg-white dark:bg-slate-700 border dark:border-slate-600 rounded-lg shadow-lg max-h-48 overflow-y-auto'>
               {loadingGetUser ? (
-                <div className="p-2 text-center text-gray-500">Loading...</div>
+                <div className="p-2 text-center text-gray-500 dark:text-slate-400">Loading...</div>
               ): (
                 <div className='space-y-2'>
                   {userList.map((user) => (
                     <div 
                       key={user._id}
-                      className='p-2 hover:bg-gray-100 cursor-pointer flex justify-start items-center gap-2'
+                      className='p-2 hover:bg-gray-100 dark:hover:bg-slate-600 cursor-pointer flex justify-start items-center gap-2'
                       onMouseDown={(e) => {
                         e.preventDefault()
                         setFiltersDisplay(prev => ({...prev, user: user.userName}))
@@ -248,7 +248,7 @@ function SubmissionFilter({ onFilterChange, onClose }) {
                       }}
                     >
                       <img src={user.avatar ? user.avatar : avatar} className='w-6 h-6 rounded-full' alt={avatar}></img>
-                      <p className='text-sm'>{user.userName}</p>
+                      <p className='text-sm dark:text-slate-200'>{user.userName}</p>
                     </div>
                   ))}
                 </div>
@@ -283,15 +283,15 @@ function SubmissionFilter({ onFilterChange, onClose }) {
             />
           </div>
           {(loadingGetContest || contestList.length > 0) && (
-            <div className='absolute z-10 w-full bg-white border rounded-lg shadow-lg max-h-48 overflow-y-auto'>
+            <div className='absolute z-10 w-full bg-white dark:bg-slate-700 border dark:border-slate-600 rounded-lg shadow-lg max-h-48 overflow-y-auto'>
               {loadingGetContest ? (
-                <div className="p-2 text-center text-gray-500">Loading...</div>
+                <div className="p-2 text-center text-gray-500 dark:text-slate-400">Loading...</div>
               ): (
                 <div className='space-y-2'>
                   {contestList.map((contest) => (
                     <div 
                       key={contest._id}
-                      className='p-2 hover:bg-gray-100 cursor-pointer flex justify-start items-center gap-2'
+                      className='p-2 hover:bg-gray-100 dark:hover:bg-slate-600 cursor-pointer flex justify-start items-center gap-2'
                       onMouseDown={(e) => {
                         e.preventDefault()
                         setFiltersDisplay(prev => ({...prev, contest: contest.name}))
@@ -299,7 +299,7 @@ function SubmissionFilter({ onFilterChange, onClose }) {
                         setContestList([])
                       }}
                     >
-                      <p className='text-sm font-medium'>{contest.title}</p>
+                      <p className='text-sm font-medium dark:text-slate-200'>{contest.title}</p>
                     </div>
                   ))}
                 </div>
