@@ -39,20 +39,16 @@ const SubmissionTable = ({
 
   if (loading) {
     return (
-      <div className="border rounded-lg overflow-hidden">
-        <TableSkeleton
-          rows={10}
-          columns={5}
-          showHeader={true}
-          headerLabels={['Ngày nộp', 'Username', 'Bài tập', 'Kỳ thi', 'Trạng thái']}
-        />
+      <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
+        <TableSkeleton rows={10} columns={5} showHeader={true}
+          headerLabels={['Ngày nộp', 'Username', 'Bài tập', 'Kỳ thi', 'Trạng thái']} />
       </div>
     );
   }
 
   if (!submissions || submissions.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-slate-400">
         Không có bài nộp nào
       </div>
     );
@@ -110,15 +106,15 @@ const SubmissionTable = ({
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="font-semibold">Ngày nộp</TableHead>
-            <TableHead className="font-semibold">Username</TableHead>
-            <TableHead className="font-semibold">Bài tập</TableHead>
-            <TableHead className="font-semibold">Kỳ thi</TableHead>
-            <TableHead className="font-semibold">Trạng thái</TableHead>
+          <TableRow className="bg-gray-50 dark:bg-slate-700/50">
+            <TableHead className="font-semibold dark:text-slate-300">Ngày nộp</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Username</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Bài tập</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Kỳ thi</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Trạng thái</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -126,7 +122,7 @@ const SubmissionTable = ({
             <TableRow 
               onClick={() => navigate(`/submission/${submission._id}`)} 
               key={submission._id} 
-              className="hover:bg-gray-50 cursor-pointer"
+              className="hover:bg-gray-50 dark:hover:bg-slate-700/40 dark:border-slate-700 cursor-pointer"
             >
               <TableCell className="font-medium">
                 {formatDateTime(submission.createdAt) || 'N/A'}

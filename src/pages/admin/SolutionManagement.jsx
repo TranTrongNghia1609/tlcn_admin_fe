@@ -158,36 +158,44 @@ const SolutionManagement = () => {
   };
 
   return (
-    <div className="p-6 relative">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Quản lý Solutions</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Tổng: {total} solutions
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-8 max-w-[1600px] mx-auto relative">
+      {/* Header Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600 p-8 shadow-xl">
+        {/* Decorative blobs */}
+        <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -translate-y-20 translate-x-20"
+          style={{ background: 'radial-gradient(circle, white, transparent)' }} />
+        <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full opacity-10 translate-y-12"
+          style={{ background: 'radial-gradient(circle, white, transparent)' }} />
+        
+        <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="text-3xl font-black text-white mb-2">Quản lý Solutions</h1>
+            <p className="text-violet-100 text-base">Kiểm duyệt và quản lý các bài giải thuật (solutions) của cộng đồng</p>
+          </div>
+          <div className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl font-bold backdrop-blur-sm shadow-md text-white text-sm">
+            Tổng: <span className="text-lg font-extrabold">{total.toLocaleString()}</span> solutions
+          </div>
         </div>
-        {/* REMOVED: Tạo Solution Mới button */}
       </div>
 
       {/* Filters */}
-      <Card className="p-4 mb-6">
+      <Card className="p-5 border border-slate-100 dark:border-slate-700/80 shadow-md bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl">
         <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center gap-3 flex-1">
             <Search className="w-5 h-5 text-gray-400" />
             <input
               type="text"
-              className="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Tìm kiếm theo tiêu đề hoặc problem..."
+              className="flex-1 p-2.5 border border-slate-200 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-medium"
+              placeholder="Tìm kiếm theo tiêu đề hoặc bài tập..."
               value={filter.search}
               onChange={handleSearchChange}
             />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Filter className="w-5 h-5 text-gray-400" />
             <select
-              className="p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[180px]"
+              className="p-2.5 border border-slate-200 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 min-w-[180px] font-medium"
               value={filter.status}
               onChange={handleStatusChange}
             >
@@ -205,16 +213,16 @@ const SolutionManagement = () => {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <p className="text-gray-500">Đang tải...</p>
+          <p className="text-gray-500 dark:text-slate-400">Đang tải...</p>
         </div>
       ) : solutions.length === 0 ? (
-        <Card className="p-12 text-center">
-          <div className="text-gray-400 mb-4">
+        <Card className="p-12 text-center border border-slate-100 dark:border-slate-700/80 rounded-2xl bg-white dark:bg-slate-800">
+          <div className="text-gray-400 dark:text-slate-500 mb-4">
             <Eye className="w-16 h-16 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-600 mb-2">
+            <h3 className="text-lg font-semibold text-gray-600 dark:text-slate-400 mb-2">
               Không tìm thấy solution nào
             </h3>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-slate-500">
               {filter.search || filter.status !== 'all'
                 ? 'Thử thay đổi bộ lọc để xem kết quả khác'
                 : 'Chưa có solution nào trong hệ thống'}
@@ -224,56 +232,56 @@ const SolutionManagement = () => {
       ) : (
         <div className="space-y-4">
           {solutions.map((solution) => (
-            <Card key={solution._id} className="p-6 hover:shadow-lg transition-shadow">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900">
+            <Card key={solution._id} className="p-6 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 border border-slate-100 dark:border-slate-700/80 shadow-md bg-white dark:bg-slate-800 rounded-2xl">
+              <div className="flex justify-between items-start flex-wrap gap-4">
+                <div className="flex-1 min-w-[280px]">
+                  <div className="flex items-center gap-3 mb-2 flex-wrap">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
                       {solution.title}
                     </h3>
                     {getStatusBadge(solution.status)}
                     {solution.isFeatured && (
-                      <Badge className="bg-purple-100 text-purple-800">
+                      <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
                         ⭐ Featured
                       </Badge>
                     )}
                   </div>
 
-                  <p className="text-sm text-gray-600 mb-2">
-                    Problem: <span className="font-medium text-blue-600">
+                  <p className="text-sm text-gray-600 dark:text-slate-400 mb-3">
+                    Problem: <span className="font-semibold text-blue-600 dark:text-blue-400">
                       {solution.problemShortId}
                     </span>
                   </p>
 
                   <div className="flex flex-wrap gap-2 mb-3">
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-300">
                       {solution.approach?.split('-').map(w =>
                         w.charAt(0).toUpperCase() + w.slice(1)
                       ).join(' ')}
                     </Badge>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-300">
                       ⏱️ {solution.complexity?.time || 'N/A'}
                     </Badge>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs bg-slate-50 dark:bg-slate-700 dark:text-slate-300">
                       💾 {solution.complexity?.space || 'N/A'}
                     </Badge>
                   </div>
 
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <span>👤 {solution.author?.userName || 'Unknown'}</span>
-                    <span>👍 {solution.upvoteCount || 0}</span>
-                    <span>👁️ {solution.viewCount || 0}</span>
-                    <span>💬 {solution.commentCount || 0}</span>
+                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1">👤 {solution.author?.userName || 'Unknown'}</span>
+                    <span className="flex items-center gap-1">👍 {solution.upvoteCount || 0}</span>
+                    <span className="flex items-center gap-1">👁️ {solution.viewCount || 0}</span>
+                    <span className="flex items-center gap-1">💬 {solution.commentCount || 0}</span>
                   </div>
                 </div>
 
-                <div className="flex gap-2 ml-4">
+                <div className="flex gap-2">
                   {solution.status === 'pending_review' && (
                     <>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-green-600 hover:bg-green-50 hover:text-green-700 cursor-pointer"
+                        className="text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 border-green-200 dark:border-green-800/60 rounded-xl cursor-pointer"
                         onClick={() => handleModerate(solution._id, 'approve')}
                       >
                         <CheckCircle className="w-4 h-4 mr-1" />
@@ -282,7 +290,7 @@ const SolutionManagement = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-red-600 hover:bg-red-50 hover:text-red-700 cursor-pointer"
+                        className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border-red-200 dark:border-red-800/60 rounded-xl cursor-pointer"
                         onClick={() => {
                           const reason = prompt('Lý do từ chối:');
                           if (reason) handleModerate(solution._id, 'reject', reason);
@@ -298,7 +306,7 @@ const SolutionManagement = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
+                    className="hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer"
                     onClick={() => handleView(solution)}
                   >
                     <Eye className="w-4 h-4" />
@@ -309,7 +317,7 @@ const SolutionManagement = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="hover:bg-orange-50 hover:text-orange-700 cursor-pointer"
+                      className="hover:bg-orange-50 dark:hover:bg-orange-900/20 hover:text-orange-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer"
                       onClick={() => handleEdit(solution)}
                     >
                       <Edit className="w-4 h-4" />
@@ -319,7 +327,7 @@ const SolutionManagement = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-red-600 hover:bg-red-50 hover:text-red-700 cursor-pointer"
+                    className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer"
                     onClick={() => handleDelete(solution._id)}
                   >
                     <Trash2 className="w-4 h-4" />
@@ -338,11 +346,12 @@ const SolutionManagement = () => {
             variant="outline"
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
+            className="rounded-xl border-slate-200 dark:border-slate-700"
           >
             ← Trước
           </Button>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             {[...Array(totalPages)].map((_, index) => {
               const pageNum = index + 1;
               if (
@@ -356,13 +365,13 @@ const SolutionManagement = () => {
                     variant={page === pageNum ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setPage(pageNum)}
-                    className={page === pageNum ? 'bg-blue-600' : ''}
+                    className={`rounded-xl ${page === pageNum ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white border-0' : 'border-slate-200 dark:border-slate-700'}`}
                   >
                     {pageNum}
                   </Button>
                 );
               } else if (pageNum === page - 2 || pageNum === page + 2) {
-                return <span key={pageNum} className="px-2">...</span>;
+                return <span key={pageNum} className="px-2 dark:text-slate-400">...</span>;
               }
               return null;
             })}
@@ -372,6 +381,7 @@ const SolutionManagement = () => {
             variant="outline"
             disabled={page === totalPages}
             onClick={() => setPage(page + 1)}
+            className="rounded-xl border-slate-200 dark:border-slate-700"
           >
             Sau →
           </Button>
@@ -395,18 +405,18 @@ const SolutionManagement = () => {
           <div
             className={`
               fixed right-0 top-0 h-screen w-full md:w-[800px] lg:w-[1000px]
-              bg-white shadow-2xl z-50 overflow-y-auto
+              bg-white dark:bg-slate-800 shadow-2xl z-50 overflow-y-auto
               transform transition-transform duration-500 ease-in-out
               ${isAnimating ? 'translate-x-0' : 'translate-x-full'}
             `}
           >
             {/* Header */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10 shadow-sm">
+            <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between z-10 shadow-sm">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                   👁️ Xem Solution
                 </h2>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
                   Chế độ xem - Không thể chỉnh sửa
                 </p>
               </div>

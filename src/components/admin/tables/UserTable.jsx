@@ -79,7 +79,7 @@ const UserTable = ({
 
   if (loading) {
     return (
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
         <TableSkeleton
           rows={10}
           columns={5}
@@ -92,7 +92,7 @@ const UserTable = ({
 
   if (!users || users.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-slate-400">
         Không có người dùng nào
       </div>
     );
@@ -109,21 +109,21 @@ const UserTable = ({
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="font-semibold w-[300px]">Người dùng</TableHead>
-            <TableHead className="font-semibold">Email</TableHead>
-            <TableHead className="font-semibold">Trạng thái</TableHead>
-            <TableHead className="font-semibold">Ngày tạo</TableHead>
-            <TableHead className="text-center font-semibold w-[100px]">Hành động</TableHead>
+          <TableRow className="bg-gray-50 dark:bg-slate-700/50">
+            <TableHead className="font-semibold w-[300px] dark:text-slate-300">Người dùng</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Email</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Trạng thái</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Ngày tạo</TableHead>
+            <TableHead className="text-center font-semibold w-[100px] dark:text-slate-300">Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {users.map((user) => {
             return (
-              <TableRow key={user._id} className="hover:bg-gray-50">
+              <TableRow key={user._id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40 dark:border-slate-700">
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div className="flex-shrink-0">
@@ -146,17 +146,17 @@ const UserTable = ({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-gray-900 truncate">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-slate-100 truncate">
                           {user.fullName || 'N/A'}
                         </p>
                       </div>
-                      <p className="text-xs text-gray-500 truncate">@{user.userName}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400 truncate">@{user.userName}</p>
                     </div>
                   </div>
                 </TableCell>
 
                 <TableCell>
-                  <span className="text-sm text-gray-700">{user.email || 'N/A'}</span>
+                  <span className="text-sm text-gray-700 dark:text-slate-300">{user.email || 'N/A'}</span>
                 </TableCell>
 
                 <TableCell>
@@ -169,7 +169,7 @@ const UserTable = ({
                 </TableCell>
 
                 <TableCell>
-                  <span className="text-sm text-gray-600">{formatDate(user.createdAt)}</span>
+                  <span className="text-sm text-gray-600 dark:text-slate-400">{formatDate(user.createdAt)}</span>
                 </TableCell>
 
                 <TableCell className="text-center">

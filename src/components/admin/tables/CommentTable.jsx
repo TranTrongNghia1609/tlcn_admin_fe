@@ -133,20 +133,16 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
 
   if (loading) {
     return (
-      <div className="border rounded-lg overflow-hidden">
-        <TableSkeleton
-          rows={10}
-          columns={6}
-          showHeader={true}
-          headerLabels={['Người dùng', 'Nội dung', 'Loại', 'Trạng thái', 'Ngày tạo', 'Hành động']}
-        />
+      <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
+        <TableSkeleton rows={10} columns={6} showHeader={true}
+          headerLabels={['Người dùng', 'Nội dung', 'Loại', 'Trạng thái', 'Ngày tạo', 'Hành động']} />
       </div>
     );
   }
 
   if (!comments || comments.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-slate-400">
         Không có bình luận nào
       </div>
     );
@@ -154,16 +150,16 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
 
   return (
     <>
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50">
-              <TableHead className="font-semibold w-[250px]">Người dùng</TableHead>
-              <TableHead className="font-semibold">Nội dung</TableHead>
-              <TableHead className="font-semibold w-[120px]">Loại</TableHead>
-              <TableHead className="font-semibold w-[100px]">Trạng thái</TableHead>
-              <TableHead className="font-semibold w-[150px]">Ngày tạo</TableHead>
-              <TableHead className="text-center font-semibold w-[100px]">Hành động</TableHead>
+            <TableRow className="bg-gray-50 dark:bg-slate-700/50">
+              <TableHead className="font-semibold w-[250px] dark:text-slate-300">Người dùng</TableHead>
+              <TableHead className="font-semibold dark:text-slate-300">Nội dung</TableHead>
+              <TableHead className="font-semibold w-[120px] dark:text-slate-300">Loại</TableHead>
+              <TableHead className="font-semibold w-[100px] dark:text-slate-300">Trạng thái</TableHead>
+              <TableHead className="font-semibold w-[150px] dark:text-slate-300">Ngày tạo</TableHead>
+              <TableHead className="text-center font-semibold w-[100px] dark:text-slate-300">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -171,7 +167,7 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
               const targetBadge = getTargetTypeBadge(comment.targetType);
               
               return (
-                <TableRow key={comment._id} className="hover:bg-gray-50">
+                <TableRow key={comment._id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40 dark:border-slate-700">
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="flex-shrink-0">
@@ -188,10 +184,10 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate">
+                        <p className="text-sm font-semibold text-gray-900 dark:text-slate-100 truncate">
                           {comment.authorInfo?.fullName || 'N/A'}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs text-gray-500 dark:text-slate-400 truncate">
                           @{comment.authorInfo?.userName || 'unknown'}
                         </p>
                       </div>
@@ -200,10 +196,10 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
 
                   <TableCell>
                     <div className="max-w-md">
-                      <p className="text-sm text-gray-700 line-clamp-2">
+                      <p className="text-sm text-gray-700 dark:text-slate-300 line-clamp-2">
                         {comment.content}
                       </p>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-slate-400">
                         <span className="flex items-center gap-1">
                           <MessageSquare className="w-3 h-3" />
                           {comment.repliesCount || 0} trả lời
@@ -231,7 +227,7 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
                   </TableCell>
 
                   <TableCell>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-600 dark:text-slate-400">
                       {formatDate(comment.createdAt)}
                     </span>
                   </TableCell>

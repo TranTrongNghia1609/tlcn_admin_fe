@@ -92,12 +92,12 @@ const PostEditor = ({ value, onChange, placeholder = "Chia sẻ suy nghĩ của 
             : 'cursor-pointer'
           }
           ${isClicked 
-            ? 'scale-95 bg-gray-300' 
+            ? 'scale-95 bg-gray-300 dark:bg-slate-700' 
             : 'scale-100'
           }
           ${isActive 
-            ? 'bg-blue-100 text-blue-600 shadow-inner' 
-            : 'text-gray-600 hover:bg-gray-200 hover:text-gray-800'
+            ? 'bg-blue-100 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 shadow-inner' 
+            : 'text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 hover:text-gray-800 dark:hover:text-slate-200'
           }
           ${!disabled && !isClicked ? 'hover:scale-105 hover:shadow-sm' : ''}
           ${className}
@@ -123,9 +123,9 @@ const PostEditor = ({ value, onChange, placeholder = "Chia sẻ suy nghĩ của 
   };
 
    return (
-    <div className="border border-gray-300 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all duration-200">
+    <div className="border border-gray-300 dark:border-slate-700 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 bg-white dark:bg-slate-900 transition-all duration-200">
         {/* Toolbar */}
-        <div className="border-b border-gray-200 bg-gray-50 p-2">
+        <div className="border-b border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800 p-2">
           <div className="flex flex-wrap items-center gap-1">
             
             {/* Text Formatting */}
@@ -159,7 +159,7 @@ const PostEditor = ({ value, onChange, placeholder = "Chia sẻ suy nghĩ của 
               <StrikethroughIcon className="w-4 h-4" />
             </ToolbarButton>
 
-            <div className="w-px h-6 bg-gray-300 mx-2"></div>
+            <div className="w-px h-6 bg-gray-300 dark:bg-slate-700 mx-2"></div>
 
             {/* Headings */}
             <select
@@ -176,7 +176,7 @@ const PostEditor = ({ value, onChange, placeholder = "Chia sẻ suy nghĩ của 
                 editor.isActive('heading', { level: 2 }) ? 2 :
                 editor.isActive('heading', { level: 3 }) ? 3 : 0
               }
-              className="px-3 py-1 border border-gray-300 rounded text-sm bg-white hover:bg-gray-50 hover:border-gray-400 hover:shadow-sm focus:bg-blue-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+              className="px-3 py-1 border border-gray-300 dark:border-slate-700 rounded text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-400 dark:hover:border-slate-600 hover:shadow-sm focus:bg-blue-50 dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
             >
               <option value={0}>Paragraph</option>
               <option value={1}>Heading 1</option>
@@ -184,7 +184,7 @@ const PostEditor = ({ value, onChange, placeholder = "Chia sẻ suy nghĩ của 
               <option value={3}>Heading 3</option>
             </select>
 
-            <div className="w-px h-6 bg-gray-300 mx-2"></div>
+            <div className="w-px h-6 bg-gray-300 dark:bg-slate-700 mx-2"></div>
 
             {/* Lists */}
             <ToolbarButton
@@ -205,7 +205,7 @@ const PostEditor = ({ value, onChange, placeholder = "Chia sẻ suy nghĩ của 
               <NumberedListIcon className="w-4 h-4" />
             </ToolbarButton>
 
-            <div className="w-px h-6 bg-gray-300 mx-2"></div>
+            <div className="w-px h-6 bg-gray-300 dark:bg-slate-700 mx-2"></div>
 
             {/* Alignment */}
             <select
@@ -218,7 +218,7 @@ const PostEditor = ({ value, onChange, placeholder = "Chia sẻ suy nghĩ của 
                 editor.isActive({ textAlign: 'right' }) ? 'right' :
                 editor.isActive({ textAlign: 'justify' }) ? 'justify' : 'left'
               }
-              className="px-3 py-1 border border-gray-300 rounded text-sm bg-white hover:bg-gray-50 hover:border-gray-400 hover:shadow-sm focus:bg-blue-50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+              className="px-3 py-1 border border-gray-300 dark:border-slate-700 rounded text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-400 dark:hover:border-slate-600 hover:shadow-sm focus:bg-blue-50 dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
             >
               <option value="left">Left</option>
               <option value="center">Center</option>
@@ -226,16 +226,16 @@ const PostEditor = ({ value, onChange, placeholder = "Chia sẻ suy nghĩ của 
               <option value="justify">Justify</option>
             </select>
 
-            <div className="w-px h-6 bg-gray-300 mx-2"></div>
+            <div className="w-px h-6 bg-gray-300 dark:bg-slate-700 mx-2"></div>
 
             {/* Text Color */}
             <div className="flex items-center space-x-1">
-              <label className="text-xs text-gray-500">Color:</label>
+              <label className="text-xs text-gray-500 dark:text-slate-400">Color:</label>
               <input
                 type="color"
                 onInput={(event) => editor.chain().focus().setColor(event.target.value).run()}
                 value={editor.getAttributes('textStyle').color || '#000000'}
-                className="w-8 h-8 border border-gray-300 rounded cursor-pointer hover:border-gray-400 hover:shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200"
+                className="w-8 h-8 border border-gray-300 dark:border-slate-700 rounded cursor-pointer hover:border-gray-400 dark:hover:border-slate-600 hover:shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 bg-white dark:bg-slate-900"
                 title="Text Color"
               />
             </div>
@@ -245,12 +245,12 @@ const PostEditor = ({ value, onChange, placeholder = "Chia sẻ suy nghĩ của 
               isActive={editor.isActive('highlight')}
               title="Highlight"
               buttonId="highlight"
-              className={editor.isActive('highlight') ? 'bg-yellow-100 hover:bg-yellow-200' : ''}
+              className={editor.isActive('highlight') ? 'bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-950/40' : ''}
             >
               <div className="w-4 h-4 bg-yellow-300 rounded"></div>
             </ToolbarButton>
 
-            <div className="w-px h-6 bg-gray-300 mx-2"></div>
+            <div className="w-px h-6 bg-gray-300 dark:bg-slate-700 mx-2"></div>
 
             {/* Link */}
             <ToolbarButton
@@ -279,7 +279,7 @@ const PostEditor = ({ value, onChange, placeholder = "Chia sẻ suy nghĩ của 
         <div className="relative">
           <EditorContent 
             editor={editor} 
-            className="min-h-[200px] prose max-w-none focus-within:bg-blue-50/30 transition-colors duration-200"
+            className="min-h-[200px] prose dark:prose-invert max-w-none focus-within:bg-blue-50/10 dark:focus-within:bg-blue-950/10 transition-colors duration-200"
           />
         </div>
       </div>

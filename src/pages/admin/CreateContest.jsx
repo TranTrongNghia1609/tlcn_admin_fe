@@ -47,13 +47,13 @@ const CreateContest = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     if (name === 'code') {
       setLoadingCheckCode(true);
       setCodeError('');
       handleCodeChange(value);
     }
-    
+
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
@@ -139,16 +139,16 @@ const CreateContest = () => {
   };
 
   return (
-    <div className="p-8 space-y-6 max-w-[1400px] mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-6 max-w-full mx-auto text-slate-800 dark:text-slate-100">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button
             variant="ghost"
             onClick={handleCancel}
-            className="hover:bg-gray-100"
+            className="text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
           >
-            <ArrowLeft className="h-5 w-5 mr-2" />
+            <ArrowLeft className="h-5 w-5 mr-2 text-slate-700 dark:text-white" />
             Quay lại
           </Button>
         </div>
@@ -156,50 +156,49 @@ const CreateContest = () => {
           <Button
             onClick={handleSaveContest}
             disabled={loading || loadingCheckCode}
-            className="bg-blue-500 hover:bg-blue-600"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl shadow-md font-bold px-6 py-2.5 transition-all duration-200"
           >
             {loading ? 'Đang lưu...' : 'Lưu kỳ thi'}
           </Button>
         </div>
       </div>
-      
+
       <div className='flex items-center justify-center'>
-        <h2 className="text-3xl font-bold text-gray-900">
+        <h2 className="text-3xl font-black text-slate-900 dark:text-white">
           {'Tạo kỳ thi mới'}
         </h2>
       </div>
 
       <div className="space-y-6">
         {/* Thông tin kỳ thi */}
-        <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Thông tin kỳ thi</h3>
+        <Card className="p-6 border border-slate-100 dark:border-slate-800 shadow-lg bg-white dark:bg-slate-800 rounded-2xl">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Thông tin kỳ thi</h3>
           <div className="space-y-4">
-            <div className='flex justify-between gap-6'>
-              <div className='flex-3'>
-                <label className="block text-sm font-medium mb-1">Tên kỳ thi *</label>
+            <div className='flex justify-between gap-6 flex-wrap md:flex-nowrap'>
+              <div className='w-full md:flex-3'>
+                <label className="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-1">Tên kỳ thi *</label>
                 <input
                   type="text"
                   name="title"
                   value={formData.title}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-sm"
                 />
               </div>
-              <div className='flex-1'>
-                <label className="block text-sm font-medium mb-1">Mã kỳ thi *</label>
+              <div className='w-full md:flex-1'>
+                <label className="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-1">Mã kỳ thi *</label>
                 <input
                   type="text"
                   name="code"
                   value={formData.code}
                   onChange={handleChange}
                   required
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
-                    codeError ? 'border-red-500 focus:ring-red-500' : 'focus:ring-blue-500'
-                  }`}
+                  className={`w-full px-3 py-2.5 border rounded-xl focus:outline-none focus:ring-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-sm ${codeError ? 'border-red-500 focus:ring-red-500 dark:border-red-500/60' : 'border-slate-200 dark:border-slate-700 focus:ring-blue-500'
+                    }`}
                 />
                 {loadingCheckCode && (
-                  <p className="text-sm text-gray-500 mt-1">Đang kiểm tra...</p>
+                  <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">Đang kiểm tra...</p>
                 )}
                 {codeError && (
                   <p className="text-sm text-red-500 mt-1">{codeError}</p>
@@ -208,78 +207,78 @@ const CreateContest = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Mô tả *</label>
+              <label className="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-1">Mô tả *</label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 required
                 rows={4}
-                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-sm"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Thời gian bắt đầu *</label>
+                <label className="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-1">Thời gian bắt đầu *</label>
                 <input
                   type="datetime-local"
                   name="startTime"
                   value={formData.startTime}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-sm [color-scheme:light] dark:[color-scheme:dark]"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Thời gian kết thúc *</label>
+                <label className="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-1">Thời gian kết thúc *</label>
                 <input
                   type="datetime-local"
                   name="endTime"
                   value={formData.endTime}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2.5 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 font-medium shadow-sm [color-scheme:light] dark:[color-scheme:dark]"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-4 mt-5">
-              <label className="flex items-center">
+            <div className="flex items-center gap-6 mt-5">
+              <label className="flex items-center cursor-pointer select-none">
                 <input
                   type="checkbox"
                   name="isPrivate"
                   checked={formData.isPrivate}
                   onChange={handleChange}
-                  className="mr-2"
+                  className="mr-2 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 dark:bg-slate-900 w-4 h-4 cursor-pointer"
                 />
-                <span className="text-sm font-medium">Kỳ thi riêng tư</span>
+                <span className="text-sm font-bold text-gray-700 dark:text-slate-300">Kỳ thi riêng tư</span>
               </label>
 
-              <label className="flex items-center">
+              <label className="flex items-center cursor-pointer select-none">
                 <input
                   type="checkbox"
                   name="isActive"
                   checked={formData.isActive}
                   onChange={handleChange}
-                  className="mr-2"
+                  className="mr-2 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 dark:bg-slate-900 w-4 h-4 cursor-pointer"
                 />
-                <span className="text-sm font-medium">Kích hoạt</span>
+                <span className="text-sm font-bold text-gray-700 dark:text-slate-300">Kích hoạt</span>
               </label>
             </div>
           </div>
         </Card>
 
         {/* Bài tập */}
-        <Card className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Quản lý bài tập</h3>
-          <ProblemContest 
+        <Card className="p-6 border border-slate-100 dark:border-slate-800 shadow-lg bg-white dark:bg-slate-800 rounded-2xl">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Quản lý bài tập</h3>
+          <ProblemContest
             contestId={null}
             onProblemUpdated={(data) => {
               setAddedProblems(data);
               console.log('Problem added:', data);
-            }} 
+            }}
           />
         </Card>
       </div>

@@ -10,7 +10,7 @@ const TimelineSelector = ({ selectedPeriod, onPeriodChange }) => {
   ];
 
   return (
-    <div className="flex items-center space-x-2 bg-gray-100 p-1 rounded-lg">
+    <div className="flex items-center space-x-2 bg-gray-100 dark:bg-slate-700 p-1 rounded-lg">
       {periods.map(period => (
         <Button
           key={period.value}
@@ -20,7 +20,7 @@ const TimelineSelector = ({ selectedPeriod, onPeriodChange }) => {
           className={`
             ${selectedPeriod === period.value 
               ? 'bg-blue-600 text-white hover:bg-blue-700' 
-              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+              : 'text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-slate-600'
             }
           `}
         >

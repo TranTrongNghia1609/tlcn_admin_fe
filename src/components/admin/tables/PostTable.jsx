@@ -33,20 +33,16 @@ const PostTable = ({
 }) => {
   if (loading) {
     return (
-      <div className="border rounded-lg overflow-hidden">
-        <TableSkeleton
-          rows={10}
-          columns={8}
-          showHeader={true}
-          headerLabels={['Tiêu đề', 'Tác giả', 'Lượt xem', 'Lượt thích', 'Bình luận', 'Trạng thái', 'Ngày tạo', 'Hành động']}
-        />
+      <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
+        <TableSkeleton rows={10} columns={8} showHeader={true}
+          headerLabels={['Tiêu đề', 'Tác giả', 'Lượt xem', 'Lượt thích', 'Bình luận', 'Trạng thái', 'Ngày tạo', 'Hành động']} />
       </div>
     );
   }
 
   if (!posts || posts.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-slate-400">
         Không có bài viết nào
       </div>
     );
@@ -68,24 +64,24 @@ const PostTable = ({
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden">
+    <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="font-semibold">Tiêu đề</TableHead>
-            <TableHead className="font-semibold">Tác giả</TableHead>
-            <TableHead className="font-semibold">Lượt xem</TableHead>
-            <TableHead className="font-semibold">Lượt thích</TableHead>
-            <TableHead className="font-semibold">Bình luận</TableHead>
-            <TableHead className="font-semibold">Trạng thái</TableHead>
-            <TableHead className="font-semibold">Ngày tạo</TableHead>
-            <TableHead className="text-center font-semibold">Hành động</TableHead>
+          <TableRow className="bg-gray-50 dark:bg-slate-700/50">
+            <TableHead className="font-semibold dark:text-slate-300">Tiêu đề</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Tác giả</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Lượt xem</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Lượt thích</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Bình luận</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Trạng thái</TableHead>
+            <TableHead className="font-semibold dark:text-slate-300">Ngày tạo</TableHead>
+            <TableHead className="text-center font-semibold dark:text-slate-300">Hành động</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {posts.map((post) => (
-            <TableRow key={post._id} className="hover:bg-gray-50">
-              <TableCell className="font-medium max-w-xs">
+            <TableRow key={post._id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40 dark:border-slate-700">
+              <TableCell className="font-medium max-w-xs dark:text-slate-200">
                 {truncateText(post.title, 60)}
               </TableCell>
               <TableCell>

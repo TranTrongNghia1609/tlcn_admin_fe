@@ -46,3 +46,32 @@
 .post-editor-content ol ol ol {
   list-style-type: lower-roman !important;
 }
+
+/* ========================================
+   TIPTAP PROSEMIRROR DARK MODE OVERRIDES
+   ======================================== */
+.dark .ProseMirror {
+  color: #f1f5f9 !important;
+  background-color: #0f172a !important;
+}
+
+.dark .ProseMirror [data-placeholder]:empty::before,
+.dark .ProseMirror p.is-editor-empty:first-child::before {
+  color: #64748b !important;
+}
+
+.dark .ProseMirror blockquote {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+  border-left-color: #475569 !important;
+}
+
+.dark .ProseMirror code {
+  background-color: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+.dark .ProseMirror pre {
+  background: #0b0f19 !important;
+  color: #f8fafc !important;
+}
