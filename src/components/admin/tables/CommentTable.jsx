@@ -32,7 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/Textarea';
+import { Textarea } from '@/components/ui/textarea';
 
 const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) => {
   const [comments, setComments] = useState(initialComments);
