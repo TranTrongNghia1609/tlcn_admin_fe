@@ -1,11 +1,40 @@
 /**
  * Site navigation utilities
  */
+const getFallbackUrl = (key) => {
+  const currentOrigin = window.location.origin;
+  
+  // If we are on the production domain (ball.id.vn)
+  if (currentOrigin.includes('ball.id.vn')) {
+    switch (key) {
+      case 'teacher':
+        return 'https://teacher.ball.id.vn';
+      case 'user':
+        return 'https://ball.id.vn';
+      case 'admin':
+        return 'https://admin.ball.id.vn';
+      default:
+        return currentOrigin;
+    }
+  }
+  
+  // Otherwise, default to local development ports
+  switch (key) {
+    case 'teacher':
+      return 'http://localhost:5175';
+    case 'user':
+      return 'http://localhost:5173';
+    case 'admin':
+      return 'http://localhost:5174';
+    default:
+      return currentOrigin;
+  }
+};
 
 export const SITE_URLS = {
-  teacher: import.meta.env.VITE_TEACHER_SITE_URL,
-  user: import.meta.env.VITE_USER_SITE_URL,
-  admin: import.meta.env.VITE_ADMIN_SITE_URL, 
+  teacher: import.meta.env.VITE_TEACHER_SITE_URL || getFallbackUrl('teacher'),
+  user: import.meta.env.VITE_USER_SITE_URL || getFallbackUrl('user'),
+  admin: import.meta.env.VITE_ADMIN_SITE_URL || getFallbackUrl('admin'), 
 };
 
 
