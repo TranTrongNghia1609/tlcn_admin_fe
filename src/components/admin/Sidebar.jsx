@@ -15,7 +15,8 @@ import {
   ExternalLink,
   Shield,
   Sun,
-  Moon
+  Moon,
+  Bot
 } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
@@ -175,6 +176,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
         { title: 'Bài nộp',     icon: Book,           path: '/submissions' },
         { title: 'Solution',    icon: BookOpen,       path: '/solutions' },
         { title: 'Bình luận',   icon: MessageSquare,  path: '/comments' },
+        { title: 'AI Testcases',icon: Bot,            path: '/ai-testcases' },
       ],
     },
   ];
