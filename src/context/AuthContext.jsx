@@ -12,6 +12,24 @@ export const AuthProvider = ({ children }) => {
   const [pendingRegistration, setPendingRegistration] = useState(null);
   const [pendingPasswordReset, setPendingPasswordReset] = useState(null);
 
+  const setLoggedInCookie = () => {
+    const hostname = window.location.hostname;
+    let domainString = "";
+    if (hostname.endsWith("ball.id.vn")) {
+      domainString = "; domain=.ball.id.vn";
+    }
+    document.cookie = `logged_in=true; path=/${domainString}; max-age=86400`;
+  };
+
+  const clearLoggedInCookie = () => {
+    const hostname = window.location.hostname;
+    let domainString = "";
+    if (hostname.endsWith("ball.id.vn")) {
+      domainString = "; domain=.ball.id.vn";
+    }
+    document.cookie = `logged_in=; path=/${domainString}; expires=Thu, 01 Jan 1970 00:00:00 UTC;`;
+  };
+
   useEffect(() => {
     checkAuth();
 
@@ -30,9 +48,42 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  useEffect(() => {
+    const syncLogout = () => {
+      const loggedInCookie = document.cookie.split('; ').find(row => row.startsWith('logged_in='));
+      const isLoggedIn = loggedInCookie ? loggedInCookie.split('=')[1] === 'true' : false;
+      
+      if (isAuthenticated && !isLoggedIn) {
+        authService.removeToken();
+        setUser(null);
+        setIsAuthenticated(false);
+        setPendingRegistration(null);
+        setPendingPasswordReset(null);
+      }
+    };
+
+    window.addEventListener('focus', syncLogout);
+    const interval = setInterval(syncLogout, 2000);
+
+    return () => {
+      window.removeEventListener('focus', syncLogout);
+      clearInterval(interval);
+    };
+  }, [isAuthenticated]);
+
   const checkAuth = async () => {
     try {
-      const token = authService.getToken(); 
+      let token = authService.getToken();
+      if (!token) {
+        try {
+          const refreshRes = await authService.refreshToken();
+          token = refreshRes?.data?.accessToken || refreshRes?.accessToken || authService.getToken();
+        } catch (e) {
+          setUser(null);
+          setIsAuthenticated(false);
+          return;
+        }
+      }
       if (!token) {
         setUser(null);
         setIsAuthenticated(false);
@@ -45,6 +96,7 @@ export const AuthProvider = ({ children }) => {
       if (userData && (userData.userName || userData.email)) {
         setUser(userData);
         setIsAuthenticated(true);
+        setLoggedInCookie();
       } else {
         // Nếu không có user data, clear token
         authService.removeToken();
@@ -77,6 +129,7 @@ export const AuthProvider = ({ children }) => {
       if (userData && (userData.userName || userData.email)) {
         setUser(userData);
         setIsAuthenticated(true);
+        setLoggedInCookie();
       } else {
         console.warn('⚠️ No user data in login response, trying to fetch...');
         // Fallback: fetch user data if login successful but no user data
@@ -122,7 +175,7 @@ export const AuthProvider = ({ children }) => {
   // Resend Registration OTP
   const resendRegistrationOTP = async (dataEmailUserName) => {
     try {
-     
+
       if (!dataEmailUserName?.email || !dataEmailUserName?.userName) {
         throw new Error('Không có email để gửi OTP');
       }
@@ -192,6 +245,7 @@ export const AuthProvider = ({ children }) => {
       await authService.logout();
     } finally {
       authService.removeToken();
+      clearLoggedInCookie();
       setUser(null);
       setIsAuthenticated(false);
       setPendingRegistration(null);
@@ -199,19 +253,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
   const onBoarding = async (userName) => {
-    try{
-     
+    try {
+
 
       const response = await authService.onBoarding(userName);
 
-      
 
       // ✅ Check if token was saved
       const savedToken = authService.getToken();
-   
+
 
       const userData = response.data?.user || response.user || response.data;
- 
+
 
       if (userData && (userData.userName || userData.email)) {
         setUser(userData);
@@ -224,11 +277,11 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
-   
+
       return response;
     }
-    catch (e){
-     
+    catch (e) {
+
       throw e;
     }
   }

@@ -9,6 +9,7 @@ import { userService } from '@/services/userService';
 import SubmissionPieChart from '@/components/submission/SubmissionPieChart';
 import DifficultyChart from '@/components/submission/DifficultyChart';
 import SubmissionRecent from '@/components/submission/SubmissionRecent';
+import SkillRadarChart from '@/components/features/bkt/SkillRadarChart';
 import { authService } from '@/services/authService';
 
 const Profile = () => {
@@ -58,7 +59,7 @@ const Profile = () => {
     }
     callRefreshToken();
     fetchProfile();
-  }, [userName, user, location.pathname]);
+  }, [userName, user, location.pathname, isGoogle]);
 
   const handleEditProfile = () => {
     setIsEditing(true);
@@ -134,14 +135,13 @@ const Profile = () => {
                 onUpdateSuccess={handleUpdateSuccess}
               />
             ) : (
-              <>
-              <div className='flex-1 md:mt-0 mt-4 space-y-3'>
+              <div className='flex-1 md:mt-0 mt-4 space-y-4'>
+                <SkillRadarChart userId={profileData._id} />
                 <SubmissionRecent
                   userId={profileData._id}
                 />
                 <SubmissionCalendar userId={profileData._id} year={2024} />
               </div>
-              </>
             )}
           </div>
         </div>

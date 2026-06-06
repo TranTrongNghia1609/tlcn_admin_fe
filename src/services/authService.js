@@ -61,7 +61,7 @@ export const authService = {
         { withCredentials: true }
       );
       
-      const { accessToken } = response.data.data.accessToken;
+      const accessToken = response.data.data.accessToken;
       
       // Update access token mới
       if (accessToken) {
