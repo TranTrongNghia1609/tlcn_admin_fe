@@ -6,66 +6,66 @@ import { getAllStatusStatistics } from '@/services/submissionService';
 import { Loader2 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 
+const statusColors = {
+  "Accepted": "hsl(142, 76%, 36%)",
+  "Wrong Answer": "hsl(0, 84%, 60%)",
+  "Time Limit Exceeded": "hsl(45, 93%, 47%)",
+  "Compilation Error": "hsl(262, 83%, 58%)",
+  "Runtime Error": "hsl(24, 95%, 53%)",
+  "Internal Error": "hsl(199, 89%, 48%)",
+  "Memory Limit Exceeded": "var(--color-mle)"
+};
+
+const statusLabels = {
+  "AC": "Accepted",
+  "WA": "Wrong Answer",
+  "TLE": "Time Limit Exceeded",
+  "CE": "Compilation Error",
+  "RE": "Runtime Error",
+  "MLE": "Memory Limit Exceeded",
+  "Pending": "Pending",
+  "IE": "Internal Error"
+};
+
 const SubmissionStatusChart = () => {
   const [chartData, setChartData] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const { isDark } = useTheme();
 
-  const statusColors = {
-    "Accepted": "hsl(142, 76%, 36%)",
-    "Wrong Answer": "hsl(0, 84%, 60%)",
-    "Time Limit Exceeded": "hsl(45, 93%, 47%)",
-    "Compilation Error": "hsl(262, 83%, 58%)",
-    "Runtime Error": "hsl(24, 95%, 53%)",
-    "Internal Error": "hsl(199, 89%, 48%)",
-    "Memory Limit Exceeded": "var(--color-mle)"
-  };
-
-  const statusLabels = {
-    "AC": "Accepted",
-    "WA": "Wrong Answer",
-    "TLE": "Time Limit Exceeded",
-    "CE": "Compilation Error",
-    "RE": "Runtime Error",
-    "MLE": "Memory Limit Exceeded",
-    "Pending": "Pending",
-    "IE": "Internal Error"
-  };
-
   useEffect(() => {
+    const fetchStatusStatistics = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllStatusStatistics();
+
+        if (response.success) {
+          const data = response.data;
+          setStats(data);
+
+          // Transform data for chart
+          const formattedData = Object.entries(data.statusCounts)
+            .filter(([, count]) => count > 0) // Only include statuses with count > 0
+            .map(([status, count]) => ({
+              status: statusLabels[status] || status,
+              statusCode: status, //   Keep original status code
+              count: count,
+              fill: statusColors[status] || "hsl(0, 0%, 63%)",
+              percentage: data.statusPercentages[status] || 0
+            }))
+            .sort((a, b) => b.count - a.count); // Sort by count descending
+
+          setChartData(formattedData);
+        }
+      } catch (error) {
+        console.error('Error fetching submission status statistics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchStatusStatistics();
   }, []);
-
-  const fetchStatusStatistics = async () => {
-    try {
-      setLoading(true);
-      const response = await getAllStatusStatistics();
-
-      if (response.success) {
-        const data = response.data;
-        setStats(data);
-
-        // Transform data for chart
-        const formattedData = Object.entries(data.statusCounts)
-          .filter(([_, count]) => count > 0) // Only include statuses with count > 0
-          .map(([status, count]) => ({
-            status: statusLabels[status] || status,
-            statusCode: status, //   Keep original status code
-            count: count,
-            fill: statusColors[status] || "hsl(0, 0%, 63%)",
-            percentage: data.statusPercentages[status] || 0
-          }))
-          .sort((a, b) => b.count - a.count); // Sort by count descending
-
-        setChartData(formattedData);
-      }
-    } catch (error) {
-      console.error('Error fetching submission status statistics:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   //   Updated chartConfig with theme colors
   const chartConfig = Object.entries(statusLabels).reduce((acc, [code, label]) => {
@@ -100,7 +100,7 @@ const SubmissionStatusChart = () => {
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[300px]"
+          className="mx-auto aspect-square max-h-[600px]"
         >
           <PieChart>
             <ChartTooltip
@@ -126,8 +126,25 @@ const SubmissionStatusChart = () => {
               data={chartData}
               dataKey="count"
               nameKey="status"
-              label={({ percentage }) => `${percentage}`}
-              labelLine={false}
+              cx="50%"
+              cy="50%"
+              outerRadius="70%"
+              label={({ percentage }) => `${percentage}%`}
+              labelLine={(props) => {
+                const { points, fill } = props;
+                if (!points || points.length < 2) return null;
+                return (
+                  <line
+                    x1={points[0].x}
+                    y1={points[0].y}
+                    x2={points[points.length - 1].x}
+                    y2={points[points.length - 1].y}
+                    stroke={fill}
+                    strokeWidth={1.5}
+                    strokeOpacity={0.8}
+                  />
+                );
+              }}
               isAnimationActive={true}
               stroke={isDark ? "#1e293b" : "white"}
               strokeWidth={2}

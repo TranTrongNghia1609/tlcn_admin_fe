@@ -26,9 +26,8 @@ import { useTheme } from '@/context/ThemeContext';
 // ─── Sidebar Skeleton ───────────────────────────────────────────────────────
 const SidebarSkeleton = ({ isCollapsed }) => (
   <div
-    className={`fixed left-0 top-0 h-screen transition-all duration-300 z-50 ${
-      isCollapsed ? 'w-20' : 'w-64'
-    }`}
+    className={`fixed left-0 top-0 h-screen transition-all duration-300 z-50 ${isCollapsed ? 'w-20' : 'w-64'
+      }`}
     style={{ background: 'linear-gradient(180deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)' }}
   >
     <div className="h-16 flex items-center justify-between px-4 border-b border-white/10">
@@ -107,15 +106,14 @@ const MenuItem = ({ item, isCollapsed, active, isDark }) => {
       )}
 
       <Icon
-        className={`h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200 ${
-          active
+        className={`h-[18px] w-[18px] flex-shrink-0 transition-colors duration-200 ${active
             ? isDark
               ? 'text-indigo-300'
               : 'text-white'
             : isDark
               ? 'text-slate-500 group-hover:text-slate-300'
               : 'text-slate-400 group-hover:text-blue-500'
-        }`}
+          }`}
       />
 
       {!isCollapsed && (
@@ -124,13 +122,12 @@ const MenuItem = ({ item, isCollapsed, active, isDark }) => {
             {item.title}
           </span>
           {item.badge && (
-            <span className={`ml-auto px-2 py-0.5 text-[11px] font-semibold rounded-full border ${
-              active
+            <span className={`ml-auto px-2 py-0.5 text-[11px] font-semibold rounded-full border ${active
                 ? 'bg-white/20 text-white border-white/30'
                 : isDark
                   ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
                   : 'bg-blue-100 text-blue-600 border-blue-200'
-            }`}>
+              }`}>
               {item.badge}
             </span>
           )}
@@ -144,9 +141,8 @@ const MenuItem = ({ item, isCollapsed, active, isDark }) => {
 const SectionLabel = ({ label, isCollapsed, isDark }) => {
   if (isCollapsed) return <div className={`my-2 border-t ${isDark ? 'border-white/5' : 'border-slate-200'}`} />;
   return (
-    <p className={`px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest select-none ${
-      isDark ? 'text-slate-500' : 'text-slate-400'
-    }`}>
+    <p className={`px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-widest select-none ${isDark ? 'text-slate-500' : 'text-slate-400'
+      }`}>
       {label}
     </p>
   );
@@ -158,6 +154,15 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      goToUserSite('/?action=logout', false);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   const menuGroups = [
     {
       label: 'Tổng quan',
@@ -168,13 +173,13 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
     {
       label: 'Quản lý',
       items: [
-        { title: 'Người dùng',  icon: Users,         path: '/users' },
-        { title: 'Bài viết',    icon: FileText,       path: '/posts' },
-        { title: 'Bài tập',     icon: Code2,          path: '/problems' },
-        { title: 'Kỳ thi',      icon: Trophy,         path: '/contests' },
-        { title: 'Bài nộp',     icon: Book,           path: '/submissions' },
-        { title: 'Solution',    icon: BookOpen,       path: '/solutions' },
-        { title: 'Bình luận',   icon: MessageSquare,  path: '/comments' },
+        { title: 'Người dùng', icon: Users, path: '/users' },
+        { title: 'Bài viết', icon: FileText, path: '/posts' },
+        { title: 'Bài tập', icon: Code2, path: '/problems' },
+        { title: 'Kỳ thi', icon: Trophy, path: '/contests' },
+        { title: 'Bài nộp', icon: Book, path: '/submissions' },
+        { title: 'Solution', icon: BookOpen, path: '/solutions' },
+        { title: 'Bình luận', icon: MessageSquare, path: '/comments' },
       ],
     },
   ];
@@ -184,23 +189,25 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
   if (loading) return <SidebarSkeleton isCollapsed={isCollapsed} />;
 
   const avatarLetter = user?.userName?.charAt(0).toUpperCase() || 'A';
+  const avatarUrl = user?.avatar
+    ? user.avatar
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.userName || user?.fullName || 'Admin')}&background=6366f1&color=fff&size=40&rounded=true`;
 
   // ── Theme-aware styles ───────────────────────────────────────────────────
   const sidebarBg = isDark
     ? 'linear-gradient(180deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%)'
     : 'linear-gradient(180deg, #f8fafc 0%, #eef2ff 60%, #f8fafc 100%)';
   const dividerColor = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(99,102,241,0.12)';
-  const textMuted    = isDark ? 'text-slate-400' : 'text-slate-600';
-  const textHover    = isDark ? 'hover:text-white hover:bg-white/8' : 'hover:text-blue-700 hover:bg-blue-50';
-  const labelColor   = isDark ? 'text-slate-500' : 'text-indigo-400';
+  const textMuted = isDark ? 'text-slate-400' : 'text-slate-600';
+  const textHover = isDark ? 'hover:text-white hover:bg-white/8' : 'hover:text-blue-700 hover:bg-blue-50';
+  const labelColor = isDark ? 'text-slate-500' : 'text-indigo-400';
   const headerBorder = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(99,102,241,0.12)';
-  const userBorder   = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(99,102,241,0.12)';
+  const userBorder = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(99,102,241,0.12)';
 
   return (
     <div
-      className={`fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 z-50 ${
-        isCollapsed ? 'w-20' : 'w-64'
-      }`}
+      className={`fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 z-50 ${isCollapsed ? 'w-20' : 'w-64'
+        }`}
       style={{ background: sidebarBg, borderRight: `1px solid ${dividerColor}` }}
     >
       {/* ── Header ─────────────────────────────────────── */}
@@ -210,27 +217,14 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
       >
         <div className={`flex items-center gap-3 overflow-hidden ${isCollapsed ? 'justify-center w-full' : 'flex-1 min-w-0'}`}>
           <div className="relative flex-shrink-0">
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', boxShadow: '0 0 18px rgba(99,102,241,0.5)' }}
-            >
-              <img src={logo} alt="logo" className="w-6 h-6 object-contain" />
-            </div>
-            <span
-              className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 ${
-                isDark ? 'border-slate-900' : 'border-white'
-              }`}
-              style={{ background: '#22c55e', boxShadow: '0 0 6px #22c55e' }}
-            />
+            <img src={logo} alt="logo" className="w-9 h-9 object-contain flex-shrink-0" />
           </div>
           {!isCollapsed && (
             <div className="min-w-0">
-              <h1 className={`text-sm font-bold leading-tight truncate ${
-                isDark ? 'text-white' : 'text-slate-800'
-              }`}>Admin Portal</h1>
-              <p className={`text-[10px] truncate ${
-                isDark ? 'text-slate-500' : 'text-slate-400'
-              }`}>BN Online Judge</p>
+              <h1 className={`text-sm font-bold leading-tight truncate ${isDark ? 'text-white' : 'text-slate-800'
+                }`}>Admin Portal</h1>
+              <p className={`text-[10px] truncate ${isDark ? 'text-slate-500' : 'text-slate-400'
+                }`}>BN Online Judge</p>
             </div>
           )}
         </div>
@@ -251,9 +245,8 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
             Thu nhỏ
           </span>
         )}
-        <span className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors duration-200 ${
-          isDark ? 'group-hover:bg-white/10' : 'group-hover:bg-indigo-100'
-        }`}>
+        <span className={`w-5 h-5 rounded-md flex items-center justify-center transition-colors duration-200 ${isDark ? 'group-hover:bg-white/10' : 'group-hover:bg-indigo-100'
+          }`}>
           {isCollapsed ? (
             <ChevronRight className="w-3.5 h-3.5" />
           ) : (
@@ -270,32 +263,33 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
         <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
           {/* Avatar */}
           <div className="relative flex-shrink-0">
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white select-none"
-              style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', boxShadow: '0 2px 12px rgba(99,102,241,0.4)' }}
-            >
-              {avatarLetter}
-            </div>
+            <img
+              src={avatarUrl}
+              alt={user?.userName || 'Admin'}
+              className="w-9 h-9 rounded-full object-cover"
+              style={{ boxShadow: '0 2px 12px rgba(99,102,241,0.4)' }}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(avatarLetter)}&background=6366f1&color=fff&size=40&rounded=true`;
+              }}
+            />
             <span
-              className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 ${
-                isDark ? 'border-slate-900' : 'border-white'
-              }`}
+              className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 ${isDark ? 'border-slate-900' : 'border-white'
+                }`}
               style={{ background: '#22c55e' }}
             />
           </div>
 
           {!isCollapsed && (
             <div className="min-w-0 flex-1">
-              <p className={`text-sm font-semibold truncate leading-tight ${
-                isDark ? 'text-white' : 'text-slate-800'
-              }`}>
+              <p className={`text-sm font-semibold truncate leading-tight ${isDark ? 'text-white' : 'text-slate-800'
+                }`}>
                 {user?.userName || 'Admin'}
               </p>
               <div className="flex items-center gap-1 mt-0.5">
                 <Shield className="w-3 h-3 text-indigo-400 flex-shrink-0" />
-                <p className={`text-[10px] truncate ${
-                  isDark ? 'text-slate-500' : 'text-slate-400'
-                }`}>{user?.email || 'admin@bn.com'}</p>
+                <p className={`text-[10px] truncate ${isDark ? 'text-slate-500' : 'text-slate-400'
+                  }`}>{user?.email || 'admin@bn.com'}</p>
               </div>
             </div>
           )}
@@ -359,9 +353,8 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
             ${textMuted} ${textHover}
             ${isCollapsed ? 'justify-center' : ''}`}
         >
-          <ExternalLink className={`h-4 w-4 flex-shrink-0 ${
-            isDark ? 'text-blue-400 group-hover:text-blue-300' : 'text-blue-500 group-hover:text-blue-600'
-          }`} />
+          <ExternalLink className={`h-4 w-4 flex-shrink-0 ${isDark ? 'text-blue-400 group-hover:text-blue-300' : 'text-blue-500 group-hover:text-blue-600'
+            }`} />
           {!isCollapsed && <span className="text-sm font-medium">Trang người dùng</span>}
         </button>
 
@@ -372,9 +365,8 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
             ${textMuted} ${textHover}
             ${isCollapsed ? 'justify-center' : ''}`}
         >
-          <ExternalLink className={`h-4 w-4 flex-shrink-0 ${
-            isDark ? 'text-emerald-400 group-hover:text-emerald-300' : 'text-emerald-500 group-hover:text-emerald-600'
-          }`} />
+          <ExternalLink className={`h-4 w-4 flex-shrink-0 ${isDark ? 'text-emerald-400 group-hover:text-emerald-300' : 'text-emerald-500 group-hover:text-emerald-600'
+            }`} />
           {!isCollapsed && <span className="text-sm font-medium">Trang giáo viên</span>}
         </button>
       </div>
@@ -385,7 +377,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
         style={{ borderTop: `1px solid ${dividerColor}` }}
       >
         <button
-          onClick={logout}
+          onClick={handleLogout}
           title="Đăng xuất"
           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
             transition-all duration-200 group

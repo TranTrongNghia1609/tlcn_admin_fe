@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { goToUserSite } from '../../utils/siteNavigation';
 import { Skeleton } from '../../components/ui/skeleton';
 import UserTable from '../../components/admin/tables/UserTable';
 import SearchBar from '../../components/admin/tables/SearchBar';
@@ -130,7 +131,7 @@ const UserManagement = () => {
     if (newPage !== currentPage) setCurrentPage(newPage);
   }, [currentPage, pagination.totalPages]);
 
-  const handleViewUserDetail = useCallback((userName) => { navigate(`/profile/${userName}`); }, [navigate]);
+  const handleViewUserDetail = useCallback((userName) => { goToUserSite(`/profile/${userName}`, true); }, []);
 
   const handleDeleteUser = useCallback(async (userId) => {
     const confirmed = window.confirm('Bạn có chắc chắn muốn xóa người dùng này?');
@@ -187,14 +188,14 @@ const UserManagement = () => {
       <div className="p-6 lg:p-8 space-y-8 max-w-[1800px] mx-auto">
 
         {/* ── Header ── */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 p-8 shadow-2xl">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 p-7 shadow-xl text-white">
           <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -translate-y-20 translate-x-20"
             style={{ background: 'radial-gradient(circle, white, transparent)' }} />
           <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full opacity-10 translate-y-12"
             style={{ background: 'radial-gradient(circle, white, transparent)' }} />
           <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-4xl font-black text-white mb-2">Quản lý người dùng</h1>
+              <h1 className="text-3xl font-black text-white mb-2">Quản lý người dùng</h1>
               <p className="text-indigo-200 text-base">Theo dõi và quản lý toàn bộ người dùng trên hệ thống</p>
             </div>
             <div className="flex items-center gap-3">

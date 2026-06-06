@@ -130,7 +130,7 @@ const Dashboard = () => {
       <div className="p-6 lg:p-8 space-y-8 max-w-[1600px] mx-auto">
 
         {/* ── Header ── */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 p-8 shadow-2xl">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 p-7 shadow-xl text-white">
           {/* Decorative blobs */}
           <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -translate-y-20 translate-x-20"
             style={{ background: 'radial-gradient(circle, white, transparent)' }} />
@@ -140,7 +140,7 @@ const Dashboard = () => {
           <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
             <div>
 
-              <h1 className="text-4xl font-black text-white mb-2">Dashboard</h1>
+              <h1 className="text-3xl font-black text-white mb-2">Dashboard</h1>
               <p className="text-indigo-200 text-base">
                 Tổng quan hoạt động hệ thống Online Judge
               </p>

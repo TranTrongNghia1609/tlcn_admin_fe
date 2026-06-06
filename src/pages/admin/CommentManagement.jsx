@@ -8,8 +8,8 @@ import {
   MessageSquare,
   Eye,
   EyeOff,
-  TrendingUp,
-  FileText
+  FileText,
+  BookOpen
 } from 'lucide-react';
 import TablePagination from '@/components/common/TablePagination';
 
@@ -24,17 +24,19 @@ const CommentManagement = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedItemModel, setSelectedItemModel] = useState('all'); // 'all' | 'Post' | 'Solution'
   const [stats, setStats] = useState({
     totalComments: 0,
     visibleComments: 0,
     hiddenComments: 0,
     recentComments: 0,
-    commentsByPost: 0
+    postComments: 0,
+    solutionComments: 0
   });
 
   useEffect(() => {
     fetchComments();
-  }, [currentPage, searchTerm, selectedStatus]);
+  }, [currentPage, searchTerm, selectedStatus, selectedItemModel]);
 
   useEffect(() => {
     fetchStats();
@@ -43,14 +45,18 @@ const CommentManagement = () => {
   const fetchComments = async () => {
     try {
       setLoading(true);
-      const response = await commentService.getAdminComments({
+      const params = {
         page: currentPage,
         limit: 10,
         search: searchTerm,
         status: selectedStatus,
         sortBy: 'createdAt',
         order: 'desc'
-      });
+      };
+      if (selectedItemModel !== 'all') {
+        params.itemModel = selectedItemModel;
+      }
+      const response = await commentService.getAdminComments(params);
 
       setComments(response.data.comments);
       setPagination({
@@ -79,7 +85,7 @@ const CommentManagement = () => {
   const refreshAllData = useCallback(() => {
     fetchComments();
     fetchStats();
-  }, [currentPage, searchTerm, selectedStatus]);
+  }, [currentPage, searchTerm, selectedStatus, selectedItemModel]);
 
   const handleSearch = useCallback((q) => {
     if (q !== searchTerm) {
@@ -90,6 +96,11 @@ const CommentManagement = () => {
 
   const handleStatusFilter = useCallback((status) => {
     setSelectedStatus(status);
+    setCurrentPage(1);
+  }, []);
+
+  const handleItemModelFilter = useCallback((model) => {
+    setSelectedItemModel(model);
     setCurrentPage(1);
   }, []);
 
@@ -106,16 +117,21 @@ const CommentManagement = () => {
     { key: 'hidden', label: 'Đã ẩn', icon: EyeOff, color: 'bg-red-500' },
   ];
 
+  const itemModelFilters = [
+    { key: 'all', label: 'Tất cả loại', color: 'bg-slate-500' },
+    { key: 'Post', label: 'Bài viết', color: 'bg-purple-500' },
+    { key: 'Solution', label: 'Solution', color: 'bg-emerald-500' },
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-8 max-w-[1800px] mx-auto relative">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-cyan-600 via-teal-600 to-emerald-600 p-8 shadow-xl">
-        {/* Decorative blobs */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 p-7 shadow-xl text-white">
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -translate-y-20 translate-x-20"
           style={{ background: 'radial-gradient(circle, white, transparent)' }} />
         <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full opacity-10 translate-y-12"
           style={{ background: 'radial-gradient(circle, white, transparent)' }} />
-        
+
         <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-black text-white mb-2">Quản lý bình luận</h1>
@@ -127,10 +143,27 @@ const CommentManagement = () => {
       {/* Statistics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { title: 'Tổng bình luận', value: stats.totalComments, icon: MessageSquare, iconColor: 'text-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/30', subtext: `${stats.recentComments} trong 7 ngày`, subColor: 'text-green-600 dark:text-green-400' },
-          { title: 'Đang hiển thị', value: stats.visibleComments, icon: Eye, iconColor: 'text-green-500', iconBg: 'bg-green-50 dark:bg-green-900/30', subtext: `${stats.totalComments > 0 ? ((stats.visibleComments / stats.totalComments) * 100).toFixed(0) : 0}% tổng số`, subColor: 'text-slate-500 dark:text-slate-400' },
-          { title: 'Đã ẩn', value: stats.hiddenComments, icon: EyeOff, iconColor: 'text-red-500', iconBg: 'bg-red-50 dark:bg-red-900/30', subtext: 'Bị vi phạm quy định', subColor: 'text-slate-500 dark:text-slate-400' },
-          { title: 'Bài viết có bình luận', value: stats.commentsByPost || 0, icon: FileText, iconColor: 'text-orange-500', iconBg: 'bg-orange-50 dark:bg-orange-900/30', subtext: `Top ${stats.commentsByPost} bài viết`, subColor: 'text-slate-500 dark:text-slate-400' },
+          {
+            title: 'Tổng bình luận', value: stats.totalComments,
+            icon: MessageSquare, iconColor: 'text-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/30',
+            subtext: `${stats.recentComments} trong 7 ngày`, subColor: 'text-green-600 dark:text-green-400'
+          },
+          {
+            title: 'Đang hiển thị', value: stats.visibleComments,
+            icon: Eye, iconColor: 'text-green-500', iconBg: 'bg-green-50 dark:bg-green-900/30',
+            subtext: `${stats.totalComments > 0 ? ((stats.visibleComments / stats.totalComments) * 100).toFixed(0) : 0}% tổng số`,
+            subColor: 'text-slate-500 dark:text-slate-400'
+          },
+          {
+            title: 'Bài viết (Post)', value: stats.postComments || 0,
+            icon: FileText, iconColor: 'text-purple-500', iconBg: 'bg-purple-50 dark:bg-purple-900/30',
+            subtext: 'Comment trong bài viết', subColor: 'text-slate-500 dark:text-slate-400'
+          },
+          {
+            title: 'Solution', value: stats.solutionComments || 0,
+            icon: BookOpen, iconColor: 'text-emerald-500', iconBg: 'bg-emerald-50 dark:bg-emerald-900/30',
+            subtext: 'Comment trong solution', subColor: 'text-slate-500 dark:text-slate-400'
+          },
         ].map((c) => (
           <Card key={c.title} className="relative overflow-hidden p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-700/80 shadow-md bg-white dark:bg-slate-800 rounded-2xl">
             <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-[0.03] dark:opacity-[0.05] -translate-y-4 translate-x-4 bg-slate-900 dark:bg-white" />
@@ -160,39 +193,82 @@ const CommentManagement = () => {
             </div>
           </div>
 
-          {/* Status Filters */}
-          <div className="flex gap-3 flex-wrap">
-            {statusFilters.map((filter) => {
-              const Icon = filter.icon;
-              const isActive = selectedStatus === filter.key;
-              
-              let count = 0;
-              if (filter.key === 'all') count = stats.totalComments;
-              else if (filter.key === 'visible') count = stats.visibleComments;
-              else if (filter.key === 'hidden') count = stats.hiddenComments;
-              
-              return (
-                <button
-                  key={filter.key}
-                  onClick={() => handleStatusFilter(filter.key)}
-                  className={`
-                    flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all shadow-sm
-                    ${isActive 
-                      ? `${filter.color} text-white shadow-md hover:scale-[1.02] active:scale-[0.98]` 
-                      : 'bg-slate-50 dark:bg-slate-700 text-gray-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 hover:bg-slate-100 dark:hover:bg-slate-600'
-                    }
-                  `}
-                >
-                  <Icon className="w-4 h-4" />
-                  {filter.label}
-                  <span className={`ml-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${
-                    isActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-gray-600 dark:text-slate-300'
-                  }`}>
-                    {count}
-                  </span>
-                </button>
-              );
-            })}
+          {/* Filters Row */}
+          <div className="flex flex-wrap gap-6 items-start">
+            {/* Status Filters */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide">Trạng thái</span>
+              <div className="flex gap-2 flex-wrap">
+                {statusFilters.map((filter) => {
+                  const Icon = filter.icon;
+                  const isActive = selectedStatus === filter.key;
+                  let count = 0;
+                  if (filter.key === 'all') count = stats.totalComments;
+                  else if (filter.key === 'visible') count = stats.visibleComments;
+                  else if (filter.key === 'hidden') count = stats.hiddenComments;
+
+                  return (
+                    <button
+                      key={filter.key}
+                      onClick={() => handleStatusFilter(filter.key)}
+                      className={`
+                        flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all shadow-sm
+                        ${isActive
+                          ? `${filter.color} text-white shadow-md hover:scale-[1.02] active:scale-[0.98]`
+                          : 'bg-slate-50 dark:bg-slate-700 text-gray-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 hover:bg-slate-100 dark:hover:bg-slate-600'
+                        }
+                      `}
+                    >
+                      <Icon className="w-4 h-4" />
+                      {filter.label}
+                      <span className={`ml-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        isActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-gray-600 dark:text-slate-300'
+                      }`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="w-px bg-slate-200 dark:bg-slate-700 self-stretch hidden sm:block" />
+
+            {/* ItemModel Filters */}
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide">Loại nội dung</span>
+              <div className="flex gap-2 flex-wrap">
+                {itemModelFilters.map((filter) => {
+                  const isActive = selectedItemModel === filter.key;
+                  let count = 0;
+                  if (filter.key === 'all') count = stats.totalComments;
+                  else if (filter.key === 'Post') count = stats.postComments || 0;
+                  else if (filter.key === 'Solution') count = stats.solutionComments || 0;
+
+                  return (
+                    <button
+                      key={filter.key}
+                      onClick={() => handleItemModelFilter(filter.key)}
+                      className={`
+                        flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all shadow-sm
+                        ${isActive
+                          ? `${filter.color} text-white shadow-md hover:scale-[1.02] active:scale-[0.98]`
+                          : 'bg-slate-50 dark:bg-slate-700 text-gray-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 hover:bg-slate-100 dark:hover:bg-slate-600'
+                        }
+                      `}
+                    >
+                      {filter.label}
+                      <span className={`ml-1.5 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                        isActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-800 text-gray-600 dark:text-slate-300'
+                      }`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
 
           <CommentTable

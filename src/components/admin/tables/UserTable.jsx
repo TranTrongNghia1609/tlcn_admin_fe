@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { goToUserSite } from '../../../utils/siteNavigation';
 import {
   Table,
   TableBody,
@@ -31,7 +31,6 @@ const UserTable = ({
   loading,
   onDeleteUser
 }) => {
-  const navigate = useNavigate();
   const [updatingStatus, setUpdatingStatus] = useState(null);
   const [users, setUsers] = useState(initialUsers);
 
@@ -40,7 +39,7 @@ const UserTable = ({
   }, [initialUsers]);
 
   const handleViewDetail = (userName) => {
-    navigate(`/profile/${userName}`);
+    goToUserSite(`/profile/${userName}`, true);
   };
 
   const handleToggleStatus = async (userName, currentStatus) => {

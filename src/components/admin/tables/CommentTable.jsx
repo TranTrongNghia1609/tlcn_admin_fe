@@ -121,14 +121,12 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
     });
   };
 
-  const getTargetTypeBadge = (type) => {
+  const getItemModelBadge = (itemModel) => {
     const configs = {
-      problem: { label: 'Bài tập', color: 'bg-blue-100 text-blue-700' },
-      solution: { label: 'Solution', color: 'bg-green-100 text-green-700' },
-      post: { label: 'Bài viết', color: 'bg-purple-100 text-purple-700' },
-      submission: { label: 'Submission', color: 'bg-orange-100 text-orange-700' }
+      Post: { label: 'Bài viết', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300' },
+      Solution: { label: 'Solution', color: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' },
     };
-    return configs[type] || { label: type, color: 'bg-gray-100 text-gray-700' };
+    return configs[itemModel] || { label: itemModel || 'Không rõ', color: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' };
   };
 
   if (loading) {
@@ -164,7 +162,7 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
           </TableHeader>
           <TableBody>
             {comments.map((comment) => {
-              const targetBadge = getTargetTypeBadge(comment.targetType);
+              const itemModelBadge = getItemModelBadge(comment.itemModel);
               
               return (
                 <TableRow key={comment._id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40 dark:border-slate-700">
@@ -199,6 +197,11 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
                       <p className="text-sm text-gray-700 dark:text-slate-300 line-clamp-2">
                         {comment.content}
                       </p>
+                      {comment.itemTitle && (
+                        <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1 truncate" title={comment.itemTitle}>
+                          📎 {comment.itemTitle}
+                        </p>
+                      )}
                       <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 dark:text-slate-400">
                         <span className="flex items-center gap-1">
                           <MessageSquare className="w-3 h-3" />
@@ -212,8 +215,8 @@ const CommentTable = ({ comments: initialComments, loading, onCommentUpdated }) 
                   </TableCell>
 
                   <TableCell>
-                    <Badge className={targetBadge.color}>
-                      {targetBadge.label}
+                    <Badge className={itemModelBadge.color}>
+                      {itemModelBadge.label}
                     </Badge>
                   </TableCell>
 
