@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Terminal, Bot, RefreshCw, Send, ArrowRight } from 'lucide-react';
+import { Terminal, Bot, RefreshCw, Send, ArrowRight, AlertTriangle, CornerDownLeft } from 'lucide-react';
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
@@ -16,7 +16,9 @@ const CodeGenerationPhaseCard = ({
   isDark,
   feedback,
   setFeedback,
+  codeError,
   onGenerateCode,
+  onUseErrorAsFeedback,
   onPhaseClick,
   onContinue
 }) => {
@@ -48,6 +50,31 @@ const CodeGenerationPhaseCard = ({
             <div className="h-64 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800">
               <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
               <p className="text-purple-600 dark:text-purple-400 font-bold animate-pulse text-lg">AI đang viết code cho bạn...</p>
+            </div>
+          )}
+
+          {/* Error Display */}
+          {codeError && !isCodeLoading && (
+            <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/40 rounded-2xl p-6 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+                  <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-red-800 dark:text-red-300 mb-2">Sinh mã thất bại</h4>
+                  <pre className="text-sm text-red-700 dark:text-red-400 bg-red-100/50 dark:bg-red-900/20 rounded-xl p-4 whitespace-pre-wrap break-words font-mono border border-red-200/50 dark:border-red-800/30 max-h-48 overflow-auto custom-scrollbar">
+                    {codeError}
+                  </pre>
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <Button 
+                  onClick={() => onUseErrorAsFeedback(codeError)}
+                  className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold shadow-lg shadow-red-500/20 transition-all hover:scale-[1.02]"
+                >
+                  <CornerDownLeft className="w-4 h-4 mr-2" /> Dùng làm Feedback để Sinh Lại
+                </Button>
+              </div>
             </div>
           )}
 
