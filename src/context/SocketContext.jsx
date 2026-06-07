@@ -28,19 +28,21 @@ export const SocketProvider = ({ children, url }) => {
 
     socketRef.current.on('connect', () => {
       setIsConnected(true);
-      console.log('✅ Socket connected');
+      // ADD THIS LOG:
+      console.log('✅ Socket connected with ID:', socketRef.current.id); 
       socketRef.current.emit('register');
+    });
+
+    socketRef.current.on('disconnect', (reason) => {
+      setIsConnected(false);
+      // ADD THIS LOG to see WHY it disconnected:
+      console.log('❌ Socket disconnected. Reason:', reason); 
     });
 
     socketRef.current.on('connected', (data) => {
       console.log('✅ Registered with notification system:', data);
     });
-
-    socketRef.current.on('disconnect', () => {
-      setIsConnected(false);
-      console.log('❌ Socket disconnected');
-    });
-
+    
     socketRef.current.on('error', (error) => {
       console.error('❌ Socket error:', error);
     });

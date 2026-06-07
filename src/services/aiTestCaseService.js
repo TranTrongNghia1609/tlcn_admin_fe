@@ -43,5 +43,11 @@ export const aiTestCaseService = {
   executeCode: async (workflowId, payload = {}) => {
     const response = await API.post(`/test-case/execute/${workflowId}`, payload);
     return response.data;
+  },
+
+  // Download: get presigned S3 URL and trigger download
+  downloadTestCase: async (workflowId, payload = { version: 1 }) => {
+    const response = await API.get(`/test-case/download/${workflowId}`, payload);
+    return response.data;
   }
 };

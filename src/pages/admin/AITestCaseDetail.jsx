@@ -28,6 +28,8 @@ const AITestCaseDetail = () => {
   const [inputConstraint, setInputConstraint] = useState('');
   const [outputConstraint, setOutputConstraint] = useState('');
   const [numberOfTestCases, setNumberOfTestCases] = useState(5);
+  const [inputExample, setInputExample] = useState('');
+  const [outputExample, setOutputExample] = useState('');
   const [planCategories, setPlanCategories] = useState([]);
   const [isPlanLoading, setIsPlanLoading] = useState(false);
 
@@ -40,6 +42,7 @@ const AITestCaseDetail = () => {
   // Phase 3: Execution
   const [testCaseUrl, setTestCaseUrl] = useState('');
   const [isExecLoading, setIsExecLoading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Fetch existing data if ID exists
   useEffect(() => {
@@ -60,31 +63,35 @@ const AITestCaseDetail = () => {
             setInputConstraint(planData.inputConstraint || '');
             setOutputConstraint(planData.outputConstraint || '');
             setNumberOfTestCases(planData.numberOfTestCases || 5);
+            setInputExample(planData.inputExample || '');
+            setOutputExample(planData.outputExample || '');
             
             const lastVersion = planData.versions?.[planData.versions.length - 1];
             if (lastVersion?.categories) {
               setPlanCategories(lastVersion.categories);
               if (planData.status === 'done') setCurrentPhase(2);
             }
+
+            try {
+              var codeDataResponse = await aiTestCaseService.getCode(workflowId);
+              var codeData = codeDataResponse?.data;
+              if (codeData) {
+                  const lastCode = codeData.versions?.[codeData.versions.length - 1];
+                  if (lastCode.planVersionNumber == lastVersion.versionNumber ||lastCode?.inputCode) {
+                    setInputCode(lastCode.inputCode);
+                    setOutputCode(lastCode.outputCode);
+                    if (codeData.status === 'done') setCurrentPhase(3);
+                  }
+                  if (lastCode?.s3Key) {
+                    setTestCaseUrl(lastCode.s3Key);
+                  }
+              }
+            } catch(e) {
+              // No code yet
+            }
           }
           
-          try {
-             var codeDataResponse = await aiTestCaseService.getCode(workflowId);
-             var codeData = codeDataResponse?.data;
-             if (codeData) {
-                const lastCode = codeData.versions?.[codeData.versions.length - 1];
-                if (lastCode?.inputCode) {
-                  setInputCode(lastCode.inputCode);
-                  setOutputCode(lastCode.outputCode);
-                  if (codeData.status === 'done') setCurrentPhase(3);
-                }
-                if (lastCode?.testCaseUrl) {
-                  setTestCaseUrl(lastCode.testCaseUrl);
-                }
-             }
-          } catch(e) {
-            // No code yet
-          }
+          
         } catch (error) {
           toast.error('Lỗi khi tải dữ liệu workflow. Kế hoạch có thể không tồn tại.');
           navigate('/ai-testcases');
@@ -153,9 +160,25 @@ const AITestCaseDetail = () => {
       toast.warning('Vui lòng nhập mô tả bài toán');
       return;
     }
+    if (!inputExample.trim()) {
+      toast.warning('Vui lòng nhập ví dụ Input');
+      return;
+    }
+    if (!outputExample.trim()) {
+      toast.warning('Vui lòng nhập ví dụ Output');
+      return;
+    }
+    if (inputExample.length > 200) {
+      toast.warning('Ví dụ Input không được vượt quá 200 ký tự');
+      return;
+    }
+    if (outputExample.length > 200) {
+      toast.warning('Ví dụ Output không được vượt quá 200 ký tự');
+      return;
+    }
     try {
       setIsPlanLoading(true);
-      const payload = { statement, inputConstraint, outputConstraint, numberOfTestCases };
+      const payload = { statement, inputConstraint, outputConstraint, numberOfTestCases, inputExample, outputExample };
       let res;
       if (workflowId) {
         res = await aiTestCaseService.regeneratePlan(workflowId, payload);
@@ -197,6 +220,32 @@ const AITestCaseDetail = () => {
     } catch (error) {
       toast.error('Lỗi khi gọi API Execute');
       setIsExecLoading(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!workflowId) return;
+    try {
+      setIsDownloading(true);
+      var data = await aiTestCaseService.downloadTestCase(workflowId);
+      data = data.data;
+      // Backend returns a presigned URL; open it to trigger browser download
+      const presignedUrl = data?.presignedUrl || null;
+      if (presignedUrl && typeof presignedUrl === 'string') {
+        const link = document.createElement('a');
+        link.href = presignedUrl;
+        link.setAttribute('download', `testcases_${workflowId}.zip`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Đã bắt đầu tải về!');
+      } else {
+        toast.error('Không thể lấy link tải về.');
+      }
+    } catch (error) {
+      toast.error('Lỗi khi lấy link tải về.');
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -293,6 +342,50 @@ const AITestCaseDetail = () => {
                       />
                     </div>
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                        Ví dụ Input <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        className={`w-full h-24 rounded-xl border bg-slate-50 dark:bg-slate-950 text-sm p-3 focus:ring-2 focus:ring-indigo-500 transition-all resize-none ${
+                          inputExample.length > 200
+                            ? 'border-red-400 focus:ring-red-400'
+                            : 'border-slate-300 dark:border-slate-700'
+                        }`}
+                        placeholder="VD: 5\n1 2 3 4 5"
+                        maxLength={200}
+                        value={inputExample}
+                        onChange={e => setInputExample(e.target.value)}
+                      />
+                      <p className={`text-xs mt-1 text-right ${
+                        inputExample.length > 180 ? 'text-red-500 font-semibold' : 'text-slate-400'
+                      }`}>
+                        {inputExample.length}/200
+                      </p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                        Ví dụ Output <span className="text-red-500">*</span>
+                      </label>
+                      <textarea
+                        className={`w-full h-24 rounded-xl border bg-slate-50 dark:bg-slate-950 text-sm p-3 focus:ring-2 focus:ring-indigo-500 transition-all resize-none ${
+                          outputExample.length > 200
+                            ? 'border-red-400 focus:ring-red-400'
+                            : 'border-slate-300 dark:border-slate-700'
+                        }`}
+                        placeholder="VD: 15"
+                        maxLength={200}
+                        value={outputExample}
+                        onChange={e => setOutputExample(e.target.value)}
+                      />
+                      <p className={`text-xs mt-1 text-right ${
+                        outputExample.length > 180 ? 'text-red-500 font-semibold' : 'text-slate-400'
+                      }`}>
+                        {outputExample.length}/200
+                      </p>
+                    </div>
+                  </div>
                   <div>
                     <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Số lượng Testcases mong muốn</label>
                     <input 
@@ -305,7 +398,7 @@ const AITestCaseDetail = () => {
                   </div>
                   <Button 
                     onClick={handleGeneratePlan} 
-                    disabled={isPlanLoading || !statement.trim()}
+                    disabled={isPlanLoading || !statement.trim() || !inputExample.trim() || !outputExample.trim() || inputExample.length > 200 || outputExample.length > 200}
                     className="w-full lg:w-auto px-8 py-6 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-base shadow-lg shadow-indigo-500/30 transition-all hover:scale-[1.02]"
                   >
                     {isPlanLoading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Bot className="w-5 h-5 mr-2" />}
@@ -512,11 +605,15 @@ const AITestCaseDetail = () => {
                   <p className="text-slate-500 mb-8 px-6">Bộ testcase đã được tạo thành công và sẵn sàng để tải về.</p>
                   
                   <div className="px-8">
-                    <a href={testCaseUrl} target="_blank" rel="noopener noreferrer" className="block">
-                      <Button className="w-full py-6 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-base transition-transform hover:scale-105 active:scale-95">
-                        <Download className="w-5 h-5 mr-2" /> Tải về tệp TestCases (ZIP)
-                      </Button>
-                    </a>
+                    <Button
+                      onClick={handleDownload}
+                      disabled={isDownloading}
+                      className="w-full py-6 rounded-xl bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-base transition-transform hover:scale-105 active:scale-95"
+                    >
+                      {isDownloading
+                        ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Đang lấy link...</>
+                        : <><Download className="w-5 h-5 mr-2" /> Tải về tệp TestCases (ZIP)</>}
+                    </Button>
                   </div>
                 </div>
               )}
