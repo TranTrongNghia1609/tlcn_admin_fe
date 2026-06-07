@@ -24,7 +24,8 @@ import SolutionManagement from "@/pages/admin/SolutionManagement";
 import SolutionFormPage from "@/pages/admin/SolutionFormPage";
 import CommentManagement from "@/pages/admin/CommentManagement";
 import ContestParticipants from "@/pages/admin/ContestParticipants";
-
+import AITestCaseManagement from "@/pages/admin/AITestCaseManagement";
+import AITestCaseDetail from "@/pages/admin/AITestCaseDetail";
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
@@ -293,6 +294,31 @@ const AppRoutes = () => {
         element={
           <AdminRoute>
             <Submission />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/ai-testcases"
+        element={
+          <AdminRoute>
+            <AITestCaseManagement />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/ai-testcases/create"
+        element={
+          <AdminRoute>
+            <AITestCaseDetail />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/ai-testcases/:id"
+        element={
+          <AdminRoute>
+            <AITestCaseDetail />
           </AdminRoute>
         }
       />

@@ -15,7 +15,8 @@ import {
   ExternalLink,
   Shield,
   Sun,
-  Moon
+  Moon,
+  Bot
 } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { useAuth } from '@/context/AuthContext';
@@ -173,13 +174,14 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, loading = false }) => {
     {
       label: 'Quản lý',
       items: [
-        { title: 'Người dùng', icon: Users, path: '/users' },
-        { title: 'Bài viết', icon: FileText, path: '/posts' },
-        { title: 'Bài tập', icon: Code2, path: '/problems' },
-        { title: 'Kỳ thi', icon: Trophy, path: '/contests' },
-        { title: 'Bài nộp', icon: Book, path: '/submissions' },
-        { title: 'Solution', icon: BookOpen, path: '/solutions' },
-        { title: 'Bình luận', icon: MessageSquare, path: '/comments' },
+        { title: 'Người dùng',  icon: Users,         path: '/users' },
+        { title: 'Bài viết',    icon: FileText,       path: '/posts' },
+        { title: 'Bài tập',     icon: Code2,          path: '/problems' },
+        { title: 'Kỳ thi',      icon: Trophy,         path: '/contests' },
+        { title: 'Bài nộp',     icon: Book,           path: '/submissions' },
+        { title: 'Solution',    icon: BookOpen,       path: '/solutions' },
+        { title: 'Bình luận',   icon: MessageSquare,  path: '/comments' },
+        { title: 'AI Testcases',icon: Bot,            path: '/ai-testcases' },
       ],
     },
   ];
