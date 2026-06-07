@@ -67,10 +67,21 @@ const AdminRoute = ({ children }) => {
 };
 
 const AppRoutes = () => {
+  const { user, isAuthenticated } = useAuth();
+
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<LandingPage />} />
+      <Route 
+        path="/" 
+        element={
+          isAuthenticated && user?.role === 'admin' ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <LandingPage />
+          )
+        } 
+      />
 
       {/* Protected Routes - CÓ NavBar */}
       <Route

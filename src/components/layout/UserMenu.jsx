@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { goToUserSite } from '../../utils/siteNavigation';
 
 const UserMenu = () => {
   const { user, logout } = useAuth();
@@ -27,8 +28,10 @@ const UserMenu = () => {
     try {
       await logout();
       setIsOpen(false);
+      goToUserSite('/?action=logout', false);
     } catch (error) {
       console.error('Logout failed:', error);
+      goToUserSite('/?action=logout', false);
     }
   };
 

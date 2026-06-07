@@ -104,7 +104,7 @@ const SubmissionManagement = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-8 max-w-full mx-auto">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-orange-600 to-red-600 p-8 shadow-xl">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 p-7 shadow-xl text-white">
         {/* Decorative blobs */}
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -translate-y-20 translate-x-20"
           style={{ background: 'radial-gradient(circle, white, transparent)' }} />
@@ -150,7 +150,7 @@ const SubmissionManagement = () => {
       )}
 
       {/* Filter Modal - Always rendered, controlled by CSS */}
-      <div className={`fixed top-0 right-0 z-50 min-w-[350px] h-[100vh] transition-transform duration-300 ${showFilterModal ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed top-0 right-0 z-50 min-w-[350px] h-screen transition-transform duration-300 ${showFilterModal ? 'translate-x-0' : 'translate-x-full'}`}>
         <SubmissionFilter 
           currentFilter={filter}
           onClose={() => setShowFilterModal(false)}
