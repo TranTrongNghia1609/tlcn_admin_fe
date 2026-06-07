@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Terminal, Play, CheckCircle2, Loader2, Download } from 'lucide-react';
+import { Terminal, Play, CheckCircle2, Loader2, Download, AlertTriangle, CornerDownLeft } from 'lucide-react';
 
 const ExecutionPhaseCard = ({
   currentPhase,
@@ -9,9 +9,11 @@ const ExecutionPhaseCard = ({
   isExecLoading,
   isDownloading,
   inputCode,
+  execError,
   onPhaseClick,
   onExecuteCode,
-  onDownload
+  onDownload,
+  onUseErrorAsFeedback
 }) => {
   return (
     <Card className={`overflow-hidden border-0 shadow-2xl transition-all duration-500 ${currentPhase === 3 ? 'ring-2 ring-emerald-500 ring-offset-4 ring-offset-slate-50 dark:ring-offset-slate-950' : 'opacity-70 grayscale-[30%] hover:grayscale-0'}`}>
@@ -55,6 +57,38 @@ const ExecutionPhaseCard = ({
                  <p className="text-indigo-400 text-sm animate-pulse">$ zip compress...</p>
                </div>
                <p className="font-bold text-slate-700 dark:text-slate-300">Đang biên dịch và đóng gói, vui lòng chờ...</p>
+            </div>
+          )}
+
+          {/* Error Display */}
+          {execError && !isExecLoading && (
+            <div className="max-w-lg mt-5 mx-auto text-left bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/40 rounded-2xl p-6 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+                  <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-red-800 dark:text-red-300 mb-2">Thực thi thất bại</h4>
+                  <pre className="text-sm text-red-700 dark:text-red-400 bg-red-100/50 dark:bg-red-900/20 rounded-xl p-4 whitespace-pre-wrap break-words font-mono border border-red-200/50 dark:border-red-800/30 max-h-48 overflow-auto custom-scrollbar">
+                    {execError}
+                  </pre>
+                </div>
+              </div>
+              <div className="mt-4 flex gap-3 justify-end">
+                <Button 
+                  onClick={onExecuteCode}
+                  variant="outline"
+                  className="px-6 py-3 rounded-xl font-bold"
+                >
+                  <Play className="w-4 h-4 mr-2 fill-current" /> Thử Lại
+                </Button>
+                <Button 
+                  onClick={() => onUseErrorAsFeedback(execError)}
+                  className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold shadow-lg shadow-red-500/20 transition-all hover:scale-[1.02]"
+                >
+                  <CornerDownLeft className="w-4 h-4 mr-2" /> Dùng làm Feedback để Sinh Lại Code
+                </Button>
+              </div>
             </div>
           )}
 

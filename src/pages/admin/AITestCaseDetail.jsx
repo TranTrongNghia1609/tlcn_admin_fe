@@ -37,11 +37,13 @@ const AITestCaseDetail = () => {
   const [outputCode, setOutputCode] = useState('');
   const [feedback, setFeedback] = useState('');
   const [isCodeLoading, setIsCodeLoading] = useState(false);
+  const [codeError, setCodeError] = useState('');
 
   // Phase 3: Execution
   const [testCaseUrl, setTestCaseUrl] = useState('');
   const [isExecLoading, setIsExecLoading] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [execError, setExecError] = useState('');
 
   // Fetch existing data if ID exists
   useEffect(() => {
@@ -120,9 +122,12 @@ const AITestCaseDetail = () => {
         if (data.status === 'done') {
           setInputCode(data.inputCode || '');
           setOutputCode(data.outputCode || '');
+          setCodeError('');
           toast.success('Sinh mã Code Generator thành công!');
           setCurrentPhase(3);
         } else {
+          const errorMsg = data.error || 'Sinh mã thất bại! Không có thông tin lỗi chi tiết.';
+          setCodeError(errorMsg);
           toast.error('Sinh mã thất bại!');
         }
       }
@@ -133,9 +138,12 @@ const AITestCaseDetail = () => {
         setIsExecLoading(false);
         if (data.status === 'done' && !data.error) {
           setTestCaseUrl(data.s3Key || '');
+          setExecError('');
           toast.success(`Thực thi thành công! Đã tạo ${data.testCount} test cases.`);
         } else {
-          toast.error(`Thực thi thất bại: ${data.error || 'Lỗi không xác định'}`);
+          const errorMsg = data.error || 'Lỗi không xác định';
+          setExecError(errorMsg);
+          toast.error(`Thực thi thất bại: ${errorMsg}`);
         }
       }
     };
@@ -194,6 +202,8 @@ const AITestCaseDetail = () => {
     if (!workflowId) return;
     try {
       setIsCodeLoading(true);
+      setCodeError('');
+      setExecError('');
       if (feedback.trim()) {
         await aiTestCaseService.regenerateCode(workflowId, { feedback });
         toast.info('Đang yêu cầu AI sinh lại mã với feedback...');
@@ -206,6 +216,13 @@ const AITestCaseDetail = () => {
       toast.error('Lỗi khi gọi API Code Generate');
       setIsCodeLoading(false);
     }
+  };
+
+  const handleUseErrorAsFeedback = (errorMsg) => {
+    setFeedback(errorMsg);
+    setCodeError('');
+    setExecError('');
+    setCurrentPhase(2);
   };
 
   const handleExecuteCode = async () => {
@@ -289,7 +306,9 @@ const AITestCaseDetail = () => {
           isDark={isDark}
           feedback={feedback}
           setFeedback={setFeedback}
+          codeError={codeError}
           onGenerateCode={handleGenerateCode}
+          onUseErrorAsFeedback={handleUseErrorAsFeedback}
           onPhaseClick={() => (planCategories.length > 0) && setCurrentPhase(2)}
           onContinue={() => setCurrentPhase(3)}
         />
@@ -300,9 +319,11 @@ const AITestCaseDetail = () => {
           isExecLoading={isExecLoading}
           isDownloading={isDownloading}
           inputCode={inputCode}
+          execError={execError}
           onPhaseClick={() => (inputCode) && setCurrentPhase(3)}
           onExecuteCode={handleExecuteCode}
           onDownload={handleDownload}
+          onUseErrorAsFeedback={handleUseErrorAsFeedback}
         />
       </div>
     </div>
