@@ -42,7 +42,8 @@ const ProblemForm = ({
 }) => {
   const navigate = useNavigate();
   const [isUploading, setIsUploading] = useState(false);
-  
+  const [createdProblemId, setCreatedProblemId] = useState(null);
+  console.log("Init: ", initialData)
   const [formData, setFormData] = useState({
     name: '',
     statement: '',
@@ -183,6 +184,38 @@ const ProblemForm = ({
     });
   }, []);
 
+  const validateStatementSection = () => {
+    if (!formData.name.trim()) {
+      toast.error('Vui lòng nhập tên bài tập');
+      return false;
+    }
+    if (!formData.statement.trim()) {
+      toast.error('Vui lòng nhập đề bài');
+      return false;
+    }
+    if (!formData.input.trim()) {
+      toast.error('Vui lòng nhập mô tả input');
+      return false;
+    }
+    if (!formData.output.trim()) {
+      toast.error('Vui lòng nhập mô tả output');
+      return false;
+    }
+    if (formData.tags.length === 0) {
+      toast.error('Vui lòng thêm ít nhất 1 tag');
+      return false;
+    }
+    if (formData.time < 0.1 || formData.time > 10) {
+      toast.error('Time limit phải từ 0.1 đến 10 giây');
+      return false;
+    }
+    if (formData.memory < 128 || formData.memory > 2048) {
+      toast.error('Memory limit phải từ 128 đến 2048 MB');
+      return false;
+    }
+    return true;
+  };
+
   const handleCancel = () => {
     if (isInContestMode) {
       onProblemCreated?.(null);
@@ -193,7 +226,40 @@ const ProblemForm = ({
     }
   };
 
+  // Creates the problem if it doesn't exist yet (for AI test case generation)
+  const handleEnsureProblemCreated = async () => {
+    // Edit mode: problem already exists
+    if (mode === 'edit' && initialData?._id) {
+      return initialData._id;
+    }
+
+    // Already created via a previous AI tab switch
+    if (createdProblemId) {
+      return createdProblemId;
+    }
+
+    // Create mode: create the problem now
+    if (!validateStatementSection()) {
+      throw new Error("Validation failed");
+    }
+
+    try {
+      const response = await createProblem(formData);
+      const newId = response.data._id;
+      setCreatedProblemId(newId);
+      toast.success('Đã tạo bài tập để liên kết với AI Testcase');
+      return newId;
+    } catch (error) {
+      toast.error('Không thể tạo bài tập. Vui lòng kiểm tra lại thông tin.');
+      throw error;
+    }
+  };
+
   const handleUploadTest = async (file) => {
+    if (!validateStatementSection()) {
+      return;
+    }
+
     const ratingVal = Number(formData.rating || 100);
     if (isNaN(ratingVal) || ratingVal < 100 || ratingVal > 1000) {
       toast.error('Rating must be an integer between 100 and 1000');
@@ -204,17 +270,25 @@ const ProblemForm = ({
   
     try {
       let createdProblem = null;
+      let problemIdToUse = createdProblemId;
 
       const actionPromise = mode === 'create'
         ? (async () => {
-            const response = await createProblem(formData);
-            const id = response.data._id;
-            createdProblem = response.data;
-            
-            if (file != null) {
-              await uploadTestCase(id, file);
+            if (problemIdToUse) {
+              // Problem already created via AI tab; update it and upload test cases
+              await updateProblem(problemIdToUse, formData);
+              if (file != null) {
+                await uploadTestCase(problemIdToUse, file);
+              }
+            } else {
+              const response = await createProblem(formData);
+              const id = response.data._id;
+              createdProblem = response.data;
+              problemIdToUse = id;
+              if (file != null) {
+                await uploadTestCase(id, file);
+              }
             }
-            return response;
           })()
         : (async () => {
             await updateProblem(initialData._id, formData);
@@ -342,6 +416,10 @@ const ProblemForm = ({
                   onHandleUpload={handleUploadTest}
                   isUpdate={mode === 'edit'}
                   zipName={initialData?.zipName}
+                  problemId={mode === 'edit' ? initialData?._id : createdProblemId}
+                  workflowId={mode === 'edit' ? initialData?.testCasePlanId : null}
+                  onEnsureProblemCreated={handleEnsureProblemCreated}
+                  initialPlanData={formData}
                 />
               </div>
               <div className="flex pt-6 justify-between gap-4">

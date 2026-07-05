@@ -2,7 +2,10 @@ import API from '../utils/api';
 
 export const aiTestCaseService = {
   // Phase 1: Planning
-  createPlan: async (payload) => {
+  createPlan: async (payload, problemId = null) => {
+    if (problemId)
+      payload.problemId = problemId;
+
     const response = await API.post('/test-case/plan', payload);
     return response.data;
   },
@@ -48,6 +51,11 @@ export const aiTestCaseService = {
   // Download: get presigned S3 URL and trigger download
   downloadTestCase: async (workflowId, payload = { version: 1 }) => {
     const response = await API.get(`/test-case/download/${workflowId}`, payload);
+    return response.data;
+  },
+
+  applyTestCase: async (workflowId, version = null) => {
+    const response = await API.post(`/test-case/apply/${workflowId}`, {version: version})
     return response.data;
   }
 };

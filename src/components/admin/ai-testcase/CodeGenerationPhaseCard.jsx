@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Terminal, Bot, RefreshCw, Send, ArrowRight, AlertTriangle, CornerDownLeft } from 'lucide-react';
+import { Terminal, Bot, RefreshCw, Send, ArrowRight, AlertTriangle, CornerDownLeft, History } from 'lucide-react';
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
@@ -20,7 +20,9 @@ const CodeGenerationPhaseCard = ({
   onGenerateCode,
   onUseErrorAsFeedback,
   onPhaseClick,
-  onContinue
+  onContinue,
+  selectedVersionNumber,
+  onGoToVersions
 }) => {
   return (
     <Card className={`overflow-hidden border-0 shadow-2xl transition-all duration-500 ${currentPhase === 2 ? 'ring-2 ring-purple-500 ring-offset-4 ring-offset-slate-50 dark:ring-offset-slate-950' : 'opacity-70 grayscale-[30%] hover:grayscale-0'}`}>
@@ -29,6 +31,11 @@ const CodeGenerationPhaseCard = ({
         <h2 className="text-xl font-bold flex items-center gap-2 text-slate-800 dark:text-slate-100">
           <span className="bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-400 p-1.5 rounded-lg">2</span> 
           Sinh Mã (Code Generation)
+          {selectedVersionNumber && (
+            <span className="ml-2 text-xs font-semibold px-2.5 py-1 bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">
+              Đang xem Version #{selectedVersionNumber}
+            </span>
+          )}
         </h2>
       </div>
       
@@ -136,8 +143,13 @@ const CodeGenerationPhaseCard = ({
                 </Button>
               </div>
               
-              <div className="mt-6 flex justify-end border-t border-purple-200/50 dark:border-purple-800/30 pt-6">
-                <Button onClick={onContinue} className="px-8 py-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-500/30 text-base">
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-purple-200/50 dark:border-purple-800/30 pt-6">
+                {onGoToVersions && (
+                  <Button onClick={onGoToVersions} variant="outline" className="px-6 py-6 rounded-xl border-purple-300 dark:border-purple-700 font-bold text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950">
+                    <History className="w-4 h-4 mr-2" /> Xem Lịch Sử Phiên Bản (Bước 4)
+                  </Button>
+                )}
+                <Button onClick={onContinue} className="px-8 py-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-500/30 text-base ml-auto">
                   Chốt Code & Tiếp Tục <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
