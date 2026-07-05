@@ -2,6 +2,13 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Bot, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
+import remarkMath from 'remark-math';
 
 const PlanningPhaseCard = ({
   currentPhase,
@@ -22,6 +29,7 @@ const PlanningPhaseCard = ({
   onGeneratePlan,
   onPhaseClick,
   onContinue,
+  selectedVersionNumber
 }) => {
   return (
     <Card className={`overflow-hidden border-0 shadow-2xl transition-all duration-500 ${currentPhase === 1 ? 'ring-2 ring-indigo-500 ring-offset-4 ring-offset-slate-50 dark:ring-offset-slate-950' : 'opacity-70 grayscale-[30%] hover:grayscale-0'}`}>
@@ -30,6 +38,11 @@ const PlanningPhaseCard = ({
         <h2 className="text-xl font-bold flex items-center gap-2 text-slate-800 dark:text-slate-100">
           <span className="bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-400 p-1.5 rounded-lg">1</span> 
           Thông tin bài toán & Kế hoạch
+          {selectedVersionNumber && (
+            <span className="ml-2 text-xs font-semibold px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 rounded-full border border-indigo-200 dark:border-indigo-800">
+              Plan cho Version #{selectedVersionNumber}
+            </span>
+          )}
         </h2>
       </div>
       
@@ -39,31 +52,85 @@ const PlanningPhaseCard = ({
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Đề bài / Statement <span className="text-red-500">*</span></label>
-                <textarea 
-                  className="w-full h-32 rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm p-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none shadow-inner"
-                  placeholder="Nhập nội dung đề bài thuật toán vào đây..."
-                  value={statement}
-                  onChange={e => setStatement(e.target.value)}
-                />
+                <Tabs defaultValue="edit" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2 mb-2">
+                    <TabsTrigger value="edit">Edit</TabsTrigger>
+                    <TabsTrigger value="preview">Preview</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="edit">
+                    <textarea 
+                      className="w-full h-32 rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm p-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all resize-none shadow-inner"
+                      placeholder="Nhập nội dung đề bài thuật toán vào đây..."
+                      value={statement}
+                      onChange={e => setStatement(e.target.value)}
+                    />
+                  </TabsContent>
+                  <TabsContent value="preview">
+                    <div className="w-full h-32 overflow-y-auto rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 prose dark:prose-invert max-w-none text-sm text-left">
+                      <ReactMarkdown
+                          remarkPlugins={[remarkGfm, remarkMath]}
+                          rehypePlugins={[rehypeRaw, rehypeKatex]}
+                      >
+                        {statement?.replace(/\\n/g, '\n')}
+                      </ReactMarkdown>
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Input Constraints</label>
-                  <textarea 
-                    className="w-full h-24 rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm p-3 focus:ring-2 focus:ring-indigo-500 transition-all resize-none"
-                    placeholder="VD: 1 <= N <= 10^5"
-                    value={inputConstraint}
-                    onChange={e => setInputConstraint(e.target.value)}
-                  />
+                  <Tabs defaultValue="edit" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-2">
+                      <TabsTrigger value="edit">Edit</TabsTrigger>
+                      <TabsTrigger value="preview">Preview</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="edit">
+                      <textarea 
+                        className="w-full h-24 rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm p-3 focus:ring-2 focus:ring-indigo-500 transition-all resize-none"
+                        placeholder="VD: 1 <= N <= 10^5"
+                        value={inputConstraint}
+                        onChange={e => setInputConstraint(e.target.value)}
+                      />
+                    </TabsContent>
+                    <TabsContent value="preview">
+                      <div className="w-full h-24 overflow-y-auto rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 prose dark:prose-invert max-w-none text-sm text-left">
+                        <ReactMarkdown
+                            remarkPlugins={[remarkGfm, remarkMath]}
+                            rehypePlugins={[rehypeRaw, rehypeKatex]}
+                        >
+                          {inputConstraint?.replace(/\\n/g, '\n')}
+                        </ReactMarkdown>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Output Constraints</label>
-                  <textarea 
-                    className="w-full h-24 rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm p-3 focus:ring-2 focus:ring-indigo-500 transition-all resize-none"
-                    placeholder="Định dạng kết quả đầu ra"
-                    value={outputConstraint}
-                    onChange={e => setOutputConstraint(e.target.value)}
-                  />
+                  <Tabs defaultValue="edit" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-2">
+                      <TabsTrigger value="edit">Edit</TabsTrigger>
+                      <TabsTrigger value="preview">Preview</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="edit">
+                      <textarea 
+                        className="w-full h-24 rounded-xl border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-sm p-3 focus:ring-2 focus:ring-indigo-500 transition-all resize-none"
+                        placeholder="Định dạng kết quả đầu ra"
+                        value={outputConstraint}
+                        onChange={e => setOutputConstraint(e.target.value)}
+                      />
+                    </TabsContent>
+                    <TabsContent value="preview">
+                      <div className="w-full h-24 overflow-y-auto rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 prose dark:prose-invert max-w-none text-sm text-left">
+                        <ReactMarkdown
+                            remarkPlugins={[remarkGfm, remarkMath]}
+                            rehypePlugins={[rehypeRaw, rehypeKatex]}
+                        >
+                          {outputConstraint?.replace(/\\n/g, '\n')}
+                        </ReactMarkdown>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
