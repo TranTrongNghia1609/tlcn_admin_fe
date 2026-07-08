@@ -45,6 +45,9 @@ const AITestCaseWorkflow = ({
   const [feedback, setFeedback] = useState('');
   const [isCodeLoading, setIsCodeLoading] = useState(false);
   const [codeError, setCodeError] = useState('');
+  const [mode, setMode] = useState('ai'); // 'ai' or 'user-solution'
+  const [solutionCode, setSolutionCode] = useState('');
+  const [codeVersionMode, setCodeVersionMode] = useState('ai');
 
   // Phase 3: Execution
   const [testCaseUrl, setTestCaseUrl] = useState('');
@@ -95,6 +98,11 @@ const AITestCaseWorkflow = ({
                   const lastCode = codeData.versions?.[codeData.versions.length - 1];
                   if (lastCode) {
                     setSelectedVersionNumber(lastCode.versionNumber);
+                    setCodeVersionMode(lastCode.mode || 'ai');
+                    setMode(lastCode.mode || 'ai');
+                    if (lastCode.mode === 'user-solution' && lastCode.outputCode) {
+                      setSolutionCode(lastCode.outputCode);
+                    }
                   }
                   if (lastCode && (lastCode.planVersionNumber == lastVersion?.versionNumber || lastCode?.inputCode)) {
                     setInputCode(lastCode.inputCode || '');
@@ -149,6 +157,11 @@ const AITestCaseWorkflow = ({
         if (data.status === 'done') {
           setInputCode(data.inputCode || '');
           setOutputCode(data.outputCode || '');
+          setCodeVersionMode(data.mode || 'ai');
+          setMode(data.mode || 'ai');
+          if (data.mode === 'user-solution' && data.outputCode) {
+            setSolutionCode(data.outputCode);
+          }
           setCodeError('');
           toast.success('Sinh mã Code Generator thành công!');
           setCurrentPhase(3);
@@ -162,7 +175,14 @@ const AITestCaseWorkflow = ({
           if (res?.data?.versions) {
             setCodeVersions(res.data.versions);
             const lastCode = res.data.versions[res.data.versions.length - 1];
-            if (lastCode) setSelectedVersionNumber(lastCode.versionNumber);
+            if (lastCode) {
+              setSelectedVersionNumber(lastCode.versionNumber);
+              setCodeVersionMode(lastCode.mode || 'ai');
+              setMode(lastCode.mode || 'ai');
+              if (lastCode.mode === 'user-solution' && lastCode.outputCode) {
+                setSolutionCode(lastCode.outputCode);
+              }
+            }
           }
         } catch(err) {}
       }
@@ -186,7 +206,14 @@ const AITestCaseWorkflow = ({
           if (res?.data?.versions) {
             setCodeVersions(res.data.versions);
             const lastCode = res.data.versions[res.data.versions.length - 1];
-            if (lastCode) setSelectedVersionNumber(lastCode.versionNumber);
+            if (lastCode) {
+              setSelectedVersionNumber(lastCode.versionNumber);
+              setCodeVersionMode(lastCode.mode || 'ai');
+              setMode(lastCode.mode || 'ai');
+              if (lastCode.mode === 'user-solution' && lastCode.outputCode) {
+                setSolutionCode(lastCode.outputCode);
+              }
+            }
           }
         } catch(err) {}
       }
@@ -248,17 +275,30 @@ const AITestCaseWorkflow = ({
 
   const handleGenerateCode = async () => {
     if (!workflowId) return;
+    if (mode === 'user-solution' && !solutionCode.trim()) {
+      toast.warning('Vui lòng nhập code Lời giải Python khi sử dụng chế độ User Solution!');
+      return;
+    }
     try {
       setIsCodeLoading(true);
       setCodeError('');
       setExecError('');
+      
+      const payload = { mode };
+      if (mode === 'user-solution') {
+        payload.solutionCode = solutionCode;
+      }
       if (feedback.trim()) {
-        await aiTestCaseService.regenerateCode(workflowId, { feedback });
-        toast.info('Đang yêu cầu AI sinh lại mã với feedback...');
+        payload.feedback = feedback;
+      }
+
+      if (feedback.trim() || inputCode || codeVersions.length > 0) {
+        await aiTestCaseService.regenerateCode(workflowId, payload);
+        toast.info('Đang yêu cầu hệ thống sinh lại mã...');
         setFeedback('');
       } else {
-        await aiTestCaseService.generateCode(workflowId);
-        toast.info('Đang yêu cầu AI sinh mã...');
+        await aiTestCaseService.generateCode(workflowId, payload);
+        toast.info('Đang yêu cầu hệ thống sinh mã...');
       }
     } catch (error) {
       toast.error('Lỗi khi gọi API Code Generate');
@@ -342,6 +382,8 @@ const AITestCaseWorkflow = ({
       setExecError('');
       setTestCaseUrl('');
       setSelectedVersionNumber(null);
+      setCodeVersionMode('ai');
+      setMode('ai');
       setCurrentPhase(2);
       toast.info(`Đã chuyển sang Bước 2 với Kế hoạch Version #${planObj.versionNumber}. Hãy nhấn "Sinh Mã"!`);
       return;
@@ -361,6 +403,11 @@ const AITestCaseWorkflow = ({
     setInputCode(ver.inputCode || '');
     setOutputCode(ver.outputCode || '');
     setFeedback(ver.feedback || '');
+    setCodeVersionMode(ver.mode || 'ai');
+    setMode(ver.mode || 'ai');
+    if (ver.mode === 'user-solution' && ver.outputCode) {
+      setSolutionCode(ver.outputCode);
+    }
     if (ver.isSuccessful === false && ver.errorMessage) {
       setCodeError(ver.errorMessage);
     } else {
@@ -445,6 +492,11 @@ const AITestCaseWorkflow = ({
           onContinue={() => setCurrentPhase(3)}
           selectedVersionNumber={selectedVersionNumber}
           onGoToVersions={() => (planVersions.length > 0 || codeVersions.length > 0) && setCurrentPhase(4)}
+          mode={mode}
+          setMode={setMode}
+          solutionCode={solutionCode}
+          setSolutionCode={setSolutionCode}
+          codeVersionMode={codeVersionMode}
         />
 
         <ExecutionPhaseCard 
