@@ -26,8 +26,8 @@ export const aiTestCaseService = {
   },
 
   // Phase 2: Code Generation
-  generateCode: async (workflowId) => {
-    const response = await API.post(`/test-case/code-generate/${workflowId}`);
+  generateCode: async (workflowId, payload = {}) => {
+    const response = await API.post(`/test-case/code-generate/${workflowId}`, payload);
     return response.data;
   },
 
@@ -37,7 +37,7 @@ export const aiTestCaseService = {
   },
 
   regenerateCode: async (workflowId, payload) => {
-    // payload should contain { feedback }
+    // payload can contain { feedback, mode, solutionCode }
     const response = await API.put(`/test-case/code-generate/${workflowId}`, payload);
     return response.data;
   },

@@ -221,6 +221,18 @@ const VersionsPhaseCard = ({
                                         Source: <strong className="text-slate-900 dark:text-white">{ver.source || 'AI'}</strong>
                                       </div>
                                       
+                                      {ver.mode === 'user-solution' ? (
+                                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold border border-indigo-200/60 dark:border-indigo-800/50">
+                                          <Code className="w-3 h-3 text-indigo-600 dark:text-indigo-400" /> 
+                                          Mode: <strong className="text-indigo-900 dark:text-indigo-200">User Solution</strong>
+                                        </div>
+                                      ) : (
+                                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-[11px] font-medium border border-purple-200/60 dark:border-purple-800/50">
+                                          <Bot className="w-3 h-3 text-purple-600 dark:text-purple-400" /> 
+                                          Mode: <strong className="text-purple-900 dark:text-purple-200">AI Tự động</strong>
+                                        </div>
+                                      )}
+
                                       {hasZip ? (
                                         <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold border border-emerald-200/60 dark:border-emerald-800/50">
                                           <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> 
