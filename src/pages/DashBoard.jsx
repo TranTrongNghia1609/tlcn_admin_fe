@@ -90,18 +90,14 @@ const Dashboard = () => {
 
   const isPositiveGrowth = parseFloat(overviewStats.growthRate) >= 0;
 
-  const StatCard = ({ icon: Icon, title, value, subtitle, gradient, iconBg, badge, badgeColor }) => (
-    <div className={`relative overflow-hidden rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${gradient}`}>
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 -translate-y-8 translate-x-8"
-        style={{ background: 'rgba(255,255,255,0.4)' }} />
-      <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full opacity-10 translate-y-6 -translate-x-6"
-        style={{ background: 'rgba(255,255,255,0.3)' }} />
+  const StatCard = ({ icon: Icon, title, value, subtitle, iconColor, iconBg, badge, badgeColor }) => (
+    <div className="relative overflow-hidden rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+      <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-[0.03] dark:opacity-[0.05] -translate-y-4 translate-x-4 bg-slate-900 dark:bg-white" />
 
       <div className="relative z-10">
         <div className="flex items-start justify-between mb-4">
-          <div className={`p-3 rounded-xl ${iconBg} backdrop-blur-sm`}>
-            <Icon className="h-6 w-6 text-white" />
+          <div className={`p-3 rounded-xl ${iconBg}`}>
+            <Icon className={`h-6 w-6 ${iconColor}`} />
           </div>
           {badge && (
             <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${badgeColor}`}>
@@ -112,13 +108,13 @@ const Dashboard = () => {
 
         <div className="space-y-1">
           {loadingStats ? (
-            <div className="animate-pulse bg-white/30 h-9 w-24 rounded-lg" />
+            <div className="animate-pulse bg-slate-200 dark:bg-slate-700 h-9 w-24 rounded-lg" />
           ) : (
-            <p className="text-3xl font-black text-white tracking-tight">{value}</p>
+            <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{value}</p>
           )}
-          <p className="text-sm font-semibold text-white/90">{title}</p>
+          <p className="text-sm font-semibold text-gray-600 dark:text-slate-300">{title}</p>
           {subtitle && (
-            <p className="text-xs text-white/70 mt-1">{loadingStats ? '...' : subtitle}</p>
+            <p className="text-xs text-gray-400 dark:text-slate-400 mt-1">{loadingStats ? '...' : subtitle}</p>
           )}
         </div>
       </div>
@@ -130,12 +126,7 @@ const Dashboard = () => {
       <div className="p-6 lg:p-8 space-y-8 max-w-[1600px] mx-auto">
 
         {/* ── Header ── */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 p-7 shadow-xl text-white">
-          {/* Decorative blobs */}
-          <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -translate-y-20 translate-x-20"
-            style={{ background: 'radial-gradient(circle, white, transparent)' }} />
-          <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full opacity-10 translate-y-12"
-            style={{ background: 'radial-gradient(circle, white, transparent)' }} />
+        <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-7 shadow-xl text-white">
 
           <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
             <div>
@@ -164,40 +155,40 @@ const Dashboard = () => {
             title="Người dùng"
             value={loadingStats ? '...' : overviewStats.totalUsers.toLocaleString()}
             subtitle={`${overviewStats.activeUsers.toLocaleString()} đang hoạt động`}
-            gradient="bg-gradient-to-br from-blue-500 to-indigo-600"
-            iconBg="bg-white/20"
+            iconColor="text-blue-500"
+            iconBg="bg-blue-50 dark:bg-blue-900/30"
             badge={formatGrowthRate(overviewStats.growthRate)}
-            badgeColor={isPositiveGrowth ? "bg-emerald-400/20 text-emerald-300 border border-emerald-400/40" : "bg-red-400/20 text-red-300 border border-red-400/40"}
+            badgeColor={isPositiveGrowth ? "bg-emerald-50 text-emerald-600 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-700" : "bg-red-50 text-red-600 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-700"}
           />
           <StatCard
             icon={Code2}
             title="Bài tập"
             value={loadingStats ? '...' : overviewStats.totalProblems.toLocaleString()}
             subtitle="Tổng số bài tập trong hệ thống"
-            gradient="bg-gradient-to-br from-emerald-500 to-teal-600"
-            iconBg="bg-white/20"
+            iconColor="text-emerald-500"
+            iconBg="bg-emerald-50 dark:bg-emerald-900/30"
             badge="Bài tập"
-            badgeColor="bg-white/20 text-white border border-white/30"
+            badgeColor="bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600"
           />
           <StatCard
             icon={Trophy}
             title="Kỳ thi"
             value={loadingStats ? '...' : overviewStats.totalContests.toLocaleString()}
             subtitle="Đã tổ chức trong hệ thống"
-            gradient="bg-gradient-to-br from-purple-500 to-pink-600"
-            iconBg="bg-white/20"
+            iconColor="text-violet-500"
+            iconBg="bg-violet-50 dark:bg-violet-900/30"
             badge="Kỳ thi"
-            badgeColor="bg-white/20 text-white border border-white/30"
+            badgeColor="bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600"
           />
           <StatCard
             icon={Target}
             title="Lượt nộp bài"
             value={loadingStats ? '...' : overviewStats.totalSubmissions.toLocaleString()}
             subtitle={`Tỷ lệ AC: ${loadingStats ? '...' : overviewStats.acceptanceRate.toFixed(1)}%`}
-            gradient="bg-gradient-to-br from-orange-500 to-red-500"
-            iconBg="bg-white/20"
+            iconColor="text-orange-500"
+            iconBg="bg-orange-50 dark:bg-orange-900/30"
             badge={loadingStats ? '...' : `${overviewStats.acceptanceRate.toFixed(1)}% AC`}
-            badgeColor="bg-white/20 text-white border border-white/30"
+            badgeColor="bg-orange-50 text-orange-600 border border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700"
           />
         </div>
 

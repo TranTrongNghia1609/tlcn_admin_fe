@@ -16,11 +16,11 @@ import TablePagination from '@/components/common/TablePagination';
 
 // ─── Skeleton Components ──────────────────────────────────────────────────────
 const StatCardSkeleton = () => (
-  <div className="relative overflow-hidden rounded-2xl p-6 shadow-lg bg-gradient-to-br from-slate-200 to-slate-300 animate-pulse">
-    <div className="h-10 w-10 rounded-xl bg-white/30 mb-4" />
-    <div className="h-9 w-20 bg-white/30 rounded-lg mb-2" />
-    <div className="h-4 w-28 bg-white/20 rounded mb-1" />
-    <div className="h-3 w-24 bg-white/20 rounded" />
+  <div className="relative overflow-hidden rounded-2xl p-6 shadow-md bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 animate-pulse">
+    <div className="h-12 w-12 rounded-xl bg-slate-200 dark:bg-slate-700 mb-4" />
+    <div className="h-9 w-20 bg-slate-200 dark:bg-slate-700 rounded-lg mb-2" />
+    <div className="h-4 w-28 bg-slate-100 dark:bg-slate-600 rounded mb-1" />
+    <div className="h-3 w-24 bg-slate-100 dark:bg-slate-600 rounded" />
   </div>
 );
 
@@ -164,22 +164,22 @@ const UserManagement = () => {
     {
       icon: Users, label: 'Tổng người dùng', value: stats.totalUsers,
       sub: `${stats.totalActive} đang hoạt động`,
-      gradient: 'from-indigo-500 to-blue-600', iconBg: 'bg-white/20'
+      iconColor: 'text-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/30'
     },
     {
       icon: GraduationCap, label: 'Giáo viên', value: stats.totalTeachers,
       sub: 'Đang giảng dạy',
-      gradient: 'from-emerald-500 to-teal-600', iconBg: 'bg-white/20'
+      iconColor: 'text-emerald-500', iconBg: 'bg-emerald-50 dark:bg-emerald-900/30'
     },
     {
       icon: Shield, label: 'Quản trị viên', value: stats.totalAdmins,
       sub: 'Đang quản lý',
-      gradient: 'from-purple-500 to-violet-600', iconBg: 'bg-white/20'
+      iconColor: 'text-violet-500', iconBg: 'bg-violet-50 dark:bg-violet-900/30'
     },
     {
       icon: UserCheck, label: 'Đang hoạt động', value: stats.totalActive,
       sub: `${stats.totalUsers > 0 ? Math.round((stats.totalActive / stats.totalUsers) * 100) : 0}% tổng số`,
-      gradient: 'from-orange-500 to-red-500', iconBg: 'bg-white/20'
+      iconColor: 'text-orange-500', iconBg: 'bg-orange-50 dark:bg-orange-900/30'
     },
   ];
 
@@ -188,11 +188,7 @@ const UserManagement = () => {
       <div className="p-6 lg:p-8 space-y-8 max-w-[1800px] mx-auto">
 
         {/* ── Header ── */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 p-7 shadow-xl text-white">
-          <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -translate-y-20 translate-x-20"
-            style={{ background: 'radial-gradient(circle, white, transparent)' }} />
-          <div className="absolute bottom-0 left-1/4 w-48 h-48 rounded-full opacity-10 translate-y-12"
-            style={{ background: 'radial-gradient(circle, white, transparent)' }} />
+        <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-7 shadow-xl text-white">
           <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-3xl font-black text-white mb-2">Quản lý người dùng</h1>
@@ -214,20 +210,17 @@ const UserManagement = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
           {statsLoading
             ? [...Array(4)].map((_, i) => <StatCardSkeleton key={i} />)
-            : statCards.map(({ icon: Icon, label, value, sub, gradient, iconBg }) => (
+            : statCards.map(({ icon: Icon, label, value, sub, iconColor, iconBg }) => (
               <div key={label}
-                className={`relative overflow-hidden rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-gradient-to-br ${gradient}`}>
-                <div className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10 -translate-y-8 translate-x-8"
-                  style={{ background: 'rgba(255,255,255,0.4)' }} />
-                <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full opacity-10 translate-y-6 -translate-x-6"
-                  style={{ background: 'rgba(255,255,255,0.3)' }} />
+                className="relative overflow-hidden rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+                <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-[0.03] dark:opacity-[0.05] -translate-y-4 translate-x-4 bg-slate-900 dark:bg-white" />
                 <div className="relative z-10">
-                  <div className={`inline-flex p-3 rounded-xl ${iconBg} backdrop-blur-sm mb-4`}>
-                    <Icon className="h-6 w-6 text-white" />
+                  <div className={`inline-flex p-3 rounded-xl ${iconBg} mb-4`}>
+                    <Icon className={`h-6 w-6 ${iconColor}`} />
                   </div>
-                  <p className="text-3xl font-black text-white tracking-tight">{value.toLocaleString()}</p>
-                  <p className="text-sm font-semibold text-white/90 mt-1">{label}</p>
-                  <p className="text-xs text-white/70 mt-1 flex items-center gap-1">
+                  <p className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{value.toLocaleString()}</p>
+                  <p className="text-sm font-semibold text-gray-600 dark:text-slate-300 mt-1">{label}</p>
+                  <p className="text-xs text-gray-400 dark:text-slate-400 mt-1 flex items-center gap-1">
                     <TrendingUp className="h-3 w-3" />{sub}
                   </p>
                 </div>

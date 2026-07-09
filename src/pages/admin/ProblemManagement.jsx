@@ -122,11 +122,7 @@ const ProblemManagement = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-8 max-w-full mx-auto">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 p-7 shadow-xl text-white">
-        <div className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 -translate-y-20 translate-x-20"
-          style={{ background: 'radial-gradient(circle, white, transparent)' }} />
-        <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full opacity-10 translate-y-12"
-          style={{ background: 'radial-gradient(circle, white, transparent)' }} />
+      <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-7 shadow-xl text-white">
 
         <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
           <div>
