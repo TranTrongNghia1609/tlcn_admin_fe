@@ -221,7 +221,12 @@ const VersionsPhaseCard = ({
                                         Source: <strong className="text-slate-900 dark:text-white">{ver.source || 'AI'}</strong>
                                       </div>
                                       
-                                      {ver.mode === 'user-solution' ? (
+                                      {ver.mode === 'merged' ? (
+                                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 text-[11px] font-bold border border-teal-200/60 dark:border-teal-800/50">
+                                          <Layers className="w-3 h-3 text-teal-600 dark:text-teal-400" /> 
+                                          Mode: <strong className="text-teal-900 dark:text-teal-200">Merged (AI + Manual)</strong>
+                                        </div>
+                                      ) : ver.mode === 'user-solution' ? (
                                         <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold border border-indigo-200/60 dark:border-indigo-800/50">
                                           <Code className="w-3 h-3 text-indigo-600 dark:text-indigo-400" /> 
                                           Mode: <strong className="text-indigo-900 dark:text-indigo-200">User Solution</strong>
@@ -230,6 +235,12 @@ const VersionsPhaseCard = ({
                                         <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-[11px] font-medium border border-purple-200/60 dark:border-purple-800/50">
                                           <Bot className="w-3 h-3 text-purple-600 dark:text-purple-400" /> 
                                           Mode: <strong className="text-purple-900 dark:text-purple-200">AI Tự động</strong>
+                                        </div>
+                                      )}
+
+                                      {(ver.testCases?.length > 0 || ver.totalTestCases > 0) && (
+                                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 text-[11px] font-bold border border-cyan-200/60 dark:border-cyan-800/50">
+                                          <span>{ver.testCases?.length || ver.totalTestCases} Testcases preview</span>
                                         </div>
                                       )}
 

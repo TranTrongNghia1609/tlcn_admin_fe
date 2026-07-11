@@ -57,5 +57,33 @@ export const aiTestCaseService = {
   applyTestCase: async (workflowId, version = null) => {
     const response = await API.post(`/test-case/apply/${workflowId}`, {version: version})
     return response.data;
+  },
+
+  // Manual Test Case CRUD
+  addManualTestCase: async (workflowId, payload) => {
+    const response = await API.post(`/test-case/manual/${workflowId}`, payload);
+    return response.data;
+  },
+
+  getManualTestCases: async (workflowId) => {
+    const response = await API.get(`/test-case/manual/${workflowId}`);
+    return response.data;
+  },
+
+  updateManualTestCase: async (workflowId, index, payload) => {
+    const response = await API.put(`/test-case/manual/${workflowId}/${index}`, payload);
+    return response.data;
+  },
+
+  deleteManualTestCase: async (workflowId, index) => {
+    const response = await API.delete(`/test-case/manual/${workflowId}/${index}`);
+    return response.data;
+  },
+
+  // Rebuild & Merge Zip
+  rebuildAndMergeTestCases: async (workflowId) => {
+    const response = await API.post(`/test-case/rebuild/${workflowId}`);
+    return response.data;
   }
 };
+
