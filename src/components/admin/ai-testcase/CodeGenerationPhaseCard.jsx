@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Terminal, Bot, RefreshCw, Send, ArrowRight, AlertTriangle, CornerDownLeft, History, Code, FileCode, Sparkles, Check, Info, Wand2 } from 'lucide-react';
+import { Terminal, Bot, RefreshCw, Send, ArrowRight, AlertTriangle, CornerDownLeft, History, Code, FileCode, Sparkles, Check, Info, Wand2, Maximize2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
@@ -27,8 +28,26 @@ const CodeGenerationPhaseCard = ({
   setMode,
   solutionCode = '',
   setSolutionCode,
-  codeVersionMode = 'ai'
+  codeVersionMode = 'ai',
+  setInputCode,
+  setOutputCode,
+  onUpdateCode,
+  isUpdatingCode,
+  codeVersions = []
 }) => {
+  const [fullScreenModal, setFullScreenModal] = useState(null); // null, 'input', or 'output'
+  const currentSavedVersion = (codeVersions || []).find(v => v.versionNumber === (selectedVersionNumber || 1)) || (codeVersions && codeVersions.length > 0 ? codeVersions[codeVersions.length - 1] : null);
+  const isDirty = Boolean(
+    (currentSavedVersion && inputCode !== (currentSavedVersion.inputCode || '')) ||
+    (currentSavedVersion && outputCode !== (currentSavedVersion.outputCode || ''))
+  );
+
+  const handleContinue = async () => {
+    if (isDirty && onUpdateCode) {
+      await onUpdateCode(inputCode, outputCode);
+    }
+    onContinue?.();
+  };
   return (
     <Card className={`overflow-hidden border-0 shadow-2xl transition-all duration-500 ${currentPhase === 2 ? 'ring-2 ring-purple-500 ring-offset-4 ring-offset-slate-50 dark:ring-offset-slate-950' : 'opacity-70 grayscale-[30%] hover:grayscale-0'}`}>
       <div className="bg-gradient-to-r from-slate-100 to-white dark:from-slate-900 dark:to-slate-800 border-b border-slate-200 dark:border-slate-700 px-8 py-5 flex justify-between items-center cursor-pointer"
@@ -38,7 +57,7 @@ const CodeGenerationPhaseCard = ({
           Sinh Mã (Code Generation)
           {selectedVersionNumber && (
             <span className="ml-2 text-xs font-semibold px-2.5 py-1 bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-300 rounded-full border border-purple-200 dark:border-purple-800">
-              Đang xem Version #{selectedVersionNumber}
+              Version Code #{selectedVersionNumber}
             </span>
           )}
         </h2>
@@ -241,16 +260,34 @@ const CodeGenerationPhaseCard = ({
                     ? 'bg-white dark:bg-indigo-900/60 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-200'
                     : 'bg-white dark:bg-purple-900/60 border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-200'
                 }`}>
-                  Version #{selectedVersionNumber || 1}
+                  Version Code #{selectedVersionNumber || 1}
                 </span>
               </div>
 
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {/* Input Code */}
-                <div className="space-y-2 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
-                  <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2 font-bold text-sm text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                    <span>Input Generator (Python)</span>
-                    <span className="text-[10px] bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-500">Read-only</span>
+                <div className={`space-y-2 border rounded-xl overflow-hidden shadow-sm transition-all ${
+                  isDirty && currentSavedVersion && inputCode !== (currentSavedVersion.inputCode || '')
+                    ? 'border-amber-400 dark:border-amber-600 ring-2 ring-amber-400/20'
+                    : 'border-slate-200 dark:border-slate-700'
+                }`}>
+                  <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2.5 font-bold text-sm text-slate-700 dark:text-slate-300 flex items-center justify-between border-b border-slate-200 dark:border-slate-700">
+                    <span className="flex items-center gap-2">
+                      <Code className="w-4 h-4 text-purple-600 dark:text-purple-400" /> Input Generator (Python)
+                    </span>
+                    <div className="flex items-center gap-2">
+                      
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => { e.stopPropagation(); setFullScreenModal('input'); }}
+                        className="h-7 px-2.5 text-xs font-bold bg-white dark:bg-slate-900 border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/80 shadow-sm flex items-center gap-1.5 transition-transform hover:scale-105"
+                        title="Mở popup to hơn để chỉnh sửa dễ dàng"
+                      >
+                        <Maximize2 className="w-3.5 h-3.5" /> Mở rộng
+                      </Button>
+                    </div>
                   </div>
                   <div className="h-[400px] overflow-auto custom-scrollbar">
                     <CodeMirror
@@ -258,17 +295,35 @@ const CodeGenerationPhaseCard = ({
                       height="400px"
                       extensions={[python()]}
                       theme={isDark ? vscodeDark : githubLight}
-                      editable={false}
+                      editable={true}
+                      onChange={(val) => setInputCode?.(val)}
                       className="text-sm"
                     />
                   </div>
                 </div>
 
                 {/* Output Code */}
-                <div className="space-y-2 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
-                  <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2 font-bold text-sm text-slate-700 dark:text-slate-300 flex items-center justify-between">
-                    <span>Output Generator (Python) - {codeVersionMode === 'user-solution' ? 'Lời giải của bạn' : 'Lời giải mẫu'}</span>
-                    <span className="text-[10px] bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-500">Read-only</span>
+                <div className={`space-y-2 border rounded-xl overflow-hidden shadow-sm transition-all ${
+                  isDirty && currentSavedVersion && outputCode !== (currentSavedVersion.outputCode || '')
+                    ? 'border-amber-400 dark:border-amber-600 ring-2 ring-amber-400/20'
+                    : 'border-slate-200 dark:border-slate-700'
+                }`}>
+                  <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2.5 font-bold text-sm text-slate-700 dark:text-slate-300 flex items-center justify-between border-b border-slate-200 dark:border-slate-700">
+                    <span className="flex items-center gap-2">
+                      <Code className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /> Output Generator (Python)
+                    </span>
+                    <div className="flex items-center gap-2"> 
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => { e.stopPropagation(); setFullScreenModal('output'); }}
+                        className="h-7 px-2.5 text-xs font-bold bg-white dark:bg-slate-900 border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/80 shadow-sm flex items-center gap-1.5 transition-transform hover:scale-105"
+                        title="Mở popup to hơn để chỉnh sửa dễ dàng"
+                      >
+                        <Maximize2 className="w-3.5 h-3.5" /> Mở rộng
+                      </Button>
+                    </div>
                   </div>
                   <div className="h-[400px] overflow-auto custom-scrollbar">
                     <CodeMirror
@@ -276,10 +331,72 @@ const CodeGenerationPhaseCard = ({
                       height="400px"
                       extensions={[python()]}
                       theme={isDark ? vscodeDark : githubLight}
-                      editable={false}
+                      editable={true}
+                      onChange={(val) => setOutputCode?.(val)}
                       className="text-sm"
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Edit & Save Code Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800/80 dark:to-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 shadow-sm">
+                    <Code className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                      <span>Chỉnh sửa trực tiếp Input & Output Code (Version Code #{selectedVersionNumber || 1})</span>
+                      {isDirty && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/80 dark:text-amber-200 border border-amber-300 dark:border-amber-700 animate-pulse">
+                          <AlertTriangle className="w-3 h-3" /> Chưa lưu thay đổi
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      Bạn có thể chỉnh sửa trực tiếp mã Python bên trên. Nhấn <strong>Lưu thay đổi Code</strong> để cập nhật lên hệ thống trước khi thực thi.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 ml-auto">
+                  {isDirty && currentSavedVersion && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setInputCode?.(currentSavedVersion.inputCode || '');
+                        setOutputCode?.(currentSavedVersion.outputCode || '');
+                      }}
+                      disabled={isUpdatingCode}
+                      className="h-9.5 px-3.5 text-xs font-bold border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl shadow-sm"
+                    >
+                      Khôi phục (Reset)
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => onUpdateCode?.(inputCode, outputCode)}
+                    disabled={!isDirty || isUpdatingCode}
+                    className={`h-9.5 px-5 text-xs font-extrabold rounded-xl shadow-md transition-all flex items-center gap-2 ${
+                      isDirty
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-orange-500/25 hover:scale-[1.02]'
+                        : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-slate-300 dark:border-slate-700'
+                    }`}
+                  >
+                    {isUpdatingCode ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Đang cập nhật...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4" /> Lưu thay đổi Code (Save)
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
             </div>
@@ -382,7 +499,7 @@ const CodeGenerationPhaseCard = ({
                     <History className="w-4 h-4 mr-2" /> Xem Lịch Sử Phiên Bản (Bước 4)
                   </Button>
                 )}
-                <Button onClick={onContinue} className="px-8 py-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-500/30 text-base ml-auto">
+                <Button onClick={handleContinue} className="px-8 py-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-lg shadow-emerald-500/30 text-base ml-auto">
                   Chốt Code & Tiếp Tục <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </div>
@@ -390,6 +507,110 @@ const CodeGenerationPhaseCard = ({
           )}
         </div>
       )}
+
+      {/* Full Screen Editor Dialog */}
+      <Dialog open={Boolean(fullScreenModal)} onOpenChange={(open) => !open && setFullScreenModal(null)}>
+        <DialogContent className="max-w-[92vw] sm:max-w-[88vw] h-[88vh] flex flex-col p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden focus:outline-none">
+          <DialogHeader className="flex flex-row items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+            <div className="flex items-center gap-3.5">
+              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 text-white shadow-md ${
+                fullScreenModal === 'input' ? 'bg-purple-600 shadow-purple-500/25' : 'bg-indigo-600 shadow-indigo-500/25'
+              }`}>
+                <Code className="w-6 h-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-black text-slate-800 dark:text-slate-100 flex items-center gap-2.5">
+                  <span>Chỉnh sửa toàn màn hình - {fullScreenModal === 'input' ? 'Input Generator (.in)' : 'Output Generator (.out)'}</span>
+                  {isDirty && (
+                    <span className="inline-flex items-center gap-1 text-xs font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/80 dark:text-amber-200 border border-amber-300 dark:border-amber-700 animate-pulse">
+                      <AlertTriangle className="w-3.5 h-3.5" /> Chưa lưu
+                    </span>
+                  )}
+                </DialogTitle>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                  Version Code #{selectedVersionNumber || 1} • {fullScreenModal === 'input' ? 'Mã Python sinh dữ liệu kiểm thử' : (codeVersionMode === 'user-solution' ? 'Mã Python Lời giải của bạn' : 'Mã Python Lời giải mẫu')}
+                </p>
+              </div>
+            </div>
+          </DialogHeader>
+
+          {/* Dialog Body */}
+          <div className="flex-1 min-h-0 overflow-hidden my-4 border border-slate-300 dark:border-slate-700 rounded-2xl shadow-inner bg-slate-50 dark:bg-slate-950 flex flex-col">
+            <div className="flex-1 min-h-0 overflow-auto custom-scrollbar">
+              <CodeMirror
+                value={fullScreenModal === 'input' ? inputCode : outputCode}
+                height="100%"
+                extensions={[python()]}
+                theme={isDark ? vscodeDark : githubLight}
+                editable={true}
+                onChange={(val) => {
+                  if (fullScreenModal === 'input') setInputCode?.(val);
+                  else setOutputCode?.(val);
+                }}
+                className="text-sm h-full"
+              />
+            </div>
+          </div>
+
+          {/* Dialog Footer */}
+          <DialogFooter className="flex flex-row items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800 shrink-0">
+            <div className="flex items-center gap-2">
+              {isDirty && currentSavedVersion && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (fullScreenModal === 'input') {
+                      setInputCode?.(currentSavedVersion.inputCode || '');
+                    } else {
+                      setOutputCode?.(currentSavedVersion.outputCode || '');
+                    }
+                  }}
+                  disabled={isUpdatingCode}
+                  className="h-10 px-4 text-xs font-bold border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Khôi phục khung này
+                </Button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setFullScreenModal(null)}
+                className="h-10 px-5 text-xs font-bold rounded-xl border-slate-300 dark:border-slate-700"
+              >
+                Đóng popup
+              </Button>
+
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => onUpdateCode?.(inputCode, outputCode)}
+                disabled={!isDirty || isUpdatingCode}
+                className={`h-10 px-6 text-xs font-black rounded-xl shadow-lg transition-all flex items-center gap-2 ${
+                  isDirty
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white shadow-orange-500/25 hover:scale-[1.02]'
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed border border-slate-300 dark:border-slate-700'
+                }`}
+              >
+                {isUpdatingCode ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" /> Đang cập nhật...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-4 h-4" /> Lưu thay đổi Code (Save)
+                  </>
+                )}
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

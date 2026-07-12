@@ -7,7 +7,7 @@ const API = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true,
-  timeout: 10000,
+  timeout: 60000,
 });
 // Hàm giải mã JWT và lấy thời gian hết hạn
 const getTokenExpirationTime = (token) => {

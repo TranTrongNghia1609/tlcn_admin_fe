@@ -9,12 +9,12 @@ export const aiTestCaseService = {
     const response = await API.post('/test-case/plan', payload);
     return response.data;
   },
-  
+
   getPlan: async (workflowId) => {
     const response = await API.get(`/test-case/plan/${workflowId}`);
     return response.data;
   },
-  
+
   regeneratePlan: async (workflowId, payload) => {
     const response = await API.put(`/test-case/plan/${workflowId}`, payload);
     return response.data;
@@ -38,7 +38,13 @@ export const aiTestCaseService = {
 
   regenerateCode: async (workflowId, payload) => {
     // payload can contain { feedback, mode, solutionCode }
-    const response = await API.put(`/test-case/code-generate/${workflowId}`, payload);
+    const response = await API.put(`/test-case/code-generate/${workflowId}/feedback`, payload);
+    return response.data;
+  },
+
+  updateCode: async (codeId, payload) => {
+    // payload: { inputCode, outputCode, version }
+    const response = await API.put(`/test-case/code-generate/${codeId}`, payload);
     return response.data;
   },
 
@@ -55,7 +61,35 @@ export const aiTestCaseService = {
   },
 
   applyTestCase: async (workflowId, version = null) => {
-    const response = await API.post(`/test-case/apply/${workflowId}`, {version: version})
+    const response = await API.post(`/test-case/apply/${workflowId}`, { version: version })
+    return response.data;
+  },
+
+  // Manual Test Case CRUD
+  addManualTestCase: async (workflowId, payload) => {
+    const response = await API.post(`/test-case/manual/${workflowId}`, payload);
+    return response.data;
+  },
+
+  getManualTestCases: async (workflowId) => {
+    const response = await API.get(`/test-case/manual/${workflowId}`);
+    return response.data;
+  },
+
+  updateManualTestCase: async (workflowId, index, payload) => {
+    const response = await API.put(`/test-case/manual/${workflowId}/${index}`, payload);
+    return response.data;
+  },
+
+  deleteManualTestCase: async (workflowId, index) => {
+    const response = await API.delete(`/test-case/manual/${workflowId}/${index}`);
+    return response.data;
+  },
+
+  // Rebuild & Merge Zip
+  rebuildAndMergeTestCases: async (workflowId) => {
+    const response = await API.post(`/test-case/rebuild/${workflowId}`);
     return response.data;
   }
 };
+

@@ -45,7 +45,7 @@ const VersionsPhaseCard = ({
         </h2>
         {selectedVersionNumber && (
           <span className="text-xs font-semibold px-3 py-1 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 rounded-full border border-amber-300 dark:border-amber-700">
-            Đang hiển thị Code: Version #{selectedVersionNumber}
+            Version Code #{selectedVersionNumber}
           </span>
         )}
       </div>
@@ -94,7 +94,7 @@ const VersionsPhaseCard = ({
                       >
                         <div className="flex items-center gap-3 flex-wrap">
                           <div className="flex items-center gap-2 bg-indigo-600 text-white px-3.5 py-1.5 rounded-xl font-black text-sm shadow-md shadow-indigo-500/20">
-                            <Layers className="w-4 h-4" /> Plan Version #{planVerNum}
+                            <Layers className="w-4 h-4" /> Version Plan #{planVerNum}
                           </div>
                           {isLatestPlan && (
                             <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700">
@@ -159,7 +159,7 @@ const VersionsPhaseCard = ({
                                 <Code className="w-6 h-6" />
                               </div>
                               <h4 className="text-base font-bold text-amber-900 dark:text-amber-200 mb-1">
-                                Plan Version #{planVerNum} chưa có Test-case Code
+                                Version Plan #{planVerNum} chưa có Test-case Code
                               </h4>
                               <p className="text-xs text-amber-700 dark:text-amber-400 max-w-md mx-auto mb-5 font-medium">
                                 Phiên bản kế hoạch này đã được tạo ra nhưng chưa thực hiện sinh mã code. Nhấn vào đây để nhảy ngay sang Bước 2 và bắt đầu tạo Test-case Code!
@@ -190,7 +190,7 @@ const VersionsPhaseCard = ({
                                     <div className="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
                                       <div className="flex items-center gap-2 flex-wrap">
                                         <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-amber-500 text-white shadow-sm">
-                                          Code Version #{ver.versionNumber}
+                                          Version Code #{ver.versionNumber}
                                         </span>
                                         {isLatestCode && (
                                           <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
@@ -221,7 +221,12 @@ const VersionsPhaseCard = ({
                                         Source: <strong className="text-slate-900 dark:text-white">{ver.source || 'AI'}</strong>
                                       </div>
                                       
-                                      {ver.mode === 'user-solution' ? (
+                                      {ver.mode === 'merged' ? (
+                                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 text-[11px] font-bold border border-teal-200/60 dark:border-teal-800/50">
+                                          <Layers className="w-3 h-3 text-teal-600 dark:text-teal-400" /> 
+                                          Mode: <strong className="text-teal-900 dark:text-teal-200">Merged (AI + Manual)</strong>
+                                        </div>
+                                      ) : ver.mode === 'user-solution' ? (
                                         <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 text-[11px] font-bold border border-indigo-200/60 dark:border-indigo-800/50">
                                           <Code className="w-3 h-3 text-indigo-600 dark:text-indigo-400" /> 
                                           Mode: <strong className="text-indigo-900 dark:text-indigo-200">User Solution</strong>
@@ -230,6 +235,12 @@ const VersionsPhaseCard = ({
                                         <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 text-[11px] font-medium border border-purple-200/60 dark:border-purple-800/50">
                                           <Bot className="w-3 h-3 text-purple-600 dark:text-purple-400" /> 
                                           Mode: <strong className="text-purple-900 dark:text-purple-200">AI Tự động</strong>
+                                        </div>
+                                      )}
+
+                                      {(ver.testCases?.length > 0 || ver.totalTestCases > 0) && (
+                                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 text-[11px] font-bold border border-cyan-200/60 dark:border-cyan-800/50">
+                                          <span>{ver.testCases?.length || ver.totalTestCases} Testcases preview</span>
                                         </div>
                                       )}
 
