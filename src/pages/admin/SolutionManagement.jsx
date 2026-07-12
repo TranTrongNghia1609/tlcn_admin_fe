@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,13 +17,17 @@ const SolutionManagement = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [selectedSolution, setSelectedSolution] = useState(null);
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get('page')) || 1;
+
+  const filter = useMemo(() => {
+    const status = searchParams.get('status') || 'all';
+    const search = searchParams.get('search') || '';
+    return { status, search };
+  }, [searchParams]);
+
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [filter, setFilter] = useState({
-    status: 'all',
-    search: ''
-  });
 
   useEffect(() => {
     loadSolutions();
@@ -97,15 +101,38 @@ const SolutionManagement = () => {
     return <Badge className={config.className}>{config.label}</Badge>;
   };
 
-  const handleSearchChange = (e) => {
-    setFilter({ ...filter, search: e.target.value });
-    setPage(1);
-  };
+  const handleSearchChange = useCallback((e) => {
+    const val = e.target.value;
+    const params = new URLSearchParams(searchParams);
+    if (val) {
+      params.set('search', val);
+    } else {
+      params.delete('search');
+    }
+    params.set('page', '1');
+    setSearchParams(params, { replace: true });
+  }, [searchParams, setSearchParams]);
 
-  const handleStatusChange = (e) => {
-    setFilter({ ...filter, status: e.target.value });
-    setPage(1);
-  };
+  const handleStatusChange = useCallback((e) => {
+    const val = e.target.value;
+    const params = new URLSearchParams(searchParams);
+    if (val && val !== 'all') {
+      params.set('status', val);
+    } else {
+      params.delete('status');
+    }
+    params.set('page', '1');
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
+
+  const handlePageChange = useCallback((newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    const params = new URLSearchParams(searchParams);
+    const currentPageStr = searchParams.get('page') || '1';
+    if (newPage.toString() === currentPageStr) return;
+    params.set('page', newPage.toString());
+    setSearchParams(params);
+  }, [searchParams, setSearchParams, totalPages]);
 
   // View solution - Open modal with preview only
   const handleView = (solution) => {
@@ -340,7 +367,7 @@ const SolutionManagement = () => {
           <Button
             variant="outline"
             disabled={page === 1}
-            onClick={() => setPage(page - 1)}
+            onClick={() => handlePageChange(page - 1)}
             className="rounded-xl border-slate-200 dark:border-slate-700"
           >
             ← Trước
@@ -359,7 +386,7 @@ const SolutionManagement = () => {
                     key={pageNum}
                     variant={page === pageNum ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setPage(pageNum)}
+                    onClick={() => handlePageChange(pageNum)}
                     className={`rounded-xl ${page === pageNum ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white border-0' : 'border-slate-200 dark:border-slate-700'}`}
                   >
                     {pageNum}
@@ -375,7 +402,7 @@ const SolutionManagement = () => {
           <Button
             variant="outline"
             disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
+            onClick={() => handlePageChange(page + 1)}
             className="rounded-xl border-slate-200 dark:border-slate-700"
           >
             Sau →

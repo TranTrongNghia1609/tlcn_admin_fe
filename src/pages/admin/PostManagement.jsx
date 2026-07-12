@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card } from '../../components/ui/card';
 import PostTable from '../../components/admin/tables/PostTable';
 import Pagination from '../../components/admin/tables/Pagination';
@@ -14,14 +15,15 @@ const PostManagement = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const searchTerm = searchParams.get('search') || '';
+  const filterStatus = searchParams.get('status') || 'all'; // all, published, draft
   const [pagination, setPagination] = useState({
     limit: 10,
     total: 0,
     totalPages: 0
   });
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // all, published, draft
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -75,15 +77,40 @@ const PostManagement = () => {
     fetchStats();
   }, [currentPage, searchTerm, filterStatus, fetchPosts, fetchStats]);
 
-  const handleSearch = (search) => {
-    setSearchTerm(search);
-    setCurrentPage(1);
-  };
+  const handleSearch = useCallback((q) => {
+    const params = new URLSearchParams(searchParams);
+    const currentSearch = searchParams.get('search') || '';
+    if (q === currentSearch) return;
+    if (q) {
+      params.set('search', q);
+    } else {
+      params.delete('search');
+    }
+    params.set('page', '1');
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = useCallback((newPage) => {
     if (newPage < 1 || newPage > pagination.totalPages) return;
-    setCurrentPage(newPage);
-  };
+    const params = new URLSearchParams(searchParams);
+    const currentPageStr = searchParams.get('page') || '1';
+    if (newPage.toString() === currentPageStr) return;
+    params.set('page', newPage.toString());
+    setSearchParams(params);
+  }, [searchParams, setSearchParams, pagination.totalPages]);
+
+  const handleStatusFilter = useCallback((status) => {
+    const params = new URLSearchParams(searchParams);
+    const currentStatus = searchParams.get('status') || 'all';
+    if (status === currentStatus) return;
+    if (status && status !== 'all') {
+      params.set('status', status);
+    } else {
+      params.delete('status');
+    }
+    params.set('page', '1');
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
 
   const handleDeletePost = async (postId) => {
     toast.promise(
@@ -111,7 +138,9 @@ const PostManagement = () => {
   };
 
   const handleToggleStatus = async (postId, currentStatus) => {
-    const newStatus = currentStatus === 'published' ? 'draft' : 'published';
+    // currentStatus có thể là boolean (post.isPublished) hoặc string ('published'/'draft')
+    const isCurrentlyPublished = currentStatus === true || currentStatus === 'published';
+    const newStatus = isCurrentlyPublished ? 'draft' : 'published';
     const actionText = newStatus === 'published' ? 'xuất bản' : 'chuyển sang nháp';
 
     toast.promise(
@@ -157,7 +186,7 @@ const PostManagement = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-8 max-w-full mx-auto">
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-7 shadow-xl text-white">
-        
+
         <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-black text-white mb-2">Quản lý bài viết</h1>
@@ -174,12 +203,11 @@ const PostManagement = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {[
           { title: 'Tổng bài viết', value: stats?.totalPosts || 0, icon: FileText, iconColor: 'text-blue-500', iconBg: 'bg-blue-50 dark:bg-blue-900/30' },
           { title: 'Đã xuất bản', value: stats?.publishedPosts || 0, icon: Eye, iconColor: 'text-emerald-500', iconBg: 'bg-emerald-50 dark:bg-emerald-900/30' },
           { title: 'Tổng bình luận', value: stats?.totalComments || 0, icon: MessageSquare, iconColor: 'text-orange-500', iconBg: 'bg-orange-50 dark:bg-orange-900/30' },
-          { title: 'Tổng lượt xem', value: stats?.totalViews || 0, icon: TrendingUp, iconColor: 'text-purple-500', iconBg: 'bg-purple-50 dark:bg-purple-900/30' },
         ].map((c) => (
           <Card key={c.title} className="relative overflow-hidden p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-slate-100 dark:border-slate-700/80 shadow-md bg-white dark:bg-slate-800 rounded-2xl">
             <div className="absolute top-0 right-0 w-24 h-24 rounded-full opacity-[0.03] dark:opacity-[0.05] -translate-y-4 translate-x-4 bg-slate-900 dark:bg-white" />
@@ -204,10 +232,7 @@ const PostManagement = () => {
             {/* Filter Status */}
             <select
               value={filterStatus}
-              onChange={(e) => {
-                setFilterStatus(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => handleStatusFilter(e.target.value)}
               className="px-4 py-2.5 border border-slate-200 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent font-medium"
             >
               <option value="all">Tất cả</option>
@@ -216,7 +241,7 @@ const PostManagement = () => {
             </select>
 
             <div className="w-72">
-              <SearchBar onSearch={handleSearch} />
+              <SearchBar onSearch={handleSearch} initialValue={searchTerm} />
             </div>
           </div>
         </div>
@@ -246,7 +271,7 @@ const PostManagement = () => {
       )}
 
       {isCreateModalOpen && (
-        <CreatePost 
+        <CreatePost
           forceOpen={true}
           onPostCreated={handlePostCreated}
           onCancel={handleCloseCreateModal}

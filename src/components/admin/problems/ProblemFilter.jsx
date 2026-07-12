@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -20,13 +20,19 @@ import { X } from 'lucide-react'
  *  - onClose(): close the panel
  */
 function ProblemFilter({ onFilterChange, onClose, currentFilter = {} }) {
-  const [filters, setFilters] = useState({
-    name: currentFilter.name || '',
-    isActive: currentFilter.isActive ?? 'all',      // 'all' | 'true' | 'false'
-    hasSolution: currentFilter.hasSolution ?? 'all', // 'all' | 'true' | 'false'
-    dateFrom: currentFilter.dateFrom || '',
-    dateTo: currentFilter.dateTo || '',
+  const getMappedFilters = (filterObj) => ({
+    name: filterObj.name || '',
+    isActive: filterObj.isActive === undefined ? 'all' : String(filterObj.isActive),
+    hasSolution: filterObj.hasSolution === undefined ? 'all' : String(filterObj.hasSolution),
+    dateFrom: filterObj.dateFrom || '',
+    dateTo: filterObj.dateTo || '',
   })
+
+  const [filters, setFilters] = useState(() => getMappedFilters(currentFilter))
+
+  useEffect(() => {
+    setFilters(getMappedFilters(currentFilter))
+  }, [currentFilter])
 
   const set = (field, value) =>
     setFilters(prev => ({ ...prev, [field]: value }))

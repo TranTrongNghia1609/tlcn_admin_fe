@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import SearchBar from '@/components/admin/tables/SearchBar';
 import { FileText, Eye, BookMinus, BicepsFlexed } from 'lucide-react';
@@ -10,20 +10,21 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import TablePagination from '@/components/common/TablePagination';
 import { getAllContestsByAdmin, getContestStatistics, toggleContestStatus } from '@/services/contestService';
 import ContestTable from '@/components/admin/tables/ContestTable';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const ContestManagement = () => {
   const [contest, setContest] = useState([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const searchTerm = searchParams.get('search') || '';
+  const filterStatus = searchParams.get('status') || 'all'; // all, published, draft
   const [pagination, setPagination] = useState({
     limit: 10,
     total: 0,
     totalPages: 0
   });
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // all, published, draft
   const navigate = useNavigate();
   // Fetch posts list
   const fetchContests = useCallback(async (page, search, status) => {
@@ -71,15 +72,27 @@ const ContestManagement = () => {
     fetchContests(currentPage, searchTerm, filterStatus);
   }, [currentPage, searchTerm, filterStatus, fetchContests]);
 
-  const handleSearch = (search) => {
-    setSearchTerm(search);
-    setCurrentPage(1);
-  };
+  const handleSearch = useCallback((q) => {
+    const params = new URLSearchParams(searchParams);
+    const currentSearch = searchParams.get('search') || '';
+    if (q === currentSearch) return;
+    if (q) {
+      params.set('search', q);
+    } else {
+      params.delete('search');
+    }
+    params.set('page', '1');
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = useCallback((newPage) => {
     if (newPage < 1 || newPage > pagination.totalPages) return;
-    setCurrentPage(newPage);
-  };
+    const params = new URLSearchParams(searchParams);
+    const currentPageStr = searchParams.get('page') || '1';
+    if (newPage.toString() === currentPageStr) return;
+    params.set('page', newPage.toString());
+    setSearchParams(params);
+  }, [searchParams, setSearchParams, pagination.totalPages]);
 
   const handleToggleStatus = async (contestId, current) => {
     const newStatus = current ? false : true;
@@ -156,7 +169,7 @@ const ContestManagement = () => {
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">Danh sách kỳ thi</h2>
           <div className="flex items-center space-x-4">
             <div className="w-72">
-              <SearchBar onSearch={handleSearch} placeholder={"Tìm kiếm mã, tên kỳ thi"}/>
+              <SearchBar onSearch={handleSearch} placeholder={"Tìm kiếm mã, tên kỳ thi"} initialValue={searchTerm}/>
             </div>
           </div>
         </div>

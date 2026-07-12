@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import CommentTable from '@/components/admin/tables/CommentTable';
 import SearchBar from '@/components/admin/tables/SearchBar';
@@ -16,15 +17,17 @@ import TablePagination from '@/components/common/TablePagination';
 const CommentManagement = () => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const searchTerm = searchParams.get('search') || '';
+  const selectedStatus = searchParams.get('status') || 'all';
+  const selectedItemModel = searchParams.get('itemModel') || 'all'; // 'all' | 'Post' | 'Solution'
+
   const [pagination, setPagination] = useState({
     limit: 10,
     total: 0,
     totalPages: 0
   });
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedItemModel, setSelectedItemModel] = useState('all'); // 'all' | 'Post' | 'Solution'
   const [stats, setStats] = useState({
     totalComments: 0,
     visibleComments: 0,
@@ -88,28 +91,52 @@ const CommentManagement = () => {
   }, [currentPage, searchTerm, selectedStatus, selectedItemModel]);
 
   const handleSearch = useCallback((q) => {
-    if (q !== searchTerm) {
-      setSearchTerm(q);
-      setCurrentPage(1);
+    const params = new URLSearchParams(searchParams);
+    const currentSearch = searchParams.get('search') || '';
+    if (q === currentSearch) return;
+    if (q) {
+      params.set('search', q);
+    } else {
+      params.delete('search');
     }
-  }, [searchTerm]);
+    params.set('page', '1');
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
 
   const handleStatusFilter = useCallback((status) => {
-    setSelectedStatus(status);
-    setCurrentPage(1);
-  }, []);
+    const params = new URLSearchParams(searchParams);
+    const currentStatus = searchParams.get('status') || 'all';
+    if (status === currentStatus) return;
+    if (status && status !== 'all') {
+      params.set('status', status);
+    } else {
+      params.delete('status');
+    }
+    params.set('page', '1');
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
 
   const handleItemModelFilter = useCallback((model) => {
-    setSelectedItemModel(model);
-    setCurrentPage(1);
-  }, []);
+    const params = new URLSearchParams(searchParams);
+    const currentModel = searchParams.get('itemModel') || 'all';
+    if (model === currentModel) return;
+    if (model && model !== 'all') {
+      params.set('itemModel', model);
+    } else {
+      params.delete('itemModel');
+    }
+    params.set('page', '1');
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
 
   const handlePageChange = useCallback((newPage) => {
     if (newPage < 1 || newPage > pagination.totalPages) return;
-    if (newPage !== currentPage) {
-      setCurrentPage(newPage);
-    }
-  }, [currentPage, pagination.totalPages]);
+    const params = new URLSearchParams(searchParams);
+    const currentPageStr = searchParams.get('page') || '1';
+    if (newPage.toString() === currentPageStr) return;
+    params.set('page', newPage.toString());
+    setSearchParams(params);
+  }, [searchParams, setSearchParams, pagination.totalPages]);
 
   const statusFilters = [
     { key: 'all', label: 'Tất cả', icon: MessageSquare, color: 'bg-gray-500' },
@@ -185,7 +212,7 @@ const CommentManagement = () => {
           <div className="flex items-center justify-between flex-wrap gap-4">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">Danh sách bình luận</h2>
             <div className="w-72">
-              <SearchBar onSearch={handleSearch} placeholder="Tìm kiếm bình luận..." />
+              <SearchBar onSearch={handleSearch} placeholder="Tìm kiếm bình luận..." initialValue={searchTerm} />
             </div>
           </div>
 
