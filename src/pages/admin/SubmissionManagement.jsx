@@ -91,7 +91,7 @@ const SubmissionManagement = () => {
   const handleSearchByFilter = useCallback((newFilter) => {
     try {
       const params = new URLSearchParams(searchParams);
-      
+
       if (newFilter.userId) params.set('userId', newFilter.userId);
       else params.delete('userId');
 
@@ -133,7 +133,7 @@ const SubmissionManagement = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-8 max-w-full mx-auto">
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-7 shadow-xl text-white">
-        
+
         <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-black text-white mb-2">Quản lý bài nộp</h1>
@@ -166,7 +166,7 @@ const SubmissionManagement = () => {
       </div>
 
       {showFilterModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/20 z-40 transition-opacity duration-300 h-full backdrop-blur-sm"
           onClick={() => setShowFilterModal(false)}
         />
@@ -174,7 +174,7 @@ const SubmissionManagement = () => {
 
       {/* Filter Modal - Always rendered, controlled by CSS */}
       <div className={`fixed top-0 right-0 z-50 min-w-[350px] h-screen transition-transform duration-300 ${showFilterModal ? 'translate-x-0' : 'translate-x-full'}`}>
-        <SubmissionFilter 
+        <SubmissionFilter
           currentFilter={filter}
           onClose={() => setShowFilterModal(false)}
           onFilterChange={handleSearchByFilter}

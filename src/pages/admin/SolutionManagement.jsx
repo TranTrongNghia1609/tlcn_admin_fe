@@ -8,6 +8,7 @@ import solutionService from '@/services/solutionService';
 import { toast } from 'sonner';
 import { Eye, Edit, Trash2, CheckCircle, XCircle, Search, Filter, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import TablePagination from '@/components/common/TablePagination';
 
 const SolutionManagement = () => {
   const { user } = useAuth();
@@ -142,34 +143,34 @@ const SolutionManagement = () => {
 
   // Edit solution - Navigate to EditMySolutionPage
   const handleEdit = (solution) => {
-  const currentUserId = user?.id;
-  const solutionAuthorId = solution.author?._id || solution.author?.id;
+    const currentUserId = user?.id;
+    const solutionAuthorId = solution.author?._id || solution.author?.id;
 
-  if (currentUserId !== solutionAuthorId) {
-    toast.error('Không thể chỉnh sửa solution của người khác. Bạn chỉ có thể duyệt/từ chối/xóa.', {
-      duration: 4000
-    });
-    return;
-  }
-
-  // Get problemId from solution object
-  const problemId = solution.problem?._id || solution.problem || solution.problemId;
-  
-  if (!problemId) {
-    toast.error('Không tìm thấy thông tin bài tập');
-    console.error('Missing problemId in solution:', solution);
-    return;
-  }
-
-  // Navigate with problemId in URL
-  navigate(`/problems/${problemId}/solution?edit=${solution._id}`, {
-    state: {
-      solution,
-      problemShortId: solution.problemShortId,
-      problemName: solution.problemName || solution.problem?.name || ''
+    if (currentUserId !== solutionAuthorId) {
+      toast.error('Không thể chỉnh sửa solution của người khác. Bạn chỉ có thể duyệt/từ chối/xóa.', {
+        duration: 4000
+      });
+      return;
     }
-  });
-};
+
+    // Get problemId from solution object
+    const problemId = solution.problem?._id || solution.problem || solution.problemId;
+
+    if (!problemId) {
+      toast.error('Không tìm thấy thông tin bài tập');
+      console.error('Missing problemId in solution:', solution);
+      return;
+    }
+
+    // Navigate with problemId in URL
+    navigate(`/solutions/problems/${problemId}/solution?edit=${solution._id}`, {
+      state: {
+        solution,
+        problemShortId: solution.problemShortId,
+        problemName: solution.problemName || solution.problem?.name || ''
+      }
+    });
+  };
 
   const openViewModal = () => {
     setShowViewModal(true);
@@ -188,7 +189,7 @@ const SolutionManagement = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-8 max-w-[1600px] mx-auto relative">
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-7 shadow-xl text-white">
-        
+
         <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-black text-white mb-2">Quản lý Solutions</h1>
@@ -362,53 +363,12 @@ const SolutionManagement = () => {
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-6">
-          <Button
-            variant="outline"
-            disabled={page === 1}
-            onClick={() => handlePageChange(page - 1)}
-            className="rounded-xl border-slate-200 dark:border-slate-700"
-          >
-            ← Trước
-          </Button>
-
-          <div className="flex items-center gap-1.5">
-            {[...Array(totalPages)].map((_, index) => {
-              const pageNum = index + 1;
-              if (
-                pageNum === 1 ||
-                pageNum === totalPages ||
-                (pageNum >= page - 1 && pageNum <= page + 1)
-              ) {
-                return (
-                  <Button
-                    key={pageNum}
-                    variant={page === pageNum ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => handlePageChange(pageNum)}
-                    className={`rounded-xl ${page === pageNum ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white border-0' : 'border-slate-200 dark:border-slate-700'}`}
-                  >
-                    {pageNum}
-                  </Button>
-                );
-              } else if (pageNum === page - 2 || pageNum === page + 2) {
-                return <span key={pageNum} className="px-2 dark:text-slate-400">...</span>;
-              }
-              return null;
-            })}
-          </div>
-
-          <Button
-            variant="outline"
-            disabled={page === totalPages}
-            onClick={() => handlePageChange(page + 1)}
-            className="rounded-xl border-slate-200 dark:border-slate-700"
-          >
-            Sau →
-          </Button>
-        </div>
-      )}
+      <TablePagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        maxVisiblePages={10}
+      />
 
       {/* View Modal - Preview Only */}
       {showViewModal && selectedSolution && (

@@ -103,7 +103,7 @@ const SolutionFormPage = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Không tìm thấy bài tập</h2>
-        <Button onClick={() => navigate('/problems')}>Quay lại danh sách</Button>
+        <Button onClick={() => navigate('/solutions')}>Quay lại danh sách</Button>
       </div>
     );
   }
@@ -116,7 +116,7 @@ const SolutionFormPage = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/problems')}
+            onClick={() => navigate('/solutions')}
             className="hover:bg-gray-100 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />

@@ -72,15 +72,15 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route 
-        path="/" 
+      <Route
+        path="/"
         element={
           isAuthenticated && user?.role === 'admin' ? (
             <Navigate to="/dashboard" replace />
           ) : (
             <LandingPage />
           )
-        } 
+        }
       />
 
       {/* Protected Routes - CÓ NavBar */}
@@ -218,7 +218,7 @@ const AppRoutes = () => {
 
       {/* Solution Routes - IMPORTANT: Đặt route cụ thể TRƯỚC route general */}
       <Route
-        path="/problems/:id/solution"
+        path="/solutions/problems/:id/solution"
         element={
           <AdminRoute>
             <SolutionFormPage />
@@ -227,7 +227,7 @@ const AppRoutes = () => {
       />
 
       <Route
-        path="/problems/:id/edit-solution"
+        path="/solutions/problems/:id/edit-solution"
         element={
           <AdminRoute>
             <SolutionFormPage />
@@ -275,7 +275,7 @@ const AppRoutes = () => {
         path="/contest/:id/participants"
         element={
           <AdminRoute>
-            <ContestParticipants/>
+            <ContestParticipants />
           </AdminRoute>
         }
       />
