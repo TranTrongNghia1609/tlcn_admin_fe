@@ -45,7 +45,7 @@ const VersionsPhaseCard = ({
         </h2>
         {selectedVersionNumber && (
           <span className="text-xs font-semibold px-3 py-1 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 rounded-full border border-amber-300 dark:border-amber-700">
-            Đang hiển thị Code: Version #{selectedVersionNumber}
+            Version Code #{selectedVersionNumber}
           </span>
         )}
       </div>
@@ -94,7 +94,7 @@ const VersionsPhaseCard = ({
                       >
                         <div className="flex items-center gap-3 flex-wrap">
                           <div className="flex items-center gap-2 bg-indigo-600 text-white px-3.5 py-1.5 rounded-xl font-black text-sm shadow-md shadow-indigo-500/20">
-                            <Layers className="w-4 h-4" /> Plan Version #{planVerNum}
+                            <Layers className="w-4 h-4" /> Version Plan #{planVerNum}
                           </div>
                           {isLatestPlan && (
                             <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-100 text-indigo-800 dark:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-700">
@@ -159,7 +159,7 @@ const VersionsPhaseCard = ({
                                 <Code className="w-6 h-6" />
                               </div>
                               <h4 className="text-base font-bold text-amber-900 dark:text-amber-200 mb-1">
-                                Plan Version #{planVerNum} chưa có Test-case Code
+                                Version Plan #{planVerNum} chưa có Test-case Code
                               </h4>
                               <p className="text-xs text-amber-700 dark:text-amber-400 max-w-md mx-auto mb-5 font-medium">
                                 Phiên bản kế hoạch này đã được tạo ra nhưng chưa thực hiện sinh mã code. Nhấn vào đây để nhảy ngay sang Bước 2 và bắt đầu tạo Test-case Code!
@@ -190,7 +190,7 @@ const VersionsPhaseCard = ({
                                     <div className="flex flex-wrap items-center justify-between gap-3 mb-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
                                       <div className="flex items-center gap-2 flex-wrap">
                                         <span className="text-xs font-black px-2.5 py-1 rounded-lg bg-amber-500 text-white shadow-sm">
-                                          Code Version #{ver.versionNumber}
+                                          Version Code #{ver.versionNumber}
                                         </span>
                                         {isLatestCode && (
                                           <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">

@@ -9,12 +9,12 @@ export const aiTestCaseService = {
     const response = await API.post('/test-case/plan', payload);
     return response.data;
   },
-  
+
   getPlan: async (workflowId) => {
     const response = await API.get(`/test-case/plan/${workflowId}`);
     return response.data;
   },
-  
+
   regeneratePlan: async (workflowId, payload) => {
     const response = await API.put(`/test-case/plan/${workflowId}`, payload);
     return response.data;
@@ -38,7 +38,13 @@ export const aiTestCaseService = {
 
   regenerateCode: async (workflowId, payload) => {
     // payload can contain { feedback, mode, solutionCode }
-    const response = await API.put(`/test-case/code-generate/${workflowId}`, payload);
+    const response = await API.put(`/test-case/code-generate/${workflowId}/feedback`, payload);
+    return response.data;
+  },
+
+  updateCode: async (codeId, payload) => {
+    // payload: { inputCode, outputCode, version }
+    const response = await API.put(`/test-case/code-generate/${codeId}`, payload);
     return response.data;
   },
 
@@ -55,7 +61,7 @@ export const aiTestCaseService = {
   },
 
   applyTestCase: async (workflowId, version = null) => {
-    const response = await API.post(`/test-case/apply/${workflowId}`, {version: version})
+    const response = await API.post(`/test-case/apply/${workflowId}`, { version: version })
     return response.data;
   },
 

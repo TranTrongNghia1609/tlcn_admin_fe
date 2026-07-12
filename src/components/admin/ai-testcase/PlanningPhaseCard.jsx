@@ -40,7 +40,7 @@ const PlanningPhaseCard = ({
           Thông tin bài toán & Kế hoạch
           {selectedVersionNumber && (
             <span className="ml-2 text-xs font-semibold px-2.5 py-1 bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 rounded-full border border-indigo-200 dark:border-indigo-800">
-              Plan cho Version #{selectedVersionNumber}
+              Version Plan #{selectedVersionNumber}
             </span>
           )}
         </h2>

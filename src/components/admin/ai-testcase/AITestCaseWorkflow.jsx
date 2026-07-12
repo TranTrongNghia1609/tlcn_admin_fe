@@ -40,10 +40,12 @@ const AITestCaseWorkflow = ({
   const [isPlanLoading, setIsPlanLoading] = useState(false);
 
   // Phase 2: Code Generation
+  const [codeId, setCodeId] = useState(null);
   const [inputCode, setInputCode] = useState('');
   const [outputCode, setOutputCode] = useState('');
   const [feedback, setFeedback] = useState('');
   const [isCodeLoading, setIsCodeLoading] = useState(false);
+  const [isUpdatingCode, setIsUpdatingCode] = useState(false);
   const [codeError, setCodeError] = useState('');
   const [mode, setMode] = useState('ai'); // 'ai' or 'user-solution'
   const [solutionCode, setSolutionCode] = useState('');
@@ -95,6 +97,7 @@ const AITestCaseWorkflow = ({
               var codeDataResponse = await aiTestCaseService.getCode(workflowId);
               var codeData = codeDataResponse?.data;
               if (codeData) {
+                  if (codeData._id) setCodeId(codeData._id);
                   setAppiedTestCaseVersion(codeData.codeVersionApplied);
                   if (codeData.manualTestCases) {
                     setManualTestCases(codeData.manualTestCases);
@@ -159,12 +162,36 @@ const AITestCaseWorkflow = ({
           toast.success('Lên kế hoạch thành công!');
           const targetWfId = data.workflowId || workflowId;
           if (!workflowId && targetWfId) setWorkflowId(targetWfId);
+
+          // Làm trống toàn bộ code và kết quả thực thi cũ để Phase 2 sẵn sàng cho Plan mới
+          setInputCode('');
+          setOutputCode('');
+          setFeedback('');
+          setCodeError('');
+          setCodeId(null);
+          setTestCaseUrl('');
+          setTestCases([]);
+          setExecError('');
+          setCodeVersionMode('ai');
+          setMode('ai');
+          setSolutionCode('');
+
           setCurrentPhase(2);
           if (targetWfId) {
             try {
               const res = await aiTestCaseService.getPlan(targetWfId);
-              if (res?.data?.versions) setPlanVersions(res.data.versions);
+              if (res?.data?.versions && res.data.versions.length > 0) {
+                setPlanVersions(res.data.versions);
+                const latestPlanVer = res.data.versions[res.data.versions.length - 1];
+                if (latestPlanVer?.versionNumber) {
+                  setSelectedVersionNumber(latestPlanVer.versionNumber);
+                }
+              } else if (data.versionNumber) {
+                setSelectedVersionNumber(data.versionNumber);
+              }
             } catch(err) {}
+          } else if (data.versionNumber) {
+            setSelectedVersionNumber(data.versionNumber);
           }
         } else {
           toast.error('Lên kế hoạch thất bại!');
@@ -193,6 +220,7 @@ const AITestCaseWorkflow = ({
         }
         try {
           const res = await aiTestCaseService.getCode(workflowId);
+          if (res?.data?._id) setCodeId(res.data._id);
           if (res?.data?.versions) {
             setCodeVersions(res.data.versions);
             const lastCode = res.data.versions[res.data.versions.length - 1];
@@ -227,6 +255,7 @@ const AITestCaseWorkflow = ({
         }
         try {
           const res = await aiTestCaseService.getCode(workflowId);
+          if (res?.data?._id) setCodeId(res.data._id);
           if (res?.data?.versions) {
             setCodeVersions(res.data.versions);
             const lastCode = res.data.versions[res.data.versions.length - 1];
@@ -282,6 +311,19 @@ const AITestCaseWorkflow = ({
     }
     try {
       setIsPlanLoading(true);
+      // Làm trống sẵn thông tin code & thực thi trước khi gọi tạo/sinh lại Plan
+      setInputCode('');
+      setOutputCode('');
+      setFeedback('');
+      setCodeError('');
+      setCodeId(null);
+      setTestCaseUrl('');
+      setTestCases([]);
+      setExecError('');
+      setCodeVersionMode('ai');
+      setMode('ai');
+      setSolutionCode('');
+
       const payload = { statement, inputConstraint, outputConstraint, numberOfTestCases, inputExample, outputExample };
       let res;
       if (workflowId) {
@@ -335,6 +377,57 @@ const AITestCaseWorkflow = ({
     setCodeError('');
     setExecError('');
     setCurrentPhase(2);
+  };
+
+  const handleUpdateCode = async (newInputCode, newOutputCode) => {
+    let targetCodeId = codeId;
+    if (!targetCodeId && workflowId) {
+      try {
+        const res = await aiTestCaseService.getCode(workflowId);
+        if (res?.data?._id) {
+          targetCodeId = res.data._id;
+          setCodeId(res.data._id);
+        }
+      } catch (e) {}
+    }
+
+    if (!targetCodeId) {
+      toast.error('Không tìm thấy ID của Test Case Code. Vui lòng sinh mã trước khi cập nhật.');
+      return;
+    }
+
+    const targetVersion = selectedVersionNumber || (codeVersions.length > 0 ? codeVersions[codeVersions.length - 1].versionNumber : 1);
+    try {
+      setIsUpdatingCode(true);
+      const payload = {
+        inputCode: newInputCode !== undefined ? newInputCode : inputCode,
+        outputCode: newOutputCode !== undefined ? newOutputCode : outputCode,
+        version: targetVersion
+      };
+      await aiTestCaseService.updateCode(targetCodeId, payload);
+      toast.success(`Đã cập nhật Input & Output Code cho Version Code #${targetVersion}!`);
+      
+      if (newInputCode !== undefined) setInputCode(newInputCode);
+      if (newOutputCode !== undefined) setOutputCode(newOutputCode);
+
+      try {
+        const res = await aiTestCaseService.getCode(workflowId);
+        if (res?.data?.versions) {
+          setCodeVersions(res.data.versions);
+        }
+      } catch (err) {
+        setCodeVersions(prev => prev.map(v => 
+          v.versionNumber === targetVersion 
+            ? { ...v, inputCode: payload.inputCode, outputCode: payload.outputCode } 
+            : v
+        ));
+      }
+    } catch (error) {
+      console.error('Update code error:', error);
+      toast.error('Lỗi khi cập nhật Code Generator: ' + (error?.response?.data?.message || error?.message || 'Lỗi không xác định'));
+    } finally {
+      setIsUpdatingCode(false);
+    }
   };
 
   const handleExecuteCode = async () => {
@@ -463,6 +556,7 @@ const AITestCaseWorkflow = ({
         // Reload codeVersions
         try {
           const codeDataRes = await aiTestCaseService.getCode(workflowId);
+          if (codeDataRes?.data?._id) setCodeId(codeDataRes.data._id);
           if (codeDataRes?.data?.versions) {
             setCodeVersions(codeDataRes.data.versions);
           }
@@ -497,7 +591,7 @@ const AITestCaseWorkflow = ({
       setCodeVersionMode('ai');
       setMode('ai');
       setCurrentPhase(2);
-      toast.info(`Đã chuyển sang Bước 2 với Kế hoạch Version #${planObj.versionNumber}. Hãy nhấn "Sinh Mã"!`);
+      toast.info(`Đã chuyển sang Bước 2 với Kế hoạch Version Plan #${planObj.versionNumber}. Hãy nhấn "Sinh Mã"!`);
       return;
     }
 
@@ -538,7 +632,7 @@ const AITestCaseWorkflow = ({
     // 4. Track selected version
     setSelectedVersionNumber(ver.versionNumber);
 
-    toast.success(`Đã hiển thị Version #${ver.versionNumber} trong 3 bước trước!`);
+    toast.success(`Đã hiển thị Version Code #${ver.versionNumber} trong 3 bước trước!`);
 
     // 5. Navigate to targetPhase if specified, otherwise jump to Step 2 by default
     if (targetPhase) {
@@ -593,7 +687,9 @@ const AITestCaseWorkflow = ({
           currentPhase={currentPhase}
           planCategories={planCategories}
           inputCode={inputCode}
+          setInputCode={setInputCode}
           outputCode={outputCode}
+          setOutputCode={setOutputCode}
           isCodeLoading={isCodeLoading}
           isDark={isDark}
           feedback={feedback}
@@ -610,6 +706,9 @@ const AITestCaseWorkflow = ({
           solutionCode={solutionCode}
           setSolutionCode={setSolutionCode}
           codeVersionMode={codeVersionMode}
+          onUpdateCode={handleUpdateCode}
+          isUpdatingCode={isUpdatingCode}
+          codeVersions={codeVersions}
         />
 
         <ExecutionPhaseCard 
