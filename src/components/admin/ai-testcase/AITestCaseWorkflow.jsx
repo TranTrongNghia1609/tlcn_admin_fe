@@ -449,7 +449,9 @@ const AITestCaseWorkflow = ({
       setIsApplying(true);
       const response = await aiTestCaseService.applyTestCase(workflowId);
       var data = response.data;
-      toast.success("Thành công sử dụng test case cho bài tập")
+      toast.success("Thành công sử dụng test case cho bài tập");
+      // Cập nhật trạng thái "đã áp dụng" cho version hiện tại
+      setAppiedTestCaseVersion(selectedVersionNumber);
     } catch (error) {
       toast.error("Lỗi khi áp dụng test cases");
       console.log("loix: ", error)
