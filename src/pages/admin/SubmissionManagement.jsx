@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import SearchBar from '@/components/admin/tables/SearchBar';
 import { FileText, Eye, BookMinus, BicepsFlexed, ListFilterPlus, CheckCircle, XCircle, Code, AlertCircle } from 'lucide-react';
@@ -8,7 +8,7 @@ import ProblemTable from '@/components/admin/tables/ProblemTable';
 import { Button } from '@/components/ui/button';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import TablePagination from '@/components/common/TablePagination';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import SubmissionFilter from '@/components/admin/submissions/SubmissionFilter';
 import { getAllSubmissionsByAdmin, getSubmissionStats } from '@/services/submissionService';
 import SubmissionTable from '@/components/admin/tables/SubmissionTable';
@@ -17,13 +17,23 @@ const SubmissionManagement = () => {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page')) || 1;
+
+  const filter = useMemo(() => {
+    return {
+      userId: searchParams.get('userId') || undefined,
+      contestId: searchParams.get('contestId') || undefined,
+      problemId: searchParams.get('problemId') || undefined,
+      status: searchParams.get('status') || undefined,
+    };
+  }, [searchParams]);
+
   const [pagination, setPagination] = useState({
     limit: 10,
     total: 0,
     totalPages: 0
   });
-  const [filter, setFilter] = useState({});
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState('all'); // all, published, draft
   const navigate = useNavigate();
@@ -78,21 +88,39 @@ const SubmissionManagement = () => {
     fetchSubmissions(currentPage, filter);
   }, [currentPage, filter, fetchSubmissions]);
 
-  const handleSearchByFilter = async (filter) => {
+  const handleSearchByFilter = useCallback((newFilter) => {
     try {
-      setFilter(filter);
-      setCurrentPage(1);
+      const params = new URLSearchParams(searchParams);
+
+      if (newFilter.userId) params.set('userId', newFilter.userId);
+      else params.delete('userId');
+
+      if (newFilter.contestId) params.set('contestId', newFilter.contestId);
+      else params.delete('contestId');
+
+      if (newFilter.problemId) params.set('problemId', newFilter.problemId);
+      else params.delete('problemId');
+
+      if (newFilter.status) params.set('status', newFilter.status);
+      else params.delete('status');
+
+      params.set('page', '1');
+      setSearchParams(params);
     }
     catch (error) {
       console.error('Error applying filter:', error);
       toast.error('Không thể áp dụng bộ lọc')
     }
-  };
+  }, [searchParams, setSearchParams]);
 
-  const handlePageChange = (newPage) => {
+  const handlePageChange = useCallback((newPage) => {
     if (newPage < 1 || newPage > pagination.totalPages) return;
-    setCurrentPage(newPage);
-  };
+    const params = new URLSearchParams(searchParams);
+    const currentPageStr = searchParams.get('page') || '1';
+    if (newPage.toString() === currentPageStr) return;
+    params.set('page', newPage.toString());
+    setSearchParams(params);
+  }, [searchParams, setSearchParams, pagination.totalPages]);
 
 
   const handleViewDetail = (postId) => {
@@ -105,7 +133,7 @@ const SubmissionManagement = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/30 dark:from-slate-900 dark:via-slate-800/60 dark:to-slate-900 p-8 space-y-8 max-w-full mx-auto">
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-2xl bg-blue-600 p-7 shadow-xl text-white">
-        
+
         <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-black text-white mb-2">Quản lý bài nộp</h1>
@@ -138,7 +166,7 @@ const SubmissionManagement = () => {
       </div>
 
       {showFilterModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/20 z-40 transition-opacity duration-300 h-full backdrop-blur-sm"
           onClick={() => setShowFilterModal(false)}
         />
@@ -146,7 +174,7 @@ const SubmissionManagement = () => {
 
       {/* Filter Modal - Always rendered, controlled by CSS */}
       <div className={`fixed top-0 right-0 z-50 min-w-[350px] h-screen transition-transform duration-300 ${showFilterModal ? 'translate-x-0' : 'translate-x-full'}`}>
-        <SubmissionFilter 
+        <SubmissionFilter
           currentFilter={filter}
           onClose={() => setShowFilterModal(false)}
           onFilterChange={handleSearchByFilter}

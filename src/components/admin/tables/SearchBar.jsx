@@ -3,8 +3,12 @@ import { Input } from '../../ui/input';
 import { Button } from '../../ui/button';
 import { Search, X } from 'lucide-react';
 
-const SearchBar = ({ onSearch, placeholder = "Tìm kiếm người dùng..." }) => {
-  const [searchValue, setSearchValue] = useState('');
+const SearchBar = ({ onSearch, placeholder = "Tìm kiếm người dùng...", initialValue = "" }) => {
+  const [searchValue, setSearchValue] = useState(initialValue);
+
+  useEffect(() => {
+    setSearchValue(initialValue);
+  }, [initialValue]);
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { FileText, Eye, BookMinus, BicepsFlexed, ListFilterPlus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -7,26 +7,34 @@ import ProblemTable from '@/components/admin/tables/ProblemTable';
 import ProblemFilter from '@/components/admin/problems/ProblemFilter';
 import { Button } from '@/components/ui/button';
 import TablePagination from '@/components/common/TablePagination';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const ProblemManagement = () => {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page')) || 1;
+
+  const filter = useMemo(() => {
+    const name = searchParams.get('name') || '';
+    
+    const isActiveStr = searchParams.get('isActive');
+    const isActive = isActiveStr === 'true' ? true : isActiveStr === 'false' ? false : undefined;
+
+    const hasSolutionStr = searchParams.get('hasSolution');
+    const hasSolution = hasSolutionStr === 'true' ? true : hasSolutionStr === 'false' ? false : undefined;
+
+    const dateFrom = searchParams.get('dateFrom') || undefined;
+    const dateTo = searchParams.get('dateTo') || undefined;
+
+    return { name, isActive, hasSolution, dateFrom, dateTo };
+  }, [searchParams]);
+
   const [pagination, setPagination] = useState({
     limit: 10,
     total: 0,
     totalPages: 0
-  });
-
-  // Filter state (mirrors ProblemFilter's output shape)
-  const [filter, setFilter] = useState({
-    name: '',
-    isActive: undefined,
-    hasSolution: undefined,
-    dateFrom: undefined,
-    dateTo: undefined,
   });
   const [showFilterModal, setShowFilterModal] = useState(false);
 
@@ -88,15 +96,51 @@ const ProblemManagement = () => {
     fetchProblems(currentPage, filter);
   }, [currentPage, filter, fetchProblems]);
 
-  const handleFilterChange = (newFilter) => {
-    setFilter(newFilter);
-    setCurrentPage(1);
-  };
+  const handleFilterChange = useCallback((newFilter) => {
+    const params = new URLSearchParams(searchParams);
+    
+    if (newFilter.name) {
+      params.set('name', newFilter.name);
+    } else {
+      params.delete('name');
+    }
 
-  const handlePageChange = (newPage) => {
+    if (newFilter.isActive !== undefined) {
+      params.set('isActive', String(newFilter.isActive));
+    } else {
+      params.delete('isActive');
+    }
+
+    if (newFilter.hasSolution !== undefined) {
+      params.set('hasSolution', String(newFilter.hasSolution));
+    } else {
+      params.delete('hasSolution');
+    }
+
+    if (newFilter.dateFrom) {
+      params.set('dateFrom', newFilter.dateFrom);
+    } else {
+      params.delete('dateFrom');
+    }
+
+    if (newFilter.dateTo) {
+      params.set('dateTo', newFilter.dateTo);
+    } else {
+      params.delete('dateTo');
+    }
+
+    params.set('page', '1');
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
+
+  const handlePageChange = useCallback((newPage) => {
     if (newPage < 1 || newPage > pagination.totalPages) return;
-    setCurrentPage(newPage);
-  };
+    const params = new URLSearchParams(searchParams);
+    const currentPageStr = searchParams.get('page') || '1';
+    if (newPage.toString() === currentPageStr) return;
+    params.set('page', newPage.toString());
+    setSearchParams(params);
+  }, [searchParams, setSearchParams, pagination.totalPages]);
 
   const handleToggleStatus = async (problemId, current) => {
     const newStatus = !current;

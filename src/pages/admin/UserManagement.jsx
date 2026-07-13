@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { goToUserSite } from '../../utils/siteNavigation';
 import { Skeleton } from '../../components/ui/skeleton';
 import UserTable from '../../components/admin/tables/UserTable';
@@ -51,12 +51,14 @@ const RecentUserSkeleton = () => (
 // ─── Main Component ───────────────────────────────────────────────────────────
 const UserManagement = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const searchTerm = searchParams.get('search') || '';
+  const selectedRole = searchParams.get('role') || 'all';
+
   const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({ limit: 10, total: 0, totalPages: 0 });
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRole, setSelectedRole] = useState('all');
   const [stats, setStats] = useState({ totalUsers: 0, totalTeachers: 0, totalAdmins: 0, totalActive: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
   const [recentUsers, setRecentUsers] = useState([]);
@@ -121,15 +123,39 @@ const UserManagement = () => {
   }, [currentPage, searchTerm, selectedRole]);
 
   const handleSearch = useCallback((q) => {
-    if (q !== searchTerm) { setSearchTerm(q); setCurrentPage(1); }
-  }, [searchTerm]);
+    const params = new URLSearchParams(searchParams);
+    const currentSearch = searchParams.get('search') || '';
+    if (q === currentSearch) return;
+    if (q) {
+      params.set('search', q);
+    } else {
+      params.delete('search');
+    }
+    params.set('page', '1');
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
 
-  const handleRoleFilter = useCallback((role) => { setSelectedRole(role); setCurrentPage(1); }, []);
+  const handleRoleFilter = useCallback((role) => {
+    const params = new URLSearchParams(searchParams);
+    const currentRole = searchParams.get('role') || 'all';
+    if (role === currentRole) return;
+    if (role && role !== 'all') {
+      params.set('role', role);
+    } else {
+      params.delete('role');
+    }
+    params.set('page', '1');
+    setSearchParams(params);
+  }, [searchParams, setSearchParams]);
 
   const handlePageChange = useCallback((newPage) => {
     if (newPage < 1 || newPage > pagination.totalPages) return;
-    if (newPage !== currentPage) setCurrentPage(newPage);
-  }, [currentPage, pagination.totalPages]);
+    const params = new URLSearchParams(searchParams);
+    const currentPageStr = searchParams.get('page') || '1';
+    if (newPage.toString() === currentPageStr) return;
+    params.set('page', newPage.toString());
+    setSearchParams(params);
+  }, [searchParams, setSearchParams, pagination.totalPages]);
 
   const handleViewUserDetail = useCallback((userName) => { goToUserSite(`/profile/${userName}`, true); }, []);
 
@@ -336,8 +362,8 @@ const UserManagement = () => {
                       </p>
                       <p className="text-[10px] text-gray-400 dark:text-slate-500 truncate w-full text-center mb-2">@{user.userName}</p>
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${user.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300'
-                          : user.role === 'teacher' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
-                            : 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
+                        : user.role === 'teacher' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                          : 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300'
                         }`}>
                         {user.role === 'admin' ? 'Admin' : user.role === 'teacher' ? 'Giáo viên' : 'User'}
                       </span>
@@ -364,7 +390,7 @@ const UserManagement = () => {
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-72">
-                  <SearchBar onSearch={handleSearch} />
+                  <SearchBar onSearch={handleSearch} initialValue={searchTerm} />
                 </div>
               </div>
             </div>
@@ -380,8 +406,8 @@ const UserManagement = () => {
                     <button key={filter.key} onClick={() => handleRoleFilter(filter.key)}
                       disabled={statsLoading}
                       className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${isActive
-                          ? `bg-gradient-to-r ${filter.activeGrad} text-white shadow-md`
-                          : 'bg-slate-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
+                        ? `bg-gradient-to-r ${filter.activeGrad} text-white shadow-md`
+                        : 'bg-slate-100 dark:bg-slate-700 text-gray-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                         } ${statsLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
                       <Icon className="w-3.5 h-3.5" />
                       {filter.label}

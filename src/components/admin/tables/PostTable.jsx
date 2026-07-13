@@ -34,8 +34,8 @@ const PostTable = ({
   if (loading) {
     return (
       <div className="border dark:border-slate-700 rounded-lg overflow-hidden">
-        <TableSkeleton rows={10} columns={8} showHeader={true}
-          headerLabels={['Tiêu đề', 'Tác giả', 'Lượt xem', 'Lượt thích', 'Bình luận', 'Trạng thái', 'Ngày tạo', 'Hành động']} />
+        <TableSkeleton rows={10} columns={7} showHeader={true}
+          headerLabels={['Tiêu đề', 'Tác giả', 'Lượt thích', 'Bình luận', 'Trạng thái', 'Ngày tạo', 'Hành động']} />
       </div>
     );
   }
@@ -70,7 +70,6 @@ const PostTable = ({
           <TableRow className="bg-gray-50 dark:bg-slate-700/50">
             <TableHead className="font-semibold dark:text-slate-300">Tiêu đề</TableHead>
             <TableHead className="font-semibold dark:text-slate-300">Tác giả</TableHead>
-            <TableHead className="font-semibold dark:text-slate-300">Lượt xem</TableHead>
             <TableHead className="font-semibold dark:text-slate-300">Lượt thích</TableHead>
             <TableHead className="font-semibold dark:text-slate-300">Bình luận</TableHead>
             <TableHead className="font-semibold dark:text-slate-300">Trạng thái</TableHead>
@@ -89,7 +88,6 @@ const PostTable = ({
                   <span>{post.author?.userName || 'N/A'}</span>
                 </div>
               </TableCell>
-              <TableCell>{post.viewsCount || 0}</TableCell>
               <TableCell>{post.likesCount || 0}</TableCell>
               <TableCell>{post.commentsCount || 0}</TableCell>
               <TableCell>
